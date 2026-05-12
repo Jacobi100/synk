@@ -223,8 +223,9 @@ export async function assessTransaction(
     riskFactors,
     explanation,
     confidence,
-    layer1Score:  layer1.score,
+    layer1Score:         layer1.score,
     layer2Score,
-    signals:      layer1.signals,
+    geminiContribution:  geminiContribution > 0 ? geminiContribution : null,
+    signals:             layer1.signals,
   };
 }
