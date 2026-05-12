@@ -34,6 +34,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [locating, setLocating] = useState(false);
 
   const [formData, setFormData] = useState<CreateBountyInput>({
     title: bounty?.title || "",
@@ -74,6 +75,42 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       ...prev,
       [name]: value ? parseFloat(value) : null,
     }));
+  };
+
+  const handleUseMyLocation = () => {
+    if (!navigator.geolocation) {
+      setError("Geolocation is not supported by your browser.");
+      return;
+    }
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (position) => {
+        const { latitude, longitude } = position.coords;
+        let location_name = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
+
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?lat=${latitude}&lon=${longitude}&format=json`,
+            { headers: { "Accept-Language": "en" } },
+          );
+          if (res.ok) {
+            const data = await res.json();
+            const { city, town, village, suburb, state, country } = data.address ?? {};
+            const locality = city || town || village || suburb;
+            location_name = [locality, state, country].filter(Boolean).join(", ");
+          }
+        } catch {
+          // fall back to raw coordinates already set above
+        }
+
+        setFormData((prev) => ({ ...prev, latitude, longitude, location_name }));
+        setLocating(false);
+      },
+      () => {
+        setError("Unable to retrieve your location. Please check your browser permissions.");
+        setLocating(false);
+      },
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -176,14 +213,35 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
             <MapPin className="inline w-4 h-4 mr-1" />
             Location Name
           </label>
-          <input
-            type="text"
-            name="location_name"
-            value={formData.location_name || ""}
-            onChange={handleChange}
-            placeholder="e.g., Yaba, Lagos"
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-          />
+          <div className="flex gap-2">
+            <input
+              type="text"
+              name="location_name"
+              value={formData.location_name || ""}
+              onChange={handleChange}
+              placeholder="e.g., Yaba, Lagos"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            />
+            <button
+              type="button"
+              onClick={handleUseMyLocation}
+              disabled={locating}
+              title="Use my location"
+              className="shrink-0 flex items-center gap-1 px-3 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+            >
+              {locating ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <MapPin className="w-4 h-4" />
+              )}
+              {locating ? "Locating…" : "Use mine"}
+            </button>
+          </div>
+          {(formData.latitude !== null && formData.longitude !== null) && (
+            <p className="mt-1 text-xs text-gray-500">
+              {formData.latitude.toFixed(5)}, {formData.longitude.toFixed(5)}
+            </p>
+          )}
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-900 mb-2">
