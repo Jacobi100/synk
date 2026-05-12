@@ -12,6 +12,7 @@ const RequestSchema = z.object({
   providerId:               z.string().min(1),
   amount:                   z.number().positive(),
   serviceDescription:       z.string().min(1),
+  category:                 z.string().min(1),
   timeElapsedMinutes:       z.number().nonnegative(),
   previousTransactionCount: z.number().int().nonnegative(),
 });
