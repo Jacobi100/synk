@@ -68,6 +68,7 @@ export interface TransactionContext {
   providerId:               string;
   amount:                   number;
   serviceDescription:       string;
+  category:                 string;
   timeElapsedMinutes:       number;
   previousTransactionCount: number;
 }
