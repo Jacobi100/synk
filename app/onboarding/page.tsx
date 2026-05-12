@@ -118,7 +118,7 @@ const OnboardingPage = () => {
       return;
     }
 
-    router.push("/dashboard");
+    router.push("/");
   };
 
   if (!isLoaded) {
