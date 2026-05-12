@@ -30,7 +30,7 @@ function AvatarPlaceholder({ name }: { name?: string | null }) {
 
   return (
     <div className="relative mx-auto mb-6 size-20">
-      <div className="flex size-20 items-center justify-center rounded-full bg-gradient-to-br from-violet-500 to-indigo-600 text-xl font-semibold text-white shadow-lg ring-4 ring-white">
+      <div className="flex size-20 items-center justify-center rounded-full bg-linear-to-br from-violet-500 to-indigo-600 text-xl font-semibold text-white shadow-lg ring-4 ring-white">
         {initials}
       </div>
       <span className="absolute bottom-0.5 right-0.5 flex size-5 items-center justify-center rounded-full bg-emerald-500 ring-2 ring-white">
@@ -133,7 +133,7 @@ const OnboardingPage = () => {
     user?.fullName || user?.firstName || user?.emailAddresses?.[0]?.emailAddress;
 
   return (
-    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-gradient-to-br from-slate-50 via-violet-50 to-indigo-50 px-4 py-12">
+    <main className="relative flex min-h-screen items-center justify-center overflow-hidden bg-linear-to-br from-slate-50 via-violet-50 to-indigo-50 px-4 py-12">
       {/* Background decoration */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         <div className="absolute -left-40 -top-40 size-96 rounded-full bg-violet-200/40 blur-3xl" />
@@ -144,7 +144,7 @@ const OnboardingPage = () => {
         {/* Logo */}
         <div className="mb-8 flex justify-center">
           <div className="flex items-center gap-2 rounded-xl bg-white/80 px-4 py-2.5 shadow-sm ring-1 ring-black/5 backdrop-blur-sm">
-            <div className="flex size-7 items-center justify-center rounded-lg bg-gradient-to-br from-violet-600 to-indigo-600">
+            <div className="flex size-7 items-center justify-center rounded-lg bg-linear-to-br from-violet-600 to-indigo-600">
               <Zap className="size-4 text-white" strokeWidth={2.5} />
             </div>
             <span className="text-lg font-bold tracking-tight text-foreground">
@@ -236,7 +236,7 @@ const OnboardingPage = () => {
               type="submit"
               disabled={loading}
               size="lg"
-              className="mt-2 w-full gap-2 bg-gradient-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-700 hover:to-indigo-700"
+              className="mt-2 w-full gap-2 bg-linear-to-r from-violet-600 to-indigo-600 text-white hover:from-violet-700 hover:to-indigo-700"
             >
               {loading ? (
                 <>
