@@ -82,7 +82,6 @@ export function BountyCard({ bounty }: BountyCardProps) {
             </div>
           )}
           <div className="flex items-center text-sm font-semibold text-gray-900">
-            <DollarSign className="w-4 h-4 mr-2" />
             {priceDisplay()}
           </div>
         </div>
