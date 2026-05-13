@@ -2,6 +2,7 @@ import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import {
   getApplicationsForProvider,
+  getApplicationsForPoster,
   getProfileUUID,
 } from '@/lib/bounty';
 
@@ -27,8 +28,12 @@ export async function GET(request: NextRequest) {
 
     const searchParams = request.nextUrl.searchParams;
     const status = searchParams.get('status');
+    const role = searchParams.get('role') || 'provider';
 
-    let applications = await getApplicationsForProvider(profileUUID);
+    let applications =
+      role === 'poster'
+        ? await getApplicationsForPoster(profileUUID)
+        : await getApplicationsForProvider(profileUUID);
 
     if (status) {
       applications = applications.filter((app) => app.status === status);

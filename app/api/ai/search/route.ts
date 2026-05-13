@@ -185,7 +185,7 @@ export async function POST(
     return NextResponse.json(
       {
         error:   "Invalid request body.",
-        details: parsed.error.errors.map((e) => e.message).join("; "),
+        details: parsed.error.issues.map((e) => e.message).join("; "),
       },
       { status: 400 }
     );

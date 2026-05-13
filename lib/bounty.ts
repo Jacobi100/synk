@@ -1,45 +1,74 @@
-import { Bounty, CreateBountyInput, BountyFilters, BountyApplication, ProviderProfile, SquadVirtualAccount, PaymentRecord } from '@/lib/types/bounty';
-import { supabase } from './supabase/client';
+import {
+  Bounty,
+  CreateBountyInput,
+  BountyFilters,
+  BountyApplication,
+  ProviderProfile,
+  TransactionRow,
+} from "@/lib/types/bounty";
+import { supabaseAdmin } from "./supabase/server";
+import { haversineDistanceMeters } from "./geo";
 
-// Helper: Get profile UUID from Clerk ID
-export async function getProfileUUID(clerkId: string): Promise<string | null> {
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('id')
-    .eq('clerk_id', clerkId)
-    .single();
+const db = supabaseAdmin;
 
-  if (error) {
-    console.error('Error getting profile:', error);
-    return null;
+/** Supabase projects may use `applications` (current) or legacy `bounty_applications`. */
+let resolvedApplicationsTable: "applications" | "bounty_applications" | null = null;
+
+async function applicationsTable(): Promise<"applications" | "bounty_applications"> {
+  if (resolvedApplicationsTable) return resolvedApplicationsTable;
+  const primary = await db.from("applications").select("id").limit(1);
+  if (!primary.error) {
+    resolvedApplicationsTable = "applications";
+    return resolvedApplicationsTable;
   }
-
-  return data?.id || null;
+  const legacy = await db.from("bounty_applications").select("id").limit(1);
+  if (!legacy.error) {
+    resolvedApplicationsTable = "bounty_applications";
+    return resolvedApplicationsTable;
+  }
+  console.warn(
+    "applications table probe failed; using applications. Primary:",
+    primary.error,
+    "Legacy:",
+    legacy.error,
+  );
+  resolvedApplicationsTable = "applications";
+  return resolvedApplicationsTable;
 }
 
-export async function createBounty(
-  userId: string,
-  data: CreateBountyInput
-): Promise<Bounty | null> {
-  // Get the UUID from profiles table using clerk_id
-  const profileUUID = await getProfileUUID(userId);
+function maskProfilePhone<T extends ProviderProfile | null>(profile: T, reveal: boolean): T {
+  if (!profile || reveal) return profile;
+  return { ...profile, phone_number: null };
+}
 
+export async function getProfileUUID(clerkId: string): Promise<string | null> {
+  const { data, error } = await db.from("profiles").select("id").eq("clerk_id", clerkId).single();
+  if (error) {
+    console.error("Error getting profile:", error);
+    return null;
+  }
+  return data?.id ?? null;
+}
+
+export async function createBounty(userId: string, data: CreateBountyInput): Promise<Bounty | null> {
+  const profileUUID = await getProfileUUID(userId);
   if (!profileUUID) {
-    console.error('Profile not found for user:', userId);
+    console.error("Profile not found for user:", userId);
     return null;
   }
 
-  const { data: bounty, error } = await supabase
-    .from('bounties')
+  const { data: bounty, error } = await db
+    .from("bounties")
     .insert({
       poster_id: profileUUID,
       ...data,
+      status: "open",
     })
     .select()
     .single();
 
   if (error) {
-    console.error('Error creating bounty:', error);
+    console.error("Error creating bounty:", error);
     return null;
   }
 
@@ -47,446 +76,462 @@ export async function createBounty(
 }
 
 export async function getBounties(filters?: BountyFilters): Promise<Bounty[]> {
-  let query = supabase.from('bounties').select('*');
+  let query = db.from("bounties").select("*");
 
-  if (filters?.status) {
-    query = query.eq('status', filters.status);
-  }
-
-  if (filters?.category) {
-    query = query.eq('category', filters.category);
-  }
-
-  if (filters?.urgency) {
-    query = query.eq('urgency', filters.urgency);
-  }
-
-  if (filters?.min_price !== undefined) {
-    query = query.gte('price_max', filters.min_price);
-  }
-
-  if (filters?.max_price !== undefined) {
-    query = query.lte('price_min', filters.max_price);
-  }
-
+  if (filters?.status) query = query.eq("status", filters.status);
+  if (filters?.category) query = query.eq("category", filters.category);
+  if (filters?.urgency) query = query.eq("urgency", filters.urgency);
+  if (filters?.min_price !== undefined) query = query.gte("price_max", filters.min_price);
+  if (filters?.max_price !== undefined) query = query.lte("price_min", filters.max_price);
   if (filters?.search) {
     query = query.or(
-      `title.ilike.%${filters.search}%,description.ilike.%${filters.search}%,location_name.ilike.%${filters.search}%`
+      `title.ilike.%${filters.search}%,description.ilike.%${filters.search}%,location_name.ilike.%${filters.search}%`,
     );
   }
 
-  query = query.order('created_at', { ascending: false });
-
-  if (filters?.limit) {
-    query = query.limit(filters.limit);
-  }
-
-  if (filters?.offset) {
-    query = query.range(filters.offset, (filters.offset + (filters.limit || 10)) - 1);
-  }
+  query = query.order("created_at", { ascending: false });
+  if (filters?.limit) query = query.limit(filters.limit);
+  if (filters?.offset) query = query.range(filters.offset, filters.offset + (filters.limit || 10) - 1);
 
   const { data, error } = await query;
-
   if (error) {
-    console.error('Error fetching bounties:', error);
+    console.error("Error fetching bounties:", error);
     return [];
   }
-
   return (data || []) as Bounty[];
 }
 
-export async function getBountyById(id: string): Promise<Bounty | null> {
-  const { data, error } = await supabase
-    .from('bounties')
-    .select('*')
-    .eq('id', id)
-    .single();
+/** All open bounties, no location filtering. */
+export async function fetchAllOpenBounties(): Promise<Bounty[]> {
+  const { data, error } = await db
+    .from("bounties")
+    .select("*")
+    .eq("status", "open")
+    .order("created_at", { ascending: false })
+    .limit(250);
 
-  if (error) {
-    console.error('Error fetching bounty:', error);
-    return null;
+  if (error || !data) {
+    console.error("Error fetching all open bounties:", error);
+    return [];
   }
 
+  return data as Bounty[];
+}
+
+/** Nearby open bounties: RPC when migration applied, else haversine fallback. */
+export async function fetchNearbyOpenBounties(userLat: number, userLng: number): Promise<Bounty[]> {
+  const { data, error } = await db.rpc("nearby_open_bounties", {
+    p_lat: userLat,
+    p_lng: userLng,
+  });
+
+  if (!error && data && Array.isArray(data)) {
+    return data as Bounty[];
+  }
+
+  const { data: openRows, error: e2 } = await db
+    .from("bounties")
+    .select("*")
+    .eq("status", "open")
+    .order("created_at", { ascending: false })
+    .limit(250);
+
+  if (e2 || !openRows) {
+    console.error("nearby_open_bounties RPC unavailable; fallback query failed:", error, e2);
+    return [];
+  }
+
+  return (openRows as Bounty[]).filter((b) => {
+    const rKm = Number(b.radius_km) || 1;
+    const d = haversineDistanceMeters(userLat, userLng, Number(b.latitude), Number(b.longitude));
+    return d < rKm * 1000;
+  });
+}
+
+export async function getBountyById(id: string): Promise<Bounty | null> {
+  const { data, error } = await db.from("bounties").select("*").eq("id", id).single();
+  if (error) {
+    console.error("Error fetching bounty:", error);
+    return null;
+  }
   return data as Bounty;
 }
 
 export async function updateBounty(
   id: string,
   userId: string,
-  data: Partial<CreateBountyInput>
+  data: Partial<CreateBountyInput> & Partial<Pick<Bounty, "status">>,
 ): Promise<Bounty | null> {
-  // Get the UUID from profiles table using clerk_id
   const profileUUID = await getProfileUUID(userId);
+  if (!profileUUID) return null;
 
-  if (!profileUUID) {
-    console.error('Profile not found for user:', userId);
-    return null;
-  }
-
-  // Verify ownership
   const bounty = await getBountyById(id);
-  if (!bounty || bounty.poster_id !== profileUUID) {
-    console.error('Unauthorized to update bounty');
-    return null;
-  }
+  if (!bounty || bounty.poster_id !== profileUUID) return null;
 
-  const { data: updated, error } = await supabase
-    .from('bounties')
+  const { data: updated, error } = await db
+    .from("bounties")
     .update({
       ...data,
       updated_at: new Date().toISOString(),
     })
-    .eq('id', id)
+    .eq("id", id)
     .select()
     .single();
 
   if (error) {
-    console.error('Error updating bounty:', error);
+    console.error("Error updating bounty:", error);
     return null;
   }
-
   return updated as Bounty;
 }
 
 export async function deleteBounty(id: string, userId: string): Promise<boolean> {
-  // Get the UUID from profiles table using clerk_id
   const profileUUID = await getProfileUUID(userId);
+  if (!profileUUID) return false;
 
-  if (!profileUUID) {
-    console.error('Profile not found for user:', userId);
-    return false;
-  }
-
-  // Verify ownership
   const bounty = await getBountyById(id);
-  if (!bounty || bounty.poster_id !== profileUUID) {
-    console.error('Unauthorized to delete bounty');
-    return false;
-  }
+  if (!bounty || bounty.poster_id !== profileUUID) return false;
 
-  const { error } = await supabase.from('bounties').delete().eq('id', id);
-
+  const { error } = await db.from("bounties").delete().eq("id", id);
   if (error) {
-    console.error('Error deleting bounty:', error);
+    console.error("Error deleting bounty:", error);
     return false;
   }
-
   return true;
 }
 
 export async function getBountiesByUserId(userId: string): Promise<Bounty[]> {
-  // Get the UUID from profiles table using clerk_id
   const profileUUID = await getProfileUUID(userId);
+  if (!profileUUID) return [];
 
-  if (!profileUUID) {
-    console.error('Profile not found for user:', userId);
-    return [];
-  }
+  return getBountiesByPosterProfileId(profileUUID);
+}
 
-  const { data, error } = await supabase
-    .from('bounties')
-    .select('*')
-    .eq('poster_id', profileUUID)
-    .order('created_at', { ascending: false });
+export async function getBountiesByPosterProfileId(posterProfileId: string): Promise<Bounty[]> {
+  const { data, error } = await db
+    .from("bounties")
+    .select("*")
+    .eq("poster_id", posterProfileId)
+    .order("created_at", { ascending: false });
 
   if (error) {
-    console.error('Error fetching user bounties:', error);
+    console.error("Error fetching poster bounties:", error);
     return [];
   }
-
   return (data || []) as Bounty[];
 }
 
-// ==================== APPLICATION FUNCTIONS ====================
+// --- Applications (resolved to `applications` or legacy `bounty_applications`) ---
 
 export async function getProviderProfile(userId: string): Promise<ProviderProfile | null> {
   const profileUUID = await getProfileUUID(userId);
   if (!profileUUID) return null;
 
-  const { data, error } = await supabase
-    .from('profiles')
-    .select('*')
-    .eq('id', profileUUID)
-    .single();
-
+  const { data, error } = await db.from("profiles").select("*").eq("id", profileUUID).single();
   if (error) {
-    console.error('Error fetching provider profile:', error);
+    console.error("Error fetching provider profile:", error);
     return null;
   }
-
   return data as ProviderProfile;
 }
 
-export async function checkApplicationExists(
-  bountyId: string,
-  providerId: string
-): Promise<boolean> {
-  const { data, error } = await supabase
-    .from('bounty_applications')
-    .select('id')
-    .eq('bounty_id', bountyId)
-    .eq('provider_id', providerId)
-    .single();
-
-  if (error && error.code !== 'PGRST116') {
-    // PGRST116 = no rows found
-    console.error('Error checking application:', error);
+export async function getProfileById(profileId: string): Promise<ProviderProfile | null> {
+  const { data, error } = await db.from("profiles").select("*").eq("id", profileId).single();
+  if (error) {
+    console.error("Error fetching profile by ID:", error);
+    return null;
   }
+  return data as ProviderProfile;
+}
 
+export async function checkApplicationExists(bountyId: string, providerId: string): Promise<boolean> {
+  const t = await applicationsTable();
+  const { data, error } = await db
+    .from(t)
+    .select("id")
+    .eq("bounty_id", bountyId)
+    .eq("provider_id", providerId)
+    .maybeSingle();
+
+  if (error && error.code !== "PGRST116") console.error("Error checking application:", error);
   return !!data;
 }
 
 export async function createApplication(
   bountyId: string,
-  providerId: string
+  providerId: string,
 ): Promise<BountyApplication | null> {
-  const { data, error } = await supabase
-    .from('bounty_applications')
+  const t = await applicationsTable();
+  const { data, error } = await db
+    .from(t)
     .insert({
       bounty_id: bountyId,
       provider_id: providerId,
-      status: 'pending',
+      status: "pending",
     })
     .select()
     .single();
 
   if (error) {
-    console.error('Error creating application:', error);
+    console.error("Error creating application:", error);
     return null;
   }
-
   return data as BountyApplication;
 }
 
 export async function getApplicationsByBountyId(bountyId: string): Promise<BountyApplication[]> {
-  const { data, error } = await supabase
-    .from('bounty_applications')
-    .select('*')
-    .eq('bounty_id', bountyId)
-    .order('created_at', { ascending: false });
+  const t = await applicationsTable();
+  const { data, error } = await db
+    .from(t)
+    .select("*")
+    .eq("bounty_id", bountyId)
+    .order("created_at", { ascending: false });
 
   if (error) {
-    console.error('Error fetching applications:', error);
+    console.error("Error fetching applications:", error);
     return [];
   }
-
   return (data || []) as BountyApplication[];
 }
 
-export async function getApplicationsForProvider(providerId: string): Promise<BountyApplication[]> {
-  const { data, error } = await supabase
-    .from('bounty_applications')
-    .select('*')
-    .eq('provider_id', providerId)
-    .order('created_at', { ascending: false });
+export async function getApplicationsByBountyIdWithProvider(
+  bountyId: string,
+): Promise<(BountyApplication & { provider_profile?: ProviderProfile | null })[]> {
+  const applications = await getApplicationsByBountyId(bountyId);
+  return Promise.all(
+    applications.map(async (application) => {
+      const raw = await getProfileById(application.provider_id);
+      return {
+        ...application,
+        provider_profile: maskProfilePhone(raw, application.status === "accepted"),
+      };
+    }),
+  );
+}
+
+export async function getApplicationsForProvider(
+  providerProfileId: string,
+): Promise<(BountyApplication & { bounty?: Bounty | null; poster_phone?: string | null })[]> {
+  const t = await applicationsTable();
+  const { data, error } = await db
+    .from(t)
+    .select("*")
+    .eq("provider_id", providerProfileId)
+    .order("created_at", { ascending: false });
 
   if (error) {
-    console.error('Error fetching provider applications:', error);
+    console.error("Error fetching provider applications:", error);
     return [];
   }
 
-  return (data || []) as BountyApplication[];
+  const applications = (data || []) as BountyApplication[];
+  return Promise.all(
+    applications.map(async (application) => {
+      const bounty = await getBountyById(application.bounty_id);
+      let poster_phone: string | null | undefined;
+      if (application.status === "accepted" && bounty) {
+        const poster = await getProfileById(bounty.poster_id);
+        poster_phone = poster?.phone_number ?? null;
+      }
+      return {
+        ...application,
+        bounty,
+        poster_phone: poster_phone ?? null,
+      };
+    }),
+  );
+}
+
+export async function getApplicationsForPoster(
+  posterProfileId: string,
+): Promise<(BountyApplication & { bounty?: Bounty; provider_profile?: ProviderProfile | null })[]> {
+  const bounties = await getBountiesByPosterProfileId(posterProfileId);
+  const bountyIds = bounties.map((b) => b.id);
+  if (bountyIds.length === 0) return [];
+
+  const t = await applicationsTable();
+  const { data, error } = await db
+    .from(t)
+    .select("*")
+    .in("bounty_id", bountyIds)
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching poster applications:", error);
+    return [];
+  }
+
+  const applications = (data || []) as BountyApplication[];
+  return Promise.all(
+    applications.map(async (application) => {
+      const raw = await getProfileById(application.provider_id);
+      return {
+        ...application,
+        bounty: bounties.find((b) => b.id === application.bounty_id),
+        provider_profile: maskProfilePhone(raw, application.status === "accepted"),
+      };
+    }),
+  );
 }
 
 export async function getApplicationById(applicationId: string): Promise<BountyApplication | null> {
-  const { data, error } = await supabase
-    .from('bounty_applications')
-    .select('*')
-    .eq('id', applicationId)
-    .single();
-
+  const t = await applicationsTable();
+  const { data, error } = await db.from(t).select("*").eq("id", applicationId).single();
   if (error) {
-    console.error('Error fetching application:', error);
+    console.error("Error fetching application:", error);
     return null;
   }
-
   return data as BountyApplication;
 }
 
 export async function updateApplicationStatus(
   applicationId: string,
-  status: 'accepted' | 'rejected',
-  rejectionReason?: string
+  status: BountyApplication["status"],
 ): Promise<BountyApplication | null> {
-  const updateData: any = {
-    status,
-    updated_at: new Date().toISOString(),
-  };
-
-  if (rejectionReason) {
-    updateData.rejection_reason = rejectionReason;
-  }
-
-  const { data, error } = await supabase
-    .from('bounty_applications')
-    .update(updateData)
-    .eq('id', applicationId)
+  const t = await applicationsTable();
+  const { data, error } = await db
+    .from(t)
+    .update({ status })
+    .eq("id", applicationId)
     .select()
     .single();
 
   if (error) {
-    console.error('Error updating application:', error);
+    console.error("Error updating application:", error);
     return null;
   }
-
   return data as BountyApplication;
 }
 
-export async function rejectOtherApplications(
-  bountyId: string,
-  acceptedApplicationId: string
-): Promise<boolean> {
-  const { error } = await supabase
-    .from('bounty_applications')
-    .update({
-      status: 'rejected',
-      rejection_reason: 'Another application was accepted',
-      updated_at: new Date().toISOString(),
-    })
-    .eq('bounty_id', bountyId)
-    .neq('id', acceptedApplicationId)
-    .eq('status', 'pending');
+export async function rejectOtherApplications(bountyId: string, acceptedApplicationId: string): Promise<boolean> {
+  const t = await applicationsTable();
+  const { error } = await db
+    .from(t)
+    .update({ status: "rejected" })
+    .eq("bounty_id", bountyId)
+    .neq("id", acceptedApplicationId)
+    .eq("status", "pending");
 
   if (error) {
-    console.error('Error rejecting other applications:', error);
+    console.error("Error rejecting other applications:", error);
     return false;
   }
-
   return true;
 }
 
-export async function createSquadVirtualAccount(
-  bountyId: string,
-  providerId: string,
-  squadAccountId: string,
-  amount: number
-): Promise<SquadVirtualAccount | null> {
-  const { data, error } = await supabase
-    .from('squad_virtual_accounts')
+export async function getAcceptedApplicationForBounty(bountyId: string): Promise<BountyApplication | null> {
+  const t = await applicationsTable();
+  const { data, error } = await db
+    .from(t)
+    .select("*")
+    .eq("bounty_id", bountyId)
+    .eq("status", "accepted")
+    .maybeSingle();
+
+  if (error) {
+    console.error("Error fetching accepted application:", error);
+    return null;
+  }
+  return data as BountyApplication | null;
+}
+
+// --- Transactions ---
+
+export async function getTransactionByBountyId(bountyId: string): Promise<TransactionRow | null> {
+  const { data, error } = await db
+    .from("transactions")
+    .select("*")
+    .eq("bounty_id", bountyId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error && error.code !== "PGRST116") console.error("getTransactionByBountyId:", error);
+  return data as TransactionRow | null;
+}
+
+export async function getTransactionByVirtualAccountRef(ref: string): Promise<TransactionRow | null> {
+  const { data, error } = await db
+    .from("transactions")
+    .select("*")
+    .eq("squad_virtual_account_ref", ref)
+    .maybeSingle();
+
+  if (error && error.code !== "PGRST116") console.error("getTransactionByVirtualAccountRef:", error);
+  return data as TransactionRow | null;
+}
+
+export async function createTransactionRow(input: {
+  bounty_id: string;
+  poster_id: string;
+  provider_id: string;
+  squad_virtual_account_ref: string | null;
+  amount: number;
+  platform_fee: number;
+  provider_payout: number;
+}): Promise<TransactionRow | null> {
+  const { data, error } = await db
+    .from("transactions")
     .insert({
-      bounty_id: bountyId,
-      provider_id: providerId,
-      squad_account_id: squadAccountId,
-      amount,
-      status: 'pending',
+      bounty_id: input.bounty_id,
+      poster_id: input.poster_id,
+      provider_id: input.provider_id,
+      squad_virtual_account_ref: input.squad_virtual_account_ref,
+      amount: input.amount,
+      platform_fee: input.platform_fee,
+      provider_payout: input.provider_payout,
+      status: "awaiting_payment",
     })
     .select()
     .single();
 
   if (error) {
-    console.error('Error creating squad virtual account:', error);
+    console.error("createTransactionRow:", error);
     return null;
   }
-
-  return data as SquadVirtualAccount;
+  return data as TransactionRow;
 }
 
-export async function getSquadAccountByBountyId(
-  bountyId: string
-): Promise<SquadVirtualAccount | null> {
-  const { data, error } = await supabase
-    .from('squad_virtual_accounts')
-    .select('*')
-    .eq('bounty_id', bountyId)
-    .single();
-
-  if (error && error.code !== 'PGRST116') {
-    console.error('Error fetching squad account:', error);
-  }
-
-  return data as SquadVirtualAccount | null;
-}
-
-export async function updateSquadAccountStatus(
-  squadAccountId: string,
-  status: 'paid' | 'released' | 'disputed',
-  paymentId?: string
-): Promise<SquadVirtualAccount | null> {
-  const updateData: any = {
-    status,
-    updated_at: new Date().toISOString(),
-  };
-
-  if (paymentId) {
-    updateData.payment_id = paymentId;
-  }
-
-  const { data, error } = await supabase
-    .from('squad_virtual_accounts')
-    .update(updateData)
-    .eq('id', squadAccountId)
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error updating squad account status:', error);
-    return null;
-  }
-
-  return data as SquadVirtualAccount;
-}
-
-export async function createPaymentRecord(
-  bountyId: string,
-  squadAccountId: string,
-  squadReference: string,
-  amount: number
-): Promise<PaymentRecord | null> {
-  const { data, error } = await supabase
-    .from('payment_records')
-    .insert({
-      bounty_id: bountyId,
-      squad_account_id: squadAccountId,
-      squad_reference: squadReference,
-      amount,
-      status: 'pending',
-    })
-    .select()
-    .single();
-
-  if (error) {
-    console.error('Error creating payment record:', error);
-    return null;
-  }
-
-  return data as PaymentRecord;
-}
-
-export async function updatePaymentStatus(
-  squadReference: string,
-  status: 'confirmed' | 'failed'
-): Promise<PaymentRecord | null> {
-  const { data, error } = await supabase
-    .from('payment_records')
+export async function updateTransactionPaid(
+  transactionId: string,
+  squad_transaction_ref?: string | null,
+): Promise<TransactionRow | null> {
+  const { data, error } = await db
+    .from("transactions")
     .update({
-      status,
-      updated_at: new Date().toISOString(),
+      status: "paid",
+      paid_at: new Date().toISOString(),
+      squad_transaction_ref: squad_transaction_ref ?? null,
     })
-    .eq('squad_reference', squadReference)
+    .eq("id", transactionId)
     .select()
     .single();
 
   if (error) {
-    console.error('Error updating payment status:', error);
+    console.error("updateTransactionPaid:", error);
     return null;
   }
-
-  return data as PaymentRecord;
+  return data as TransactionRow;
 }
 
-export async function getPaymentByReference(
-  squadReference: string
-): Promise<PaymentRecord | null> {
-  const { data, error } = await supabase
-    .from('payment_records')
-    .select('*')
-    .eq('squad_reference', squadReference)
+export async function updateTransactionReleased(
+  transactionId: string,
+  squad_transfer_ref: string | null,
+): Promise<TransactionRow | null> {
+  const { data, error } = await db
+    .from("transactions")
+    .update({
+      status: "released",
+      released_at: new Date().toISOString(),
+      squad_transfer_ref,
+    })
+    .eq("id", transactionId)
+    .select()
     .single();
 
   if (error) {
-    console.error('Error fetching payment record:', error);
+    console.error("updateTransactionReleased:", error);
     return null;
   }
-
-  return data as PaymentRecord;
+  return data as TransactionRow;
 }

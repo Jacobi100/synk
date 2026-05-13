@@ -211,14 +211,6 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                   </span>
                 </div>
 
-                {app.rejection_reason && (
-                  <div className="bg-red-50 border border-red-200 rounded p-3 mb-4">
-                    <p className="text-sm text-red-800">
-                      <strong>Rejection reason:</strong> {app.rejection_reason}
-                    </p>
-                  </div>
-                )}
-
                 {app.status === "pending" && (
                   <div className="flex gap-3">
                     <Button

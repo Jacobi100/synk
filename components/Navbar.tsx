@@ -5,6 +5,7 @@ import { Show, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { Menu, X } from "lucide-react";
 import { useState } from "react";
+import { NotificationBell } from "@/components/NotificationBell";
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -12,49 +13,41 @@ export function Navbar() {
   return (
     <nav className="sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur-md">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-16">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 group">
-            <div className="w-8 h-8 rounded-lg bg-linear-to-br from-blue-600 to-blue-700 flex items-center justify-center">
-              <span className="text-white font-bold text-lg">S</span>
+        <div className="flex h-16 items-center justify-between">
+          <Link href="/" className="group flex items-center gap-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-linear-to-br from-blue-600 to-blue-700">
+              <span className="text-lg font-bold text-white">S</span>
             </div>
-            <span className="font-bold text-xl text-gray-900 hidden sm:inline">
-              Synk
-            </span>
+            <span className="hidden text-xl font-bold text-gray-900 sm:inline">Synk</span>
           </Link>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden items-center gap-8 md:flex">
             <Show when="signed-in">
-              <Link
-                href="/bounty/browse"
-                className="text-gray-600 hover:text-gray-900 font-medium transition"
-              >
-                Browse
+              <Link href="/dashboard" className="font-medium text-gray-600 transition hover:text-gray-900">
+                Feed
               </Link>
-              <Link
-                href="/applications"
-                className="text-gray-600 hover:text-gray-900 font-medium transition"
-              >
-                My Applications
+              <Link href="/applications" className="font-medium text-gray-600 transition hover:text-gray-900">
+                Applications
+              </Link>
+              <Link href="/my-postings" className="font-medium text-gray-600 transition hover:text-gray-900">
+                My postings
+              </Link>
+              <Link href="/bounties/create" className="font-medium text-gray-600 transition hover:text-gray-900">
+                Post bounty
+              </Link>
+              <Link href="/profile" className="font-medium text-gray-600 transition hover:text-gray-900">
+                Profile
               </Link>
             </Show>
-            <Link
-              href="#"
-              className="text-gray-600 hover:text-gray-900 font-medium transition"
-            >
-              How it Works
-            </Link>
-            <Link
-              href="#"
-              className="text-gray-600 hover:text-gray-900 font-medium transition"
-            >
-              Pricing
+            <Link href="#" className="font-medium text-gray-600 transition hover:text-gray-900">
+              How it works
             </Link>
           </div>
 
-          {/* Right side - Auth and User */}
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-2 sm:gap-4">
+            <Show when="signed-in">
+              <NotificationBell />
+            </Show>
             <Show when="signed-out">
               <Button variant="outline" size="sm" asChild>
                 <Link href="/sign-in">Sign In</Link>
@@ -68,50 +61,34 @@ export function Navbar() {
               <UserButton />
             </Show>
 
-            {/* Mobile menu button */}
-            <button
-              className="md:hidden"
-              onClick={() => setIsOpen(!isOpen)}
-              aria-label="Toggle menu"
-            >
-              {isOpen ? (
-                <X className="w-5 h-5" />
-              ) : (
-                <Menu className="w-5 h-5" />
-              )}
+            <button className="md:hidden" onClick={() => setIsOpen(!isOpen)} aria-label="Toggle menu">
+              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
             </button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
         {isOpen && (
-          <div className="md:hidden pb-4 border-t border-gray-200">
+          <div className="border-t border-gray-200 pb-4 md:hidden">
             <div className="flex flex-col gap-3 pt-4">
               <Show when="signed-in">
-                <Link
-                  href="/bounty/browse"
-                  className="text-gray-600 hover:text-gray-900 font-medium transition"
-                >
-                  Browse
+                <Link href="/dashboard" className="font-medium text-gray-600">
+                  Feed
                 </Link>
-                <Link
-                  href="/applications"
-                  className="text-gray-600 hover:text-gray-900 font-medium transition"
-                >
-                  My Applications
+                <Link href="/applications" className="font-medium text-gray-600">
+                  Applications
+                </Link>
+                <Link href="/my-postings" className="font-medium text-gray-600">
+                  My postings
+                </Link>
+                <Link href="/bounties/create" className="font-medium text-gray-600">
+                  Post bounty
+                </Link>
+                <Link href="/profile" className="font-medium text-gray-600">
+                  Profile
                 </Link>
               </Show>
-              <Link
-                href="#"
-                className="text-gray-600 hover:text-gray-900 font-medium transition"
-              >
-                How it Works
-              </Link>
-              <Link
-                href="#"
-                className="text-gray-600 hover:text-gray-900 font-medium transition"
-              >
-                Pricing
+              <Link href="#" className="font-medium text-gray-600">
+                How it works
               </Link>
             </div>
           </div>

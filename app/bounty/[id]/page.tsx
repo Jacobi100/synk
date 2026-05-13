@@ -299,6 +299,18 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
 
             {/* Action Buttons */}
             <div className="space-y-3">
+              {isOwnBounty && bounty.status === "open" && (
+                <Button
+                  asChild
+                  className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10"
+                >
+                  <Link href={`/bounty/${id}/applications`}>
+                    <Briefcase className="w-4 h-4 mr-2" />
+                    View Applications
+                  </Link>
+                </Button>
+              )}
+
               {applySuccess && (
                 <div className="bg-green-50 border border-green-200 rounded-lg p-4">
                   <p className="text-green-800 font-medium">
