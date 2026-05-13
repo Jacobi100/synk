@@ -176,19 +176,14 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
               <div className="flex justify-between">
                 <span className="text-gray-600">Status</span>
                 <span className="font-medium text-gray-900">
-                  {bounty.status === "awaiting_service"
-                    ? "Awaiting Service"
-                    : bounty.status.charAt(0).toUpperCase() +
-                      bounty.status.slice(1)}
+                  {bounty.status === "paid"
+                    ? "Paid (escrow)"
+                    : bounty.status.charAt(0).toUpperCase() + bounty.status.slice(1)}
                 </span>
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Provider</span>
-                <span className="font-medium text-gray-900">
-                  {bounty.selected_provider_id
-                    ? `Provider ${bounty.selected_provider_id.slice(0, 8)}...`
-                    : "Not selected"}
-                </span>
+                <span className="font-medium text-gray-900">Assigned provider</span>
               </div>
             </div>
           </div>

@@ -7,7 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "devserver": "ngrok http --url=https://neomi-unprorogued-allegra.ngrok-free.dev 3000 --host-header=rewrite"
+    "devserver": "ngrok http --url=https://neomi-unprorogued-allegra.ngrok-free.dev 3000 --host-header=rewrite",
+    "db:migrate": "node scripts/run-migrations.mjs",
+    "db:push": "supabase db push"
   },
   "dependencies": {
     "@clerk/nextjs": "^7.3.3",
@@ -28,6 +30,7 @@
     "zod-to-json-schema": "^3.25.2"
   },
   "devDependencies": {
+    "pg": "^8.16.0",
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
     "@types/react": "^19",

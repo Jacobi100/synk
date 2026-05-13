@@ -1,11 +1,24 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
-import { createBounty, getBounties } from '@/lib/bounty';
+import { createBounty, getBounties, getBountiesByPosterProfileId, getProfileUUID } from '@/lib/bounty';
 import { CreateBountyInput } from '@/lib/types/bounty';
 
 export async function GET(request: NextRequest) {
   try {
     const searchParams = request.nextUrl.searchParams;
+
+    if (searchParams.get('mine') === 'true') {
+      const { userId } = await auth();
+      if (!userId) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+      }
+      const profileId = await getProfileUUID(userId);
+      if (!profileId) {
+        return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
+      }
+      const bounties = await getBountiesByPosterProfileId(profileId);
+      return NextResponse.json(bounties);
+    }
 
     const filters = {
       category: searchParams.get('category') || undefined,
@@ -55,7 +68,6 @@ export async function POST(request: NextRequest) {
       deadline: body.deadline || null,
       urgency: body.urgency || 'flexible',
       slots_available: body.slots_available || 1,
-      status: 'open',
     };
 
     const bounty = await createBounty(userId, bountyData);

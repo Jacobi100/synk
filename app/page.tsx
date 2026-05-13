@@ -101,7 +101,7 @@ export default function Home() {
               Offer services and earn money from clients looking for your skills
             </p>
             <Button size="lg" variant="secondary" asChild className="w-full">
-              <Link href="/bounty/create">Create New Bounty</Link>
+              <Link href="/bounties/create">Create New Bounty</Link>
             </Button>
           </div>
 
@@ -114,7 +114,7 @@ export default function Home() {
               Find and apply for bounties posted by other users to earn money
             </p>
             <Button size="lg" variant="default" asChild className="w-full">
-              <Link href="/bounty/browse">Browse Bounties</Link>
+              <Link href="/dashboard">Browse Bounties</Link>
             </Button>
           </div>
         </div>

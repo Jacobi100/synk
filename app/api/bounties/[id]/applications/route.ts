@@ -2,13 +2,13 @@ import { auth } from '@clerk/nextjs/server';
 import { NextRequest, NextResponse } from 'next/server';
 import {
   getBountyById,
-  getApplicationsByBountyId,
+  getApplicationsByBountyIdWithProvider,
   getProfileUUID,
 } from '@/lib/bounty';
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> },
 ) {
   try {
     const { userId } = await auth();
@@ -41,8 +41,8 @@ export async function GET(
       );
     }
 
-    // Get all applications for this bounty
-    const applications = await getApplicationsByBountyId(bountyId);
+    // Get all applications for this bounty, including provider profile details
+    const applications = await getApplicationsByBountyIdWithProvider(bountyId);
 
     return NextResponse.json(applications);
   } catch (error) {

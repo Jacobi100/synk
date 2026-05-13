@@ -1,4 +1,5 @@
-// Database types for bounties
+// Database types aligned with Supabase schema
+
 export type Bounty = {
   id: string;
   poster_id: string;
@@ -7,43 +8,37 @@ export type Bounty = {
   description: string | null;
   category: string;
 
-  // location
   latitude: number;
   longitude: number;
   location_name: string | null;
   radius_km: number;
 
-  // pricing
   price_min: number | null;
   price_max: number | null;
   currency: string;
   price_negotiable: boolean;
 
-  // media
   images: string[] | null;
 
-  // logistics
   deadline: string | null;
-  urgency: 'asap' | 'scheduled' | 'flexible';
+  urgency: "asap" | "scheduled" | "flexible";
   slots_available: number;
 
-  // state
-  status: 'open' | 'in_progress' | 'completed' | 'cancelled';
-
-  // squad/payment
-  squad_account_id?: string | null;
-  selected_provider_id?: string | null;
+  status: "open" | "in_progress" | "paid" | "completed" | "cancelled";
 
   created_at: string;
   updated_at: string;
 };
 
-export type CreateBountyInput = Omit<Bounty, 'id' | 'poster_id' | 'created_at' | 'updated_at'>;
+export type CreateBountyInput = Omit<
+  Bounty,
+  "id" | "poster_id" | "created_at" | "updated_at" | "status"
+>;
 
 export type BountyFilters = {
   category?: string;
-  status?: Bounty['status'];
-  urgency?: Bounty['urgency'];
+  status?: Bounty["status"];
+  urgency?: Bounty["urgency"];
   latitude?: number;
   longitude?: number;
   radius_km?: number;
@@ -54,68 +49,68 @@ export type BountyFilters = {
   offset?: number;
 };
 
-// Bounty Application Types
 export type BountyApplication = {
   id: string;
   bounty_id: string;
   provider_id: string;
-  status: 'pending' | 'accepted' | 'rejected' | 'completed';
-  rejection_reason?: string | null;
+  status: "pending" | "accepted" | "rejected" | "withdrawn";
   created_at: string;
-  updated_at: string;
 };
 
-export type CreateBountyApplicationInput = Omit<BountyApplication, 'id' | 'status' | 'created_at' | 'updated_at'>;
+export type CreateBountyApplicationInput = Pick<BountyApplication, "bounty_id" | "provider_id">;
 
-// Provider Profile Type
 export type ProviderProfile = {
   id: string;
   clerk_id: string;
+  email: string;
+  username: string | null;
+  full_name: string | null;
   phone_number: string | null;
-  address: string | null;
-  rating: number | null;
-  completed_bounties: number;
-  onboarding_complete: boolean;
+  date_of_birth: string | null;
+  onboarding_complete: boolean | null;
+  account_number?: string | null;
+  bank_code?: string | null;
   created_at: string;
-  updated_at: string;
 };
 
-// Squad Virtual Account Type
-export type SquadVirtualAccount = {
+export type TransactionRow = {
   id: string;
   bounty_id: string;
-  squad_account_id: string;
+  poster_id: string;
   provider_id: string;
+  squad_virtual_account_ref: string | null;
+  squad_transaction_ref: string | null;
+  squad_transfer_ref: string | null;
   amount: number;
-  status: 'pending' | 'paid' | 'released' | 'disputed';
-  payment_id?: string | null;
+  platform_fee: number | null;
+  provider_payout: number | null;
+  status: "awaiting_payment" | "paid" | "released" | "disputed" | "refunded";
+  paid_at: string | null;
+  released_at: string | null;
   created_at: string;
-  updated_at: string;
 };
 
-// Payment Record Type
-export type PaymentRecord = {
-  id: string;
-  bounty_id: string;
-  squad_account_id: string;
-  squad_reference: string;
-  amount: number;
-  status: 'pending' | 'confirmed' | 'failed';
-  created_at: string;
-  updated_at: string;
-};
+export type NotificationType =
+  | "application_received"
+  | "application_accepted"
+  | "application_rejected"
+  | "payment_confirmed"
+  | "service_complete"
+  | "payout_sent";
 
-// Notification Type
 export type Notification = {
   id: string;
   user_id: string;
-  type: 'application_received' | 'application_accepted' | 'application_rejected' | 'payment_confirmed' | 'service_started' | 'bounty_completed' | 'payment_released' | 'rating_available';
   title: string;
-  message: string;
-  bounty_id?: string | null;
-  application_id?: string | null;
-  related_user_id?: string | null;
+  body: string;
+  type: NotificationType;
+  related_bounty_id: string | null;
   read: boolean;
   created_at: string;
-  updated_at: string;
+};
+
+export type BountyFeedItem = Bounty & {
+  poster_name: string | null;
+  suggested_price_min: number | null;
+  suggested_price_max: number | null;
 };

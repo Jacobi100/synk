@@ -1,91 +1,56 @@
-import { auth } from '@clerk/nextjs/server';
-import { NextRequest, NextResponse } from 'next/server';
+import { auth } from "@clerk/nextjs/server";
+import { NextRequest, NextResponse } from "next/server";
 import {
   getBountyById,
   getApplicationById,
   getProfileUUID,
   updateApplicationStatus,
-} from '@/lib/bounty';
+} from "@/lib/bounty";
+import { createNotification } from "@/lib/notifications";
 
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string; appId: string } }
+  { params }: { params: Promise<{ id: string; appId: string }> },
 ) {
   try {
     const { userId } = await auth();
-
-    if (!userId) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
-    }
-
-    const body = await request.json();
-    const { reason } = body;
+    if (!userId) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
 
     const { id: bountyId, appId } = await params;
 
-    // Verify bounty exists and user is the poster
     const bounty = await getBountyById(bountyId);
-
-    if (!bounty) {
-      return NextResponse.json(
-        { error: 'Bounty not found' },
-        { status: 404 }
-      );
-    }
+    if (!bounty) return NextResponse.json({ error: "Bounty not found" }, { status: 404 });
 
     const posterUUID = await getProfileUUID(userId);
-
     if (!posterUUID || bounty.poster_id !== posterUUID) {
-      return NextResponse.json(
-        { error: 'You do not have permission to reject applications for this bounty' },
-        { status: 403 }
-      );
+      return NextResponse.json({ error: "You do not have permission to reject applications for this bounty" }, { status: 403 });
     }
 
-    // Verify application exists and belongs to this bounty
     const application = await getApplicationById(appId);
-
     if (!application || application.bounty_id !== bountyId) {
-      return NextResponse.json(
-        { error: 'Application not found' },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Application not found" }, { status: 404 });
     }
 
-    if (application.status !== 'pending') {
-      return NextResponse.json(
-        { error: 'This application has already been reviewed' },
-        { status: 400 }
-      );
+    if (application.status !== "pending") {
+      return NextResponse.json({ error: "This application has already been reviewed" }, { status: 400 });
     }
 
-    // Reject the application
-    const updatedApp = await updateApplicationStatus(appId, 'rejected', reason);
-
+    const updatedApp = await updateApplicationStatus(appId, "rejected");
     if (!updatedApp) {
-      return NextResponse.json(
-        { error: 'Failed to reject application' },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: "Failed to reject application" }, { status: 500 });
     }
 
-    // TODO: Send notification to provider: "Your application was rejected"
+    await createNotification({
+      user_id: application.provider_id,
+      type: "application_rejected",
+      title: "Application update",
+      body: `Your application for "${bounty.title}" was not selected.`,
+      related_bounty_id: bountyId,
+    });
 
-    return NextResponse.json(
-      {
-        message: 'Application rejected successfully',
-        application: updatedApp,
-      },
-      { status: 200 }
-    );
+    return NextResponse.json({ message: "Application rejected successfully", application: updatedApp });
   } catch (error) {
-    console.error('Reject application error:', error);
-    return NextResponse.json(
-      { error: 'Internal server error' },
-      { status: 500 }
-    );
+    console.error("Reject application error:", error);
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

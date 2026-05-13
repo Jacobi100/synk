@@ -1,4 +1,4 @@
-import { supabase } from "@/lib/supabase/server";
+import { supabaseAdmin } from "@/lib/supabase/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 
@@ -8,7 +8,7 @@ export async function POST(req: Request) {
 
   const body = await req.json();
 
-  const {  error } = await supabase
+  const {  error } = await supabaseAdmin
     .from("profiles")
     .upsert(
       {

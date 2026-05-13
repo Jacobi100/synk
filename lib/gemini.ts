@@ -34,8 +34,9 @@ export class GeminiError extends Error {
 // ---------------------------------------------------------------------------
 
 function toGeminiSchema(schema: z.ZodTypeAny): object {
-  const jsonSchema = zodToJsonSchema(schema, {
-  $refStrategy: "none", // default target is jsonSchema7 — valid here     
+  // zod-to-json-schema is typed against Zod 3; Zod 4 schemas work at runtime.
+  const jsonSchema = zodToJsonSchema(schema as never, {
+    $refStrategy: "none",
   });
 
   // zodToJsonSchema wraps output in a root object; strip top-level $schema key

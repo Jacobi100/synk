@@ -126,11 +126,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
               </div>
               <div className="flex justify-between">
                 <span className="text-gray-600">Provider</span>
-                <span className="font-medium text-gray-900">
-                  {bounty.selected_provider_id
-                    ? `Provider ${bounty.selected_provider_id.slice(0, 8)}...`
-                    : "Not selected"}
-                </span>
+                <span className="font-medium text-gray-900">Accepted provider</span>
               </div>
               <div className="flex justify-between pt-4 border-t border-gray-200">
                 <span className="font-semibold text-gray-900">Amount</span>
