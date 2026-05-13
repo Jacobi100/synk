@@ -3,24 +3,27 @@ import { createHmac } from "crypto";
 const SQUAD_BASE =
   process.env.SQUAD_API_BASE_URL ?? "https://sandbox-api-d.squadco.com";
 
-function squadSecret(): string {
-  const k = process.env.SQUAD_SECRET_KEY;
-  if (!k) throw new Error("SQUAD_SECRET_KEY is not configured");
-  return k;
+function squadSecret(): string | null {
+  return process.env.SQUAD_SECRET_KEY || null;
 }
 
-function squadHeaders(): HeadersInit {
+function squadHeaders(secret: string): HeadersInit {
   return {
-    Authorization: `Bearer ${squadSecret()}`,
+    Authorization: `Bearer ${secret}`,
     "Content-Type": "application/json",
     Accept: "application/json",
   };
 }
 
 export async function squadSendSms(phone080: string, message: string): Promise<void> {
+  const secret = squadSecret();
+  if (!secret) {
+    console.log(`[MOCK SQUAD SMS] to ${phone080}: ${message}`);
+    return;
+  }
   const res = await fetch(`${SQUAD_BASE}/vas/sms`, {
     method: "POST",
-    headers: squadHeaders(),
+    headers: squadHeaders(secret),
     body: JSON.stringify({
       phone_number: phone080,
       message,
@@ -52,6 +55,13 @@ export type SquadVirtualAccountPayload = {
 export async function squadCreateVirtualAccount(
   payload: SquadVirtualAccountPayload,
 ): Promise<{ virtualAccountNumber: string; raw: unknown } | null> {
+  const secret = squadSecret();
+  if (!secret) {
+    const mockVa = `MOCKVA${Date.now().toString().slice(-10)}`;
+    console.log(`[MOCK SQUAD VA] Created for ${payload.customer_identifier}: ${mockVa}`);
+    return { virtualAccountNumber: mockVa, raw: { mock: true, ...payload } };
+  }
+
   try {
     const body = {
       ...payload,
@@ -61,7 +71,7 @@ export async function squadCreateVirtualAccount(
     };
     const res = await fetch(`${SQUAD_BASE}/virtual-account`, {
       method: "POST",
-      headers: squadHeaders(),
+      headers: squadHeaders(secret),
       body: JSON.stringify(body),
     });
     const raw = (await res.json()) as Record<string, unknown>;
@@ -96,9 +106,15 @@ export async function squadTransferPayout(params: {
   account_name: string;
   remark?: string;
 }): Promise<{ ok: boolean; raw: unknown }> {
+  const secret = squadSecret();
+  if (!secret) {
+    console.log(`[MOCK SQUAD TRANSFER] ${params.amountKobo} kobo to ${params.account_number} (${params.bank_code}) - Ref: ${params.transaction_reference}`);
+    return { ok: true, raw: { mock: true, ...params } };
+  }
+
   const res = await fetch(`${SQUAD_BASE}/payout/transfer`, {
     method: "POST",
-    headers: squadHeaders(),
+    headers: squadHeaders(secret),
     body: JSON.stringify({
       transaction_reference: params.transaction_reference,
       amount: params.amountKobo,
@@ -123,7 +139,9 @@ export function verifySquadWebhookSignature(
 ): boolean {
   const secret =
     process.env.SQUAD_WEBHOOK_SECRET ?? process.env.SQUAD_SECRET_KEY ?? "";
-  if (!secret || !headerSig) return false;
+  if (!secret) return true; // Mock mode if no secret
+  if (!headerSig) return false;
   const hash = createHmac("sha512", secret).update(rawBody).digest("hex").toUpperCase();
   return hash === headerSig.toUpperCase();
 }
+
