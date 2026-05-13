@@ -2,7 +2,6 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button } from "@/components/ui/button";
 import type { Bounty, CreateBountyInput } from "@/lib/types/bounty";
 import { Loader2, MapPin, Calendar, Sparkles } from "lucide-react";
 
@@ -30,13 +29,55 @@ const URGENCY_OPTIONS = [
   { value: "flexible", label: "Flexible" },
 ];
 
+/* shared input styles */
+const inputBase =
+  "w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition-all placeholder:opacity-60";
+
+function useInputFocus() {
+  return {
+    onFocus: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      e.target.style.borderColor = "var(--violet)";
+      e.target.style.boxShadow = "0 0 0 3px var(--violet-glow)";
+    },
+    onBlur: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+      e.target.style.borderColor = "var(--border)";
+      e.target.style.boxShadow = "none";
+    },
+  };
+}
+
+function FieldLabel({ children }: { children: React.ReactNode }) {
+  return (
+    <label className="mb-1.5 block text-sm font-medium" style={{ color: "var(--text)" }}>
+      {children}
+    </label>
+  );
+}
+
+function SectionDivider({ title }: { title: string }) {
+  return (
+    <div className="flex items-center gap-3 py-1">
+      <div className="h-px flex-1" style={{ background: "var(--border)" }} />
+      <span className="font-mono text-[11px] font-bold uppercase tracking-widest" style={{ color: "var(--text3)" }}>
+        {title}
+      </span>
+      <div className="h-px flex-1" style={{ background: "var(--border)" }} />
+    </div>
+  );
+}
+
 export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [locating, setLocating] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
-  const [suggest, setSuggest] = useState<{ avg: number | null; suggested_min: number | null; suggested_max: number | null } | null>(null);
+  const [suggest, setSuggest] = useState<{
+    avg: number | null;
+    suggested_min: number | null;
+    suggested_max: number | null;
+  } | null>(null);
+  const focus = useInputFocus();
 
   const [formData, setFormData] = useState<CreateBountyInput>({
     title: bounty?.title || "",
@@ -66,18 +107,12 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       const res = await fetch(u.toString());
       if (!res.ok) return;
       setSuggest(await res.json());
-    } catch {
-      setSuggest(null);
-    }
+    } catch { setSuggest(null); }
   }, [formData.category, formData.latitude, formData.longitude]);
 
-  useEffect(() => {
-    void fetchSuggestion();
-  }, [fetchSuggestion]);
+  useEffect(() => { void fetchSuggestion(); }, [fetchSuggestion]);
 
-  const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>,
-  ) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
@@ -87,21 +122,15 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value ? parseFloat(value) : null,
-    }));
+    setFormData((prev) => ({ ...prev, [name]: value ? parseFloat(value) : null }));
   };
 
   const handleUseMyLocation = () => {
-    if (!navigator.geolocation) {
-      setError("Geolocation is not supported by your browser.");
-      return;
-    }
+    if (!navigator.geolocation) { setError("Geolocation not supported."); return; }
     setLocating(true);
     navigator.geolocation.getCurrentPosition(
-      async (position) => {
-        const { latitude, longitude } = position.coords;
+      async (pos) => {
+        const { latitude, longitude } = pos.coords;
         let location_name = `${latitude.toFixed(5)}, ${longitude.toFixed(5)}`;
         try {
           const res = await fetch(
@@ -109,21 +138,16 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
             { headers: { "Accept-Language": "en" } },
           );
           if (res.ok) {
-            const data = await res.json();
-            const { city, town, village, suburb, state, country } = data.address ?? {};
-            const locality = city || town || village || suburb;
-            location_name = [locality, state, country].filter(Boolean).join(", ");
+            const d = await res.json();
+            const { city, town, village, suburb, state, country } = d.address ?? {};
+            const loc = city || town || village || suburb;
+            location_name = [loc, state, country].filter(Boolean).join(", ");
           }
-        } catch {
-          /* keep coordinates label */
-        }
+        } catch { /* keep coords */ }
         setFormData((prev) => ({ ...prev, latitude, longitude, location_name }));
         setLocating(false);
       },
-      () => {
-        setError("Unable to retrieve your location. Please check your browser permissions.");
-        setLocating(false);
-      },
+      () => { setError("Unable to get location."); setLocating(false); },
     );
   };
 
@@ -131,23 +155,16 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     try {
-      if (onSubmit) {
-        onSubmit(formData);
-        return;
-      }
+      if (onSubmit) { onSubmit(formData); return; }
 
       if (bounty) {
-        const response = await fetch(`/api/bounties/${bounty.id}`, {
+        const res = await fetch(`/api/bounties/${bounty.id}`, {
           method: "PATCH",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify(formData),
         });
-        if (!response.ok) {
-          const data = await response.json();
-          throw new Error(data.error || "Failed to save bounty");
-        }
+        if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Failed"); }
         router.push("/dashboard");
         return;
       }
@@ -169,16 +186,8 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       fd.append("slots_available", String(formData.slots_available));
       imageFiles.forEach((f) => fd.append("images", f));
 
-      const response = await fetch("/api/bounties/create", {
-        method: "POST",
-        body: fd,
-      });
-
-      if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-        throw new Error(data.error || "Failed to post bounty");
-      }
-
+      const res = await fetch("/api/bounties/create", { method: "POST", body: fd });
+      if (!res.ok) { const d = await res.json().catch(() => ({})); throw new Error(d.error || "Failed"); }
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -187,212 +196,224 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
     }
   };
 
+  const inputStyle = {
+    background: "var(--bg2)",
+    borderColor: "var(--border)",
+    color: "var(--text)",
+  };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {error && (
-        <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-red-800">{error}</div>
-      )}
 
+      {/* AI suggestion */}
       {suggest?.suggested_min != null && suggest.suggested_max != null && (
-        <div className="flex items-start gap-2 rounded-lg border border-violet-200 bg-violet-50 px-4 py-3 text-sm text-violet-900">
+        <div
+          className="flex items-start gap-3 rounded-xl border p-4 text-sm"
+          style={{ background: "var(--violet-subtle)", borderColor: "var(--violet)", color: "var(--violet)" }}
+        >
           <Sparkles className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
-            <span className="font-semibold">Suggested price (area + category): </span>
+            <span className="font-semibold">AI price suggestion: </span>
             ₦{suggest.suggested_min.toLocaleString("en-NG")} – ₦{suggest.suggested_max.toLocaleString("en-NG")}
             {suggest.avg != null && (
-              <span className="text-violet-700"> (avg ₦{Math.round(suggest.avg).toLocaleString("en-NG")})</span>
+              <span className="opacity-70"> (avg ₦{Math.round(suggest.avg).toLocaleString("en-NG")})</span>
             )}
           </div>
         </div>
       )}
 
+      {/* Error */}
+      {error && (
+        <div
+          className="rounded-xl border px-4 py-3 text-sm"
+          style={{ background: "#fef2f2", borderColor: "#fecaca", color: "#b91c1c" }}
+        >
+          {error}
+        </div>
+      )}
+
+      <SectionDivider title="Basic info" />
+
+      {/* Title */}
       <div>
-        <label className="mb-2 block text-sm font-medium text-gray-900">Bounty title *</label>
+        <FieldLabel>Bounty title *</FieldLabel>
         <input
-          type="text"
-          name="title"
-          value={formData.title}
-          onChange={handleChange}
+          type="text" name="title" value={formData.title} onChange={handleChange} required
           placeholder="What do you need done?"
-          required
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          className={inputBase} style={inputStyle} {...focus}
         />
       </div>
 
+      {/* Description */}
       <div>
-        <label className="mb-2 block text-sm font-medium text-gray-900">Description</label>
+        <FieldLabel>Description</FieldLabel>
         <textarea
-          name="description"
-          value={formData.description || ""}
-          onChange={handleChange}
-          placeholder="Provide detailed information..."
-          rows={5}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          name="description" value={formData.description || ""} onChange={handleChange}
+          placeholder="Provide detailed information about the task, requirements, and expectations…"
+          rows={5} className={inputBase} style={inputStyle} {...focus}
         />
       </div>
 
+      {/* Category */}
       <div>
-        <label className="mb-2 block text-sm font-medium text-gray-900">Category *</label>
+        <FieldLabel>Category *</FieldLabel>
         <select
-          name="category"
-          value={formData.category}
-          onChange={handleChange}
-          required
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          name="category" value={formData.category} onChange={handleChange} required
+          className={inputBase} style={inputStyle} {...focus}
         >
           <option value="">Select a category</option>
           {CATEGORIES.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
+            <option key={cat} value={cat}>{cat}</option>
           ))}
         </select>
       </div>
 
+      {/* Photos */}
       <div>
-        <label className="mb-2 block text-sm font-medium text-gray-900">Photos (optional)</label>
-        <input
-          type="file"
-          accept="image/*"
-          multiple
-          onChange={(e) => setImageFiles(Array.from(e.target.files || []))}
-          className="w-full text-sm text-gray-600"
-        />
-        {imageFiles.length > 0 && (
-          <p className="mt-1 text-xs text-gray-500">{imageFiles.length} file(s) selected</p>
-        )}
+        <FieldLabel>Photos (optional)</FieldLabel>
+        <div
+          className="rounded-lg border border-dashed px-4 py-3 text-sm transition-colors hover:border-[var(--violet)]"
+          style={{ borderColor: "var(--border2)", color: "var(--text3)" }}
+        >
+          <input
+            type="file" accept="image/*" multiple
+            onChange={(e) => setImageFiles(Array.from(e.target.files || []))}
+            className="w-full cursor-pointer"
+          />
+          {imageFiles.length > 0 && (
+            <p className="mt-1 text-xs" style={{ color: "var(--violet)" }}>
+              {imageFiles.length} file{imageFiles.length !== 1 ? "s" : ""} selected
+            </p>
+          )}
+        </div>
       </div>
 
+      <SectionDivider title="Location" />
+
+      {/* Location + Radius */}
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-900">
-            <MapPin className="mr-1 inline h-4 w-4" />
+          <FieldLabel>
+            <MapPin className="mr-1 inline h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
             Location name
-          </label>
+          </FieldLabel>
           <div className="flex gap-2">
             <input
-              type="text"
-              name="location_name"
-              value={formData.location_name || ""}
-              onChange={handleChange}
-              placeholder="e.g., Yaba, Lagos"
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              type="text" name="location_name" value={formData.location_name || ""}
+              onChange={handleChange} placeholder="e.g., Yaba, Lagos"
+              className={`${inputBase} flex-1`} style={inputStyle} {...focus}
             />
             <button
-              type="button"
-              onClick={handleUseMyLocation}
-              disabled={locating}
-              title="Use my location"
-              className="flex shrink-0 items-center gap-1 rounded-lg border border-gray-300 px-3 py-2 text-sm hover:bg-gray-50 disabled:opacity-50"
+              type="button" onClick={handleUseMyLocation} disabled={locating}
+              className="flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)] disabled:opacity-50"
+              style={{ borderColor: "var(--border2)", color: "var(--text2)", background: "var(--bg2)" }}
             >
               {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
-              {locating ? "…" : "GPS"}
+              {locating ? "" : "GPS"}
             </button>
           </div>
-          <p className="mt-1 text-xs text-gray-500">
+          <p className="mt-1 font-mono text-[11px]" style={{ color: "var(--text3)" }}>
             {formData.latitude.toFixed(5)}, {formData.longitude.toFixed(5)}
           </p>
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-900">Radius (km)</label>
+          <FieldLabel>Radius (km)</FieldLabel>
           <input
-            type="number"
-            name="radius_km"
-            value={formData.radius_km}
-            onChange={handleNumberChange}
-            min={1}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            type="number" name="radius_km" value={formData.radius_km}
+            onChange={handleNumberChange} min={1}
+            className={inputBase} style={inputStyle} {...focus}
           />
         </div>
       </div>
 
+      <SectionDivider title="Pricing" />
+
       <div>
-        <label className="mb-2 block text-sm font-medium text-gray-900">Pricing (NGN)</label>
-        <div className="grid gap-4 md:grid-cols-2">
+        <FieldLabel>Budget (NGN)</FieldLabel>
+        <div className="grid gap-3 md:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs text-gray-600">Min</label>
+            <label className="mb-1 block text-xs" style={{ color: "var(--text3)" }}>Minimum</label>
             <input
-              type="number"
-              name="price_min"
-              value={formData.price_min ?? ""}
-              onChange={handleNumberChange}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              type="number" name="price_min" value={formData.price_min ?? ""}
+              onChange={handleNumberChange} placeholder="0"
+              className={inputBase} style={inputStyle} {...focus}
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs text-gray-600">Max</label>
+            <label className="mb-1 block text-xs" style={{ color: "var(--text3)" }}>Maximum</label>
             <input
-              type="number"
-              name="price_max"
-              value={formData.price_max ?? ""}
-              onChange={handleNumberChange}
-              className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+              type="number" name="price_max" value={formData.price_max ?? ""}
+              onChange={handleNumberChange} placeholder="0"
+              className={inputBase} style={inputStyle} {...focus}
             />
           </div>
         </div>
-        <label className="mt-3 flex items-center text-sm">
+        <label className="mt-3 flex cursor-pointer items-center gap-2.5 text-sm" style={{ color: "var(--text2)" }}>
           <input
-            type="checkbox"
-            name="price_negotiable"
-            checked={formData.price_negotiable}
+            type="checkbox" name="price_negotiable" checked={formData.price_negotiable}
             onChange={handleChange}
-            className="h-4 w-4 rounded text-blue-600"
+            className="h-4 w-4 rounded accent-[var(--violet)]"
           />
-          <span className="ml-2 text-gray-700">Price is negotiable</span>
+          Price is negotiable
         </label>
       </div>
 
+      <SectionDivider title="Schedule" />
+
       <div className="grid gap-4 md:grid-cols-2">
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-900">
-            <Calendar className="mr-1 inline h-4 w-4" />
-            Deadline
-          </label>
+          <FieldLabel>
+            <Calendar className="mr-1 inline h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
+            Deadline (optional)
+          </FieldLabel>
           <input
-            type="datetime-local"
-            name="deadline"
-            value={formData.deadline || ""}
+            type="datetime-local" name="deadline" value={formData.deadline || ""}
             onChange={handleChange}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            className={inputBase} style={inputStyle} {...focus}
           />
         </div>
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-900">Urgency *</label>
+          <FieldLabel>Urgency *</FieldLabel>
           <select
-            name="urgency"
-            value={formData.urgency}
-            onChange={handleChange}
-            className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+            name="urgency" value={formData.urgency} onChange={handleChange}
+            className={inputBase} style={inputStyle} {...focus}
           >
             {URGENCY_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
+              <option key={opt.value} value={opt.value}>{opt.label}</option>
             ))}
           </select>
         </div>
       </div>
 
       <div>
-        <label className="mb-2 block text-sm font-medium text-gray-900">Slots available</label>
+        <FieldLabel>Slots available</FieldLabel>
         <input
-          type="number"
-          name="slots_available"
-          value={formData.slots_available}
-          onChange={handleNumberChange}
-          min={1}
-          className="w-full rounded-lg border border-gray-300 px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:outline-none"
+          type="number" name="slots_available" value={formData.slots_available}
+          onChange={handleNumberChange} min={1}
+          className={inputBase} style={{ ...inputStyle, maxWidth: "10rem" }} {...focus}
         />
+        <p className="mt-1 text-xs" style={{ color: "var(--text3)" }}>
+          How many providers can be selected for this bounty.
+        </p>
       </div>
 
-      <div className="flex gap-4">
-        <Button type="submit" disabled={loading} className="flex-1 bg-blue-600 text-white hover:bg-blue-700">
-          {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+      {/* Submit */}
+      <div className="flex gap-3 pt-2">
+        <button
+          type="submit" disabled={loading}
+          className="flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed"
+          style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+        >
+          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
           {bounty ? "Update bounty" : "Post bounty"}
-        </Button>
-        <Button type="button" variant="outline" onClick={() => router.back()} className="px-6">
+        </button>
+        <button
+          type="button" onClick={() => router.back()}
+          className="rounded-lg border px-5 py-2.5 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
+          style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
+        >
           Cancel
-        </Button>
+        </button>
       </div>
     </form>
   );

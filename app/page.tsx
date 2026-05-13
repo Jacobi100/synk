@@ -4,7 +4,6 @@ import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
 import { Bounty } from "@/lib/types/bounty";
 import {
   Plus,
@@ -14,6 +13,7 @@ import {
   Clock,
   CheckCircle,
   Loader2,
+  ArrowRight,
 } from "lucide-react";
 
 interface DashboardStats {
@@ -22,6 +22,17 @@ interface DashboardStats {
   completed: number;
   totalEarnings: number;
 }
+
+const SYMBOLS = [
+  { sym: "∑", style: { top: "12%",  right: "8%",   fontSize: 14, opacity: 0.5 } },
+  { sym: "π", style: { top: "28%",  right: "18%",  fontSize: 11, opacity: 0.35 } },
+  { sym: "∞", style: { top: "55%",  right: "6%",   fontSize: 16, opacity: 0.4 } },
+  { sym: "∂", style: { top: "70%",  right: "22%",  fontSize: 10, opacity: 0.3 } },
+  { sym: "√", style: { top: "18%",  right: "32%",  fontSize: 12, opacity: 0.25 } },
+  { sym: "λ", style: { top: "80%",  right: "12%",  fontSize: 13, opacity: 0.3 } },
+  { sym: "∫", style: { top: "40%",  right: "3%",   fontSize: 15, opacity: 0.35 } },
+  { sym: "ε", style: { top: "8%",   right: "46%",  fontSize: 10, opacity: 0.2 } },
+];
 
 export default function Home() {
   const { user } = useUser();
@@ -34,175 +45,186 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchStats = async () => {
-      if (!user) {
-        setLoading(false);
-        return;
-      }
-
+    if (!user) { setLoading(false); return; }
+    (async () => {
       try {
-        // Fetch bounties
-        const response = await fetch("/api/bounties?limit=1000");
-        const bounties = (await response.json()) as Bounty[];
-
-        // Calculate stats
-        const active = bounties.filter((b) => b.status === "open").length;
-        const inProg = bounties.filter(
-          (b) => b.status === "in_progress",
-        ).length;
-        const done = bounties.filter(
-          (b) => b.status === "completed",
-        ).length;
-        const earnings = bounties
-          .filter((b) => b.status === "completed")
-          .reduce(
-            (sum: number, b: Bounty) => sum + (b.price_max || b.price_min || 0),
-            0,
-          );
-
+        const res = await fetch("/api/bounties?limit=1000");
+        const bounties = (await res.json()) as Bounty[];
         setStats({
-          activeBounties: active,
-          inProgress: inProg,
-          completed: done,
-          totalEarnings: earnings,
+          activeBounties: bounties.filter((b) => b.status === "open").length,
+          inProgress:     bounties.filter((b) => b.status === "in_progress").length,
+          completed:      bounties.filter((b) => b.status === "completed").length,
+          totalEarnings:  bounties
+            .filter((b) => b.status === "completed")
+            .reduce((s: number, b: Bounty) => s + (b.price_max || b.price_min || 0), 0),
         });
-      } catch (error) {
-        console.error("Failed to fetch stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchStats();
+      } catch { /* silent */ } finally { setLoading(false); }
+    })();
   }, [user]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Navbar />
 
-      {/* Dashboard Content */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Welcome back to Synk
-          </h1>
-          <p className="text-gray-600">
-            Manage your bounties and find new opportunities
-          </p>
+      {/* Hero — dark ink section */}
+      <div
+        className="relative overflow-hidden"
+        style={{ background: "var(--bg-ink)" }}
+      >
+        {/* Floating symbols */}
+        <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
+          {SYMBOLS.map(({ sym, style }) => (
+            <span
+              key={sym + JSON.stringify(style)}
+              className="absolute font-mono"
+              style={{
+                ...style,
+                color: "var(--symbol-float-dark)",
+                fontFamily: "var(--font-geist-mono, monospace)",
+              }}
+            >
+              {sym}
+            </span>
+          ))}
         </div>
 
-        {/* Quick Action Buttons */}
-        <div className="grid md:grid-cols-2 gap-6 mb-12">
-          <div className="bg-linear-to-br from-blue-600 to-blue-700 rounded-xl p-8 text-white shadow-lg hover:shadow-xl transition">
-            <Plus className="w-12 h-12 mb-4 opacity-90" />
-            <h2 className="text-2xl font-bold mb-3">Post a Bounty</h2>
-            <p className="mb-6 text-blue-100">
-              Offer services and earn money from clients looking for your skills
-            </p>
-            <Button size="lg" variant="secondary" asChild className="w-full">
-              <Link href="/bounties/create">Create New Bounty</Link>
-            </Button>
-          </div>
+        {/* Gradient orb */}
+        <div
+          className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full blur-3xl"
+          style={{ background: "radial-gradient(circle, rgba(94,58,255,0.15) 0%, transparent 70%)" }}
+        />
 
-          <div className="bg-white rounded-xl p-8 border border-gray-200 shadow hover:shadow-lg transition">
-            <Search className="w-12 h-12 mb-4 text-blue-600" />
-            <h2 className="text-2xl font-bold mb-3 text-gray-900">
-              Browse Bounties
+        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+          <div className="max-w-xl">
+            <p
+              className="mb-3 font-mono text-[11px] font-bold uppercase tracking-widest"
+              style={{ color: "var(--violet3)" }}
+            >
+              Welcome back{user?.firstName ? `, ${user.firstName}` : ""}
+            </p>
+            <h1
+              className="mb-4 text-4xl font-bold sm:text-5xl"
+              style={{ color: "var(--text-inv)", letterSpacing: "-0.03em", lineHeight: 1.1 }}
+            >
+              Your bounty<br />command centre
+            </h1>
+            <p className="mb-8 text-base leading-relaxed" style={{ color: "var(--text-inv2)" }}>
+              Post tasks and earn money from professionals — all under escrow protection.
+            </p>
+
+            <div className="flex flex-wrap gap-3">
+              <Link
+                href="/bounties/create"
+                className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0"
+                style={{
+                  background: "var(--violet)",
+                  boxShadow: "var(--shadow-violet)",
+                }}
+                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--violet2)")}
+                onMouseLeave={(e) => (e.currentTarget.style.background = "var(--violet)")}
+              >
+                <Plus className="h-4 w-4" />
+                Post a bounty
+              </Link>
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5"
+                style={{
+                  borderColor: "var(--border-ink2)",
+                  color: "var(--text-inv2)",
+                  background: "transparent",
+                }}
+                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--violet3)"; e.currentTarget.style.color = "var(--text-inv)"; }}
+                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-ink2)"; e.currentTarget.style.color = "var(--text-inv2)"; }}
+              >
+                <Search className="h-4 w-4" />
+                Browse feed
+                <ArrowRight className="h-3.5 w-3.5" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Stats */}
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-2 gap-4 py-8 sm:grid-cols-4">
+          {[
+            { label: "Active Bounties", value: stats.activeBounties, icon: Briefcase, iconColor: "var(--violet)" },
+            { label: "In Progress",     value: stats.inProgress,     icon: Clock,     iconColor: "#d97706" },
+            { label: "Completed",       value: stats.completed,      icon: CheckCircle, iconColor: "var(--success-color)" },
+            { label: "Total Earnings",  value: `₦${stats.totalEarnings.toLocaleString()}`, icon: TrendingUp, iconColor: "var(--violet)" },
+          ].map(({ label, value, icon: Icon, iconColor }) => (
+            <div
+              key={label}
+              className="rounded-xl border bg-white p-5"
+              style={{ borderColor: "var(--border)", boxShadow: "var(--synk-shadow)" }}
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <p className="text-xs font-medium" style={{ color: "var(--text3)" }}>{label}</p>
+                  {loading ? (
+                    <Loader2 className="mt-2 h-5 w-5 animate-spin" style={{ color: "var(--violet)" }} />
+                  ) : (
+                    <p className="mt-1.5 text-2xl font-bold" style={{ color: "var(--text)" }}>
+                      {value}
+                    </p>
+                  )}
+                </div>
+                <Icon className="h-8 w-8 opacity-10" style={{ color: iconColor }} />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Action cards */}
+      <div className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
+        <div className="grid gap-5 sm:grid-cols-2">
+          {/* Post card */}
+          <div
+            className="relative overflow-hidden rounded-xl p-8"
+            style={{ background: "var(--bg-ink2)", border: "1px solid var(--border-ink)" }}
+          >
+            <div
+              className="pointer-events-none absolute -bottom-10 -right-10 h-48 w-48 rounded-full blur-3xl"
+              style={{ background: "rgba(94,58,255,0.12)" }}
+            />
+            <Plus className="mb-4 h-10 w-10 opacity-70" style={{ color: "var(--violet3)" }} />
+            <h2 className="mb-2 text-xl font-bold" style={{ color: "var(--text-inv)" }}>
+              Post a bounty
             </h2>
-            <p className="mb-6 text-gray-600">
-              Find and apply for bounties posted by other users to earn money
+            <p className="mb-6 text-sm leading-relaxed" style={{ color: "var(--text-inv2)" }}>
+              Offer your services or request help from skilled professionals.
             </p>
-            <Button size="lg" variant="default" asChild className="w-full">
-              <Link href="/dashboard">Browse Bounties</Link>
-            </Button>
-          </div>
-        </div>
-
-        {/* Stats Section */}
-        <div className="grid md:grid-cols-4 gap-4 mb-12">
-          <div className="bg-white rounded-lg p-6 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">
-                  Active Bounties
-                </p>
-                {loading ? (
-                  <Loader2 className="w-6 h-6 text-blue-600 animate-spin mt-2" />
-                ) : (
-                  <p className="text-3xl font-bold text-gray-900 mt-2">
-                    {stats.activeBounties}
-                  </p>
-                )}
-              </div>
-              <Briefcase className="w-10 h-10 text-blue-600 opacity-20" />
-            </div>
+            <Link
+              href="/bounties/create"
+              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+              style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+            >
+              Create bounty <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
           </div>
 
-          <div className="bg-white rounded-lg p-6 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">In Progress</p>
-                {loading ? (
-                  <Loader2 className="w-6 h-6 text-orange-600 animate-spin mt-2" />
-                ) : (
-                  <p className="text-3xl font-bold text-gray-900 mt-2">
-                    {stats.inProgress}
-                  </p>
-                )}
-              </div>
-              <Clock className="w-10 h-10 text-orange-600 opacity-20" />
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg p-6 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Completed</p>
-                {loading ? (
-                  <Loader2 className="w-6 h-6 text-green-600 animate-spin mt-2" />
-                ) : (
-                  <p className="text-3xl font-bold text-gray-900 mt-2">
-                    {stats.completed}
-                  </p>
-                )}
-              </div>
-              <CheckCircle className="w-10 h-10 text-green-600 opacity-20" />
-            </div>
-          </div>
-
-          <div className="bg-white rounded-lg p-6 border border-gray-200">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-600 text-sm font-medium">Earnings</p>
-                {loading ? (
-                  <Loader2 className="w-6 h-6 text-emerald-600 animate-spin mt-2" />
-                ) : (
-                  <p className="text-3xl font-bold text-gray-900 mt-2">
-                    ₦{stats.totalEarnings.toLocaleString()}
-                  </p>
-                )}
-              </div>
-              <TrendingUp className="w-10 h-10 text-emerald-600 opacity-20" />
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="bg-white rounded-xl border border-gray-200 shadow">
-          <div className="p-6 border-b border-gray-200">
-            <h3 className="text-lg font-semibold text-gray-900">
-              Recent Activity
-            </h3>
-          </div>
-          <div className="p-6">
-            <div className="text-center py-12">
-              <Briefcase className="w-12 h-12 text-gray-300 mx-auto mb-3" />
-              <p className="text-gray-500">
-                No activity yet. Start by posting your first bounty or browsing
-                available opportunities!
-              </p>
-            </div>
+          {/* Browse card */}
+          <div
+            className="relative overflow-hidden rounded-xl border bg-white p-8"
+            style={{ borderColor: "var(--border)", boxShadow: "var(--synk-shadow)" }}
+          >
+            <Search className="mb-4 h-10 w-10 opacity-20" style={{ color: "var(--violet)" }} />
+            <h2 className="mb-2 text-xl font-bold" style={{ color: "var(--text)" }}>
+              Browse bounties
+            </h2>
+            <p className="mb-6 text-sm leading-relaxed" style={{ color: "var(--text2)" }}>
+              Find open tasks near you and apply to start earning.
+            </p>
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all hover:-translate-y-0.5 hover:border-[var(--violet)] hover:text-[var(--violet)]"
+              style={{ borderColor: "var(--border2)", color: "var(--text)" }}
+            >
+              Browse feed <ArrowRight className="h-3.5 w-3.5" />
+            </Link>
           </div>
         </div>
       </div>

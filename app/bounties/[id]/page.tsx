@@ -3,10 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
 import { Bounty } from "@/lib/types/bounty";
-
-type BountyDetail = Bounty & { poster_phone?: string | null; provider_phone?: string | null };
 import Link from "next/link";
 import {
   MapPin,
@@ -16,14 +13,38 @@ import {
   Briefcase,
   AlertCircle,
   Loader2,
+  ArrowLeft,
+  CheckCircle2,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
+type BountyDetail = Bounty & { poster_phone?: string | null; provider_phone?: string | null };
+
 interface BountyDetailsPageProps {
-  params: Promise<{
-    id: string;
-  }>;
+  params: Promise<{ id: string }>;
 }
+
+const STATUS_STYLES: Record<string, string> = {
+  open:        "bg-emerald-50  text-emerald-700  border-emerald-200",
+  in_progress: "bg-amber-50    text-amber-700    border-amber-200",
+  paid:        "bg-violet-50   text-violet-700   border-violet-200",
+  completed:   "bg-blue-50     text-blue-700     border-blue-200",
+  cancelled:   "bg-neutral-100 text-neutral-500  border-neutral-200",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  open:        "Open",
+  in_progress: "In Progress",
+  paid:        "Paid (Escrow)",
+  completed:   "Completed",
+  cancelled:   "Cancelled",
+};
+
+const URGENCY_STYLES: Record<string, string> = {
+  asap:      "bg-red-50   text-red-700   border-red-100",
+  scheduled: "bg-sky-50   text-sky-700   border-sky-100",
+  flexible:  "bg-emerald-50 text-emerald-700 border-emerald-100",
+};
 
 export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
   const { id } = use(params);
@@ -42,17 +63,12 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
         setLoading(true);
         const response = await fetch(`/api/bounties/${id}`);
         if (!response.ok) throw new Error("Failed to fetch bounty");
-
         const data = await response.json();
         setBounty(data);
-
-        // Check if current user is the poster
         if (user) {
-          const checkOwnership = await fetch(
-            `/api/bounties/${id}/check-ownership`,
-          );
-          if (checkOwnership.ok) {
-            const { isOwner } = await checkOwnership.json();
+          const check = await fetch(`/api/bounties/${id}/check-ownership`);
+          if (check.ok) {
+            const { isOwner } = await check.json();
             setIsOwnBounty(isOwner);
           }
         }
@@ -66,32 +82,19 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
   }, [id, user]);
 
   const handleApply = async () => {
-    if (!user) {
-      setApplyError("Please sign in to apply");
-      return;
-    }
-
+    if (!user) { setApplyError("Please sign in to apply"); return; }
     try {
       setApplyLoading(true);
       setApplyError(null);
-
       const response = await fetch("/api/bounties/apply", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ bountyId: id }),
       });
-
       const data = await response.json();
-
-      if (!response.ok) {
-        setApplyError(data.error || "Failed to apply to bounty");
-        return;
-      }
-
+      if (!response.ok) { setApplyError(data.error || "Failed to apply"); return; }
       setApplySuccess(true);
-      setTimeout(() => setApplySuccess(false), 5000); // Hide message after 5 seconds
+      setTimeout(() => setApplySuccess(false), 5000);
     } catch (err) {
       setApplyError(err instanceof Error ? err.message : "An error occurred");
     } finally {
@@ -101,10 +104,11 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Navbar />
-        <div className="flex justify-center items-center py-20">
-          <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+        <div className="flex flex-col items-center justify-center py-24 gap-3">
+          <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
+          <p className="text-sm" style={{ color: "var(--text3)" }}>Loading bounty…</p>
         </div>
       </div>
     );
@@ -112,14 +116,17 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
 
   if (error || !bounty) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Navbar />
-        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 flex items-start gap-4">
-            <AlertCircle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
+        <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
+          <div
+            className="rounded-xl border p-6 flex items-start gap-4"
+            style={{ background: "#fef2f2", borderColor: "#fecaca" }}
+          >
+            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
             <div>
-              <h3 className="font-semibold text-red-900">Error</h3>
-              <p className="text-red-700">{error || "Bounty not found"}</p>
+              <h3 className="font-semibold" style={{ color: "#7f1d1d" }}>Error loading bounty</h3>
+              <p className="text-sm mt-0.5" style={{ color: "#991b1b" }}>{error || "Bounty not found"}</p>
             </div>
           </div>
         </div>
@@ -127,269 +134,279 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
     );
   }
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "open":
-        return "bg-green-100 text-green-800";
-      case "in_progress":
-        return "bg-yellow-100 text-yellow-800";
-      case "paid":
-        return "bg-indigo-100 text-indigo-800";
-      case "completed":
-        return "bg-blue-100 text-blue-800";
-      case "cancelled":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case "asap":
-        return "bg-red-100 text-red-800";
-      case "scheduled":
-        return "bg-blue-100 text-blue-800";
-      case "flexible":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
   const priceDisplay = () => {
     if (!bounty.price_min && !bounty.price_max) return "Contact for price";
-    if (bounty.price_min && bounty.price_max) {
-      return `${bounty.currency} ${bounty.price_min.toLocaleString()} - ${bounty.price_max.toLocaleString()}`;
-    }
-    if (bounty.price_min)
-      return `${bounty.currency} ${bounty.price_min.toLocaleString()}+`;
+    if (bounty.price_min && bounty.price_max)
+      return `${bounty.currency} ${bounty.price_min.toLocaleString()} – ${bounty.price_max.toLocaleString()}`;
+    if (bounty.price_min) return `${bounty.currency} ${bounty.price_min.toLocaleString()}+`;
     return `${bounty.currency} ${bounty.price_max?.toLocaleString()}`;
   };
 
+  const statusStyle = STATUS_STYLES[bounty.status] ?? STATUS_STYLES.cancelled;
+  const urgencyStyle = URGENCY_STYLES[bounty.urgency] ?? "bg-neutral-100 text-neutral-500 border-neutral-200";
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Navbar />
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
 
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
-        <div className="flex justify-between items-start mb-6">
-          <Link href="/dashboard" className="text-blue-600 hover:text-blue-700 font-medium">
-            ← Back to feed
-          </Link>
-        </div>
+        {/* Back */}
+        <Link
+          href="/dashboard"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
+          style={{ color: "var(--text2)" }}
+        >
+          <ArrowLeft className="h-4 w-4" /> Back to feed
+        </Link>
 
-        {/* Main Content */}
-        <div className="grid lg:grid-cols-3 gap-8">
-          {/* Left Column */}
-          <div className="lg:col-span-2">
-            <div className="bg-white rounded-lg border border-gray-200 p-8">
-              {/* Title and Status */}
-              <div className="flex justify-between items-start mb-6">
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Main content */}
+          <div className="lg:col-span-2 space-y-5">
+            <div
+              className="rounded-xl border bg-white p-7"
+              style={{ borderColor: "var(--border)", boxShadow: "var(--synk-shadow)" }}
+            >
+              {/* Title + status */}
+              <div className="mb-5 flex items-start justify-between gap-4">
                 <div>
-                  <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                  <h1
+                    className="text-2xl font-bold"
+                    style={{ color: "var(--text)", letterSpacing: "-0.02em" }}
+                  >
                     {bounty.title}
                   </h1>
-                  <p className="text-gray-600">{bounty.category}</p>
+                  <p className="mt-1 text-sm" style={{ color: "var(--text2)" }}>{bounty.category}</p>
                 </div>
-                <div
-                  className={`px-4 py-2 rounded-full text-sm font-medium ${getStatusColor(
-                    bounty.status,
-                  )}`}
+                <span
+                  className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${statusStyle}`}
                 >
-                  {bounty.status === "in_progress"
-                    ? "In Progress"
-                    : bounty.status === "paid"
-                      ? "Paid (escrow)"
-                      : bounty.status.charAt(0).toUpperCase() + bounty.status.slice(1)}
-                </div>
+                  {STATUS_LABELS[bounty.status] ?? bounty.status}
+                </span>
               </div>
 
+              {/* Glow divider */}
+              <div className="glow-divider mb-5" />
+
               {/* Description */}
-              <div className="mb-8">
-                <h2 className="text-xl font-semibold text-gray-900 mb-3">
+              <div className="mb-6">
+                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide" style={{ color: "var(--text3)" }}>
                   Description
                 </h2>
-                <p className="text-gray-700 whitespace-pre-wrap leading-relaxed">
-                  {bounty.description || "No description provided"}
+                <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: "var(--text)" }}>
+                  {bounty.description || "No description provided."}
                 </p>
               </div>
 
-              {/* Details Grid */}
-              <div className="grid sm:grid-cols-2 gap-6 mb-8">
-                {/* Location */}
+              {/* Detail grid */}
+              <div className="grid gap-4 sm:grid-cols-2">
                 {bounty.location_name && (
-                  <div className="border-l-4 border-blue-500 pl-4">
-                    <div className="flex items-center text-gray-600 mb-1">
-                      <MapPin className="w-4 h-4 mr-2" />
-                      Location
+                  <div
+                    className="rounded-lg border p-4"
+                    style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
+                  >
+                    <div className="mb-1 flex items-center gap-1.5 text-xs" style={{ color: "var(--text3)" }}>
+                      <MapPin className="h-3.5 w-3.5" /> Location
                     </div>
-                    <p className="text-lg font-semibold text-gray-900">
+                    <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
                       {bounty.location_name}
                     </p>
                     {bounty.radius_km > 1 && (
-                      <p className="text-sm text-gray-600">
-                        Up to {bounty.radius_km}km
+                      <p className="mt-0.5 text-xs" style={{ color: "var(--text2)" }}>
+                        Up to {bounty.radius_km} km
                       </p>
                     )}
                   </div>
                 )}
 
-                {/* Urgency */}
-                <div className="border-l-4 border-orange-500 pl-4">
-                  <div className="flex items-center text-gray-600 mb-1">
-                    <Clock className="w-4 h-4 mr-2" />
-                    Urgency
+                <div
+                  className="rounded-lg border p-4"
+                  style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
+                >
+                  <div className="mb-1 flex items-center gap-1.5 text-xs" style={{ color: "var(--text3)" }}>
+                    <Clock className="h-3.5 w-3.5" /> Urgency
                   </div>
-                  <div
-                    className={`inline-block px-3 py-1 rounded text-sm font-medium ${getUrgencyColor(
-                      bounty.urgency,
-                    )}`}
+                  <span
+                    className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold ${urgencyStyle}`}
                   >
-                    {bounty.urgency.charAt(0).toUpperCase() +
-                      bounty.urgency.slice(1)}
-                  </div>
+                    {bounty.urgency.charAt(0).toUpperCase() + bounty.urgency.slice(1)}
+                  </span>
                 </div>
 
-                {/* Deadline */}
                 {bounty.deadline && (
-                  <div className="border-l-4 border-green-500 pl-4">
-                    <div className="flex items-center text-gray-600 mb-1">
-                      <Calendar className="w-4 h-4 mr-2" />
-                      Deadline
+                  <div
+                    className="rounded-lg border p-4"
+                    style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
+                  >
+                    <div className="mb-1 flex items-center gap-1.5 text-xs" style={{ color: "var(--text3)" }}>
+                      <Calendar className="h-3.5 w-3.5" /> Deadline
                     </div>
-                    <p className="text-lg font-semibold text-gray-900">
+                    <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
                       {new Date(bounty.deadline).toLocaleDateString()}
                     </p>
                   </div>
                 )}
 
-                {/* Available Slots */}
-                <div className="border-l-4 border-purple-500 pl-4">
-                  <div className="flex items-center text-gray-600 mb-1">
-                    <Briefcase className="w-4 h-4 mr-2" />
-                    Available Slots
+                <div
+                  className="rounded-lg border p-4"
+                  style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
+                >
+                  <div className="mb-1 flex items-center gap-1.5 text-xs" style={{ color: "var(--text3)" }}>
+                    <Briefcase className="h-3.5 w-3.5" /> Slots available
                   </div>
-                  <p className="text-lg font-semibold text-gray-900">{bounty.slots_available}</p>
+                  <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                    {bounty.slots_available} {bounty.slots_available === 1 ? "slot" : "slots"}
+                  </p>
                 </div>
               </div>
 
+              {/* Contact info */}
               {bounty.poster_phone && (
-                <div className="mb-8 rounded-lg border border-green-200 bg-green-50 p-4">
-                  <p className="text-sm font-semibold text-green-900">Poster phone (after your application is accepted)</p>
-                  <p className="text-lg font-mono text-green-800">{bounty.poster_phone}</p>
+                <div
+                  className="mt-5 rounded-lg border p-4"
+                  style={{ background: "#f0fdf4", borderColor: "#bbf7d0" }}
+                >
+                  <p className="text-xs font-semibold" style={{ color: "#166534" }}>
+                    Poster contact (visible after acceptance)
+                  </p>
+                  <p className="mt-1 font-mono text-sm font-semibold" style={{ color: "#15803d" }}>
+                    {bounty.poster_phone}
+                  </p>
                 </div>
               )}
               {bounty.provider_phone && (
-                <div className="mb-8 rounded-lg border border-green-200 bg-green-50 p-4">
-                  <p className="text-sm font-semibold text-green-900">Accepted provider phone</p>
-                  <p className="text-lg font-mono text-green-800">{bounty.provider_phone}</p>
+                <div
+                  className="mt-5 rounded-lg border p-4"
+                  style={{ background: "#f0fdf4", borderColor: "#bbf7d0" }}
+                >
+                  <p className="text-xs font-semibold" style={{ color: "#166534" }}>
+                    Provider contact
+                  </p>
+                  <p className="mt-1 font-mono text-sm font-semibold" style={{ color: "#15803d" }}>
+                    {bounty.provider_phone}
+                  </p>
                 </div>
               )}
-              <div className="border-t border-gray-200 pt-6 text-sm text-gray-600">
-                Posted{" "}
-                {formatDistanceToNow(new Date(bounty.created_at), {
-                  addSuffix: true,
-                })}
+
+              <div className="mt-5 text-xs" style={{ color: "var(--text3)" }}>
+                Posted {formatDistanceToNow(new Date(bounty.created_at), { addSuffix: true })}
               </div>
             </div>
           </div>
 
-          {/* Right Column - Sidebar */}
-          <div className="lg:col-span-1">
-            {/* Price Card */}
-            <div className="bg-linear-to-br from-blue-600 to-blue-700 rounded-lg p-6 text-white mb-6">
-              <div className="flex items-center text-blue-100 mb-2">
-                Estimated Budget
-              </div>
-              <h3 className="text-3xl font-bold mb-3">{priceDisplay()}</h3>
+          {/* Sidebar */}
+          <div className="space-y-4">
+            {/* Price card */}
+            <div
+              className="relative overflow-hidden rounded-xl p-6"
+              style={{ background: "var(--bg-ink2)", border: "1px solid var(--border-ink)" }}
+            >
+              <div
+                className="pointer-events-none absolute -bottom-8 -right-8 h-32 w-32 rounded-full blur-2xl"
+                style={{ background: "rgba(94,58,255,0.15)" }}
+              />
+              <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--text-inv2)" }}>
+                Budget
+              </p>
+              <h3 className="mt-1 text-2xl font-bold" style={{ color: "var(--text-inv)" }}>
+                {priceDisplay()}
+              </h3>
               {bounty.price_negotiable && (
-                <p className="text-blue-100 text-sm">Price negotiable</p>
+                <p className="mt-1 text-xs" style={{ color: "var(--violet3)" }}>
+                  Price negotiable
+                </p>
               )}
             </div>
 
-            {/* Action Buttons */}
-            <div className="space-y-3">
-              {isOwnBounty && bounty.status === 'open' && (
-                <Button asChild className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10">
-                  <Link href={`/bounties/${id}/applications`}>
-                    <Briefcase className="w-4 h-4 mr-2" />
-                    View Applications
-                  </Link>
-                </Button>
+            {/* Actions */}
+            <div className="space-y-2.5">
+              {isOwnBounty && bounty.status === "open" && (
+                <Link
+                  href={`/bounties/${id}/applications`}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+                  style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+                >
+                  <Briefcase className="h-4 w-4" /> View Applications
+                </Link>
               )}
 
               {isOwnBounty && bounty.status === "in_progress" && (
-                <Button asChild className="w-full bg-indigo-600 hover:bg-indigo-700 text-white h-10">
-                  <Link href={`/bounties/${id}/payment`}>Pay into escrow (virtual account)</Link>
-                </Button>
+                <Link
+                  href={`/bounties/${id}/payment`}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+                  style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+                >
+                  Pay into escrow
+                </Link>
               )}
 
               {isOwnBounty && bounty.status === "paid" && (
-                <Button asChild className="w-full bg-green-600 hover:bg-green-700 text-white h-10">
-                  <Link href={`/bounties/${id}/complete`}>Mark complete & release payout</Link>
-                </Button>
+                <Link
+                  href={`/bounties/${id}/complete`}
+                  className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5"
+                  style={{ background: "var(--success-color)", color: "#fff" }}
+                >
+                  <CheckCircle2 className="h-4 w-4" /> Mark complete & release
+                </Link>
               )}
 
               {applySuccess && (
-                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                  <p className="text-green-800 font-medium">
-                    ✓ Application submitted successfully!
+                <div className="rounded-xl border p-4" style={{ background: "#f0fdf4", borderColor: "#bbf7d0" }}>
+                  <p className="text-sm font-semibold" style={{ color: "#15803d" }}>
+                    ✓ Application submitted!
                   </p>
                 </div>
               )}
 
               {applyError && (
-                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                  <p className="text-red-800 text-sm">{applyError}</p>
+                <div className="rounded-xl border p-4" style={{ background: "#fef2f2", borderColor: "#fecaca" }}>
+                  <p className="text-sm" style={{ color: "#b91c1c" }}>{applyError}</p>
                 </div>
               )}
 
               {!isOwnBounty && bounty.status === "open" && (
-              <Button
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={applyLoading}
-                onClick={handleApply}
-              >
-                {applyLoading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Applying...
-                  </>
-                ) : (
-                  "Apply for Bounty"
-                )}
-              </Button>
+                <button
+                  className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+                  disabled={applyLoading}
+                  onClick={handleApply}
+                >
+                  {applyLoading ? (
+                    <><Loader2 className="h-4 w-4 animate-spin" /> Applying…</>
+                  ) : "Apply for Bounty"}
+                </button>
               )}
 
               {isOwnBounty && bounty.status === "open" && (
-                <p className="text-center text-sm text-gray-500">You posted this bounty</p>
+                <p className="text-center text-xs" style={{ color: "var(--text3)" }}>
+                  You posted this bounty
+                </p>
               )}
 
               {!isOwnBounty && bounty.status !== "open" && (
-                <p className="text-center text-sm text-gray-500">This bounty is not accepting applications</p>
+                <p className="text-center text-xs" style={{ color: "var(--text3)" }}>
+                  Not accepting applications
+                </p>
               )}
-              <Button variant="outline" className="w-full h-10">
-                <Share2 className="w-4 h-4 mr-2" />
-                Share
-              </Button>
+
+              <button
+                className="flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
+                style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
+              >
+                <Share2 className="h-4 w-4" /> Share
+              </button>
             </div>
 
-            {/* Info Cards */}
-            <div className="mt-6 space-y-4">
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <h4 className="font-semibold text-gray-900 mb-2">Payment</h4>
-                <p className="text-sm text-gray-600">
-                  Escrow protection for both parties
-                </p>
-              </div>
-              <div className="bg-gray-50 rounded-lg p-4 border border-gray-200">
-                <h4 className="font-semibold text-gray-900 mb-2">About This</h4>
-                <p className="text-sm text-gray-600">
-                  {bounty.slots_available} professional(s) can be selected for
-                  this bounty
-                </p>
-              </div>
+            {/* Info */}
+            <div
+              className="rounded-xl border p-4 space-y-1"
+              style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
+            >
+              <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text3)" }}>
+                Payment
+              </h4>
+              <p className="text-sm" style={{ color: "var(--text2)" }}>
+                Escrow protection ensures both parties are safe.
+              </p>
             </div>
           </div>
         </div>

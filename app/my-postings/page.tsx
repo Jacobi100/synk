@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
 import { Bounty } from "@/lib/types/bounty";
 import Link from "next/link";
 import {
@@ -11,9 +10,33 @@ import {
   AlertCircle,
   MapPin,
   Clock,
-  DollarSign,
   Users,
+  Plus,
+  ArrowLeft,
+  Inbox,
 } from "lucide-react";
+
+const STATUS_STYLES: Record<string, string> = {
+  open:        "bg-emerald-50  text-emerald-700  border-emerald-200",
+  in_progress: "bg-amber-50    text-amber-700    border-amber-200",
+  paid:        "bg-violet-50   text-violet-700   border-violet-200",
+  completed:   "bg-blue-50     text-blue-700     border-blue-200",
+  cancelled:   "bg-neutral-100 text-neutral-500  border-neutral-200",
+};
+
+const STATUS_LABELS: Record<string, string> = {
+  open:        "Open",
+  in_progress: "In Progress",
+  paid:        "Paid",
+  completed:   "Completed",
+  cancelled:   "Cancelled",
+};
+
+const URGENCY_STYLES: Record<string, string> = {
+  asap:      "bg-red-50   text-red-700   border-red-100",
+  scheduled: "bg-sky-50   text-sky-700   border-sky-100",
+  flexible:  "bg-emerald-50 text-emerald-700 border-emerald-100",
+};
 
 export default function MyPostingsPage() {
   const { user } = useUser();
@@ -22,237 +45,206 @@ export default function MyPostingsPage() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchBounties = async () => {
+    if (!user) return;
+    (async () => {
       try {
         setLoading(true);
-        const response = await fetch("/api/bounties?mine=true");
-
-        if (!response.ok) {
-          throw new Error("Failed to fetch bounties");
-        }
-
-        const data = await response.json();
-        setBounties(data);
+        const res = await fetch("/api/bounties?mine=true");
+        if (!res.ok) throw new Error("Failed to fetch bounties");
+        setBounties(await res.json());
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load bounties",
-        );
+        setError(err instanceof Error ? err.message : "Failed to load");
       } finally {
         setLoading(false);
       }
-    };
-
-    if (user) {
-      fetchBounties();
-    }
+    })();
   }, [user]);
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "open":
-        return "bg-green-100 text-green-800";
-      case "in_progress":
-        return "bg-yellow-100 text-yellow-800";
-      case "paid":
-        return "bg-indigo-100 text-indigo-800";
-      case "completed":
-        return "bg-blue-100 text-blue-800";
-      case "cancelled":
-        return "bg-gray-100 text-gray-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const getUrgencyColor = (urgency: string) => {
-    switch (urgency) {
-      case "asap":
-        return "bg-red-100 text-red-800";
-      case "scheduled":
-        return "bg-blue-100 text-blue-800";
-      case "flexible":
-        return "bg-green-100 text-green-800";
-      default:
-        return "bg-gray-100 text-gray-800";
-    }
-  };
-
-  const priceDisplay = (bounty: Bounty) => {
-    if (!bounty.price_min && !bounty.price_max) return "Contact for price";
-    if (bounty.price_min && bounty.price_max) {
-      return `${bounty.currency} ${bounty.price_min.toLocaleString()} - ${bounty.price_max.toLocaleString()}`;
-    }
-    if (bounty.price_min)
-      return `${bounty.currency} ${bounty.price_min.toLocaleString()}+`;
-    return `${bounty.currency} ${bounty.price_max?.toLocaleString()}`;
+  const priceDisplay = (b: Bounty) => {
+    if (!b.price_min && !b.price_max) return "Price on request";
+    if (b.price_min && b.price_max) return `${b.currency} ${b.price_min.toLocaleString()} – ${b.price_max.toLocaleString()}`;
+    if (b.price_min) return `${b.currency} ${b.price_min.toLocaleString()}+`;
+    return `${b.currency} ${b.price_max?.toLocaleString()}`;
   };
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Navbar />
-        <div className="mx-auto max-w-4xl px-4 py-8">
-          <p className="text-gray-600">
-            Please sign in to view your postings.
-          </p>
+        <div className="mx-auto max-w-4xl px-4 py-12 text-center text-sm" style={{ color: "var(--text2)" }}>
+          Sign in to view your postings.
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Navbar />
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 lg:px-8">
 
-      <div className="mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
+        <Link
+          href="/"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
+          style={{ color: "var(--text2)" }}
+        >
+          <ArrowLeft className="h-4 w-4" /> Back
+        </Link>
+
+        <div className="mb-8 flex items-end justify-between gap-4">
+          <div>
+            <h1
+              className="text-3xl font-bold"
+              style={{ color: "var(--text)", letterSpacing: "-0.03em" }}
+            >
+              My Postings
+            </h1>
+            <p className="mt-1 text-sm" style={{ color: "var(--text2)" }}>
+              Manage and track all bounties you have posted.
+            </p>
+          </div>
           <Link
-            href="/"
-            className="text-blue-600 hover:text-blue-700 font-medium"
+            href="/bounties/create"
+            className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+            style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
           >
-            ← Back
+            <Plus className="h-4 w-4" /> New bounty
           </Link>
         </div>
 
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              My Posted Bounties
-            </h1>
-            <p className="text-gray-600">
-              Manage and track all your posted bounties
-            </p>
-          </div>
-          <Button asChild className="bg-blue-600 hover:bg-blue-700">
-            <Link href="/bounties/create">Create New Bounty</Link>
-          </Button>
-        </div>
-
         {loading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
           </div>
         ) : error ? (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 flex items-start gap-4">
-            <AlertCircle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-red-900">Error</h3>
-              <p className="text-red-700">{error}</p>
-            </div>
+          <div
+            className="rounded-xl border p-6 flex items-start gap-4"
+            style={{ background: "#fef2f2", borderColor: "#fecaca" }}
+          >
+            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
+            <p className="text-sm" style={{ color: "#991b1b" }}>{error}</p>
           </div>
         ) : bounties.length === 0 ? (
-          <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-            <AlertCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
+          <div
+            className="flex flex-col items-center justify-center rounded-xl border bg-white py-20 text-center"
+            style={{ borderColor: "var(--border)" }}
+          >
+            <Inbox className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--text)" }} />
+            <h3 className="mb-1 text-base font-semibold" style={{ color: "var(--text)" }}>
               No bounties posted yet
             </h3>
-            <p className="text-gray-600 mb-6">
-              Create your first bounty to start receiving applications
+            <p className="mb-5 text-sm" style={{ color: "var(--text2)" }}>
+              Create your first bounty to start receiving applications.
             </p>
-            <Button asChild>
-              <Link href="/bounties/create">Create Bounty</Link>
-            </Button>
+            <Link
+              href="/bounties/create"
+              className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white"
+              style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+            >
+              <Plus className="h-4 w-4" /> Create bounty
+            </Link>
           </div>
         ) : (
-          <div className="grid gap-6">
-            {bounties.map((bounty) => (
-              <div
-                key={bounty.id}
-                className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition"
-              >
-                <div className="flex justify-between items-start mb-4">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold text-gray-900">
-                        {bounty.title}
-                      </h3>
-                      <span
-                        className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusColor(
-                          bounty.status,
-                        )}`}
-                      >
-                        {bounty.status === "in_progress"
-                          ? "In Progress"
-                          : bounty.status.charAt(0).toUpperCase() +
-                            bounty.status.slice(1)}
+          <div className="space-y-4">
+            {bounties.map((bounty, i) => {
+              const statusStyle = STATUS_STYLES[bounty.status] ?? STATUS_STYLES.cancelled;
+              const urgencyStyle = URGENCY_STYLES[bounty.urgency] ?? "bg-neutral-100 text-neutral-500 border-neutral-200";
+
+              return (
+                <div
+                  key={bounty.id}
+                  className="rounded-xl border bg-white p-6 transition-shadow hover:shadow-md animate-step-in"
+                  style={{ borderColor: "var(--border)", animationDelay: `${i * 40}ms` }}
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex flex-wrap items-center gap-2.5 mb-2">
+                        <h3 className="text-lg font-semibold" style={{ color: "var(--text)" }}>
+                          {bounty.title}
+                        </h3>
+                        <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusStyle}`}>
+                          {STATUS_LABELS[bounty.status] ?? bounty.status}
+                        </span>
+                      </div>
+                      {bounty.description && (
+                        <p className="text-sm line-clamp-2" style={{ color: "var(--text2)" }}>
+                          {bounty.description}
+                        </p>
+                      )}
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-xl font-bold" style={{ color: "var(--violet)" }}>
+                        {priceDisplay(bounty)}
+                      </p>
+                      <span className={`mt-1 inline-block rounded-full border px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wide ${urgencyStyle}`}>
+                        {bounty.urgency}
                       </span>
                     </div>
-                    <p className="text-gray-600 text-sm mb-3">
-                      {bounty.description?.substring(0, 100)}
-                      {bounty.description && bounty.description.length > 100
-                        ? "..."
-                        : ""}
-                    </p>
                   </div>
-                  <div className="text-right">
-                    <p className="text-2xl font-bold text-blue-600 mb-1">
-                      {priceDisplay(bounty)}
-                    </p>
-                    <span
-                      className={`inline-block px-2 py-1 rounded text-xs font-medium ${getUrgencyColor(
-                        bounty.urgency,
-                      )}`}
-                    >
-                      {bounty.urgency.charAt(0).toUpperCase() +
-                        bounty.urgency.slice(1)}
-                    </span>
-                  </div>
-                </div>
 
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 py-3 border-t border-b border-gray-200">
-                  {bounty.location_name && (
-                    <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm text-gray-600">
+                  {/* Meta */}
+                  <div
+                    className="mt-4 flex flex-wrap gap-4 border-t border-b py-3 text-sm"
+                    style={{ borderColor: "var(--border)", color: "var(--text2)" }}
+                  >
+                    {bounty.location_name && (
+                      <div className="flex items-center gap-1.5">
+                        <MapPin className="h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
                         {bounty.location_name}
-                      </span>
-                    </div>
-                  )}
-                  {bounty.deadline && (
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-gray-500" />
-                      <span className="text-sm text-gray-600">
+                      </div>
+                    )}
+                    {bounty.deadline && (
+                      <div className="flex items-center gap-1.5">
+                        <Clock className="h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
                         {new Date(bounty.deadline).toLocaleDateString()}
-                      </span>
+                      </div>
+                    )}
+                    <div className="flex items-center gap-1.5">
+                      <Users className="h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
+                      {bounty.slots_available} {bounty.slots_available !== 1 ? "slots" : "slot"}
                     </div>
-                  )}
-                  <div className="flex items-center gap-2">
-                    <Users className="w-4 h-4 text-gray-500" />
-                    <span className="text-sm text-gray-600">
-                      {bounty.slots_available} slot
-                      {bounty.slots_available !== 1 ? "s" : ""}
-                    </span>
+                  </div>
+
+                  {/* Actions */}
+                  <div className="mt-4 flex flex-wrap gap-2.5">
+                    <Link
+                      href={`/bounties/${bounty.id}`}
+                      className="inline-flex items-center rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
+                      style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
+                    >
+                      View details
+                    </Link>
+                    {bounty.status === "open" && (
+                      <Link
+                        href={`/bounties/${bounty.id}/applications`}
+                        className="inline-flex items-center rounded-lg px-3.5 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+                        style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+                      >
+                        View applications
+                      </Link>
+                    )}
+                    {bounty.status === "in_progress" && (
+                      <>
+                        <Link
+                          href={`/bounties/${bounty.id}/payment`}
+                          className="inline-flex items-center rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
+                          style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
+                        >
+                          Payment
+                        </Link>
+                        <Link
+                          href={`/bounties/${bounty.id}/complete`}
+                          className="inline-flex items-center rounded-lg px-3.5 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+                          style={{ background: "var(--success-color)" }}
+                        >
+                          Mark complete
+                        </Link>
+                      </>
+                    )}
                   </div>
                 </div>
-
-                <div className="flex gap-3">
-                  <Button asChild variant="outline">
-                    <Link href={`/bounties/${bounty.id}`}>View Details</Link>
-                  </Button>
-                  {bounty.status === "open" && (
-                    <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
-                      <Link href={`/bounties/${bounty.id}/applications`}>
-                        View Applications
-                      </Link>
-                    </Button>
-                  )}
-                  {bounty.status === "in_progress" && (
-                    <>
-                      <Button asChild variant="outline">
-                        <Link href={`/bounties/${bounty.id}/payment`}>
-                          View Payment
-                        </Link>
-                      </Button>
-                      <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
-                        <Link href={`/bounties/${bounty.id}/complete`}>
-                          Mark Complete
-                        </Link>
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
 import { BountyApplication, Bounty, ProviderProfile } from "@/lib/types/bounty";
 import Link from "next/link";
 import {
@@ -12,6 +11,8 @@ import {
   CheckCircle,
   XCircle,
   Phone,
+  ArrowLeft,
+  Inbox,
 } from "lucide-react";
 
 interface ApplicationWithDetails extends BountyApplication {
@@ -20,140 +21,79 @@ interface ApplicationWithDetails extends BountyApplication {
   poster_phone?: string | null;
 }
 
+const STATUS_BADGE: Record<string, { cls: string; label: string }> = {
+  pending:   { cls: "bg-amber-50 text-amber-700 border-amber-200",   label: "Pending" },
+  accepted:  { cls: "bg-emerald-50 text-emerald-700 border-emerald-200", label: "Accepted" },
+  rejected:  { cls: "bg-red-50 text-red-700 border-red-200",         label: "Rejected" },
+  withdrawn: { cls: "bg-neutral-100 text-neutral-500 border-neutral-200", label: "Withdrawn" },
+};
+
 export default function MyApplicationsPage() {
   const { user } = useUser();
   const [applications, setApplications] = useState<ApplicationWithDetails[]>([]);
-  const [role, setRole] = useState<'poster' | 'provider'>('provider');
+  const [role, setRole] = useState<"poster" | "provider">("provider");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!user) return;
     const fetchApplications = async () => {
       try {
         setLoading(true);
         const response = await fetch(`/api/applications?role=${role}`);
-
         const data = await response.json().catch(() => ({}));
-        if (!response.ok) {
-          throw new Error(
-            typeof data?.error === "string" ? data.error : "Failed to fetch applications",
-          );
-        }
-
+        if (!response.ok) throw new Error(typeof data?.error === "string" ? data.error : "Failed to fetch");
         setApplications(Array.isArray(data) ? data : []);
       } catch (err) {
-        setError(
-          err instanceof Error ? err.message : "Failed to load applications",
-        );
+        setError(err instanceof Error ? err.message : "Failed to load");
       } finally {
         setLoading(false);
       }
     };
-
-    if (user) {
-      fetchApplications();
-    }
+    void fetchApplications();
   }, [user, role]);
 
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "pending":
-        return (
-          <span className="px-3 py-1 rounded-full text-sm font-medium bg-yellow-100 text-yellow-800">
-            Pending
-          </span>
-        );
-      case "accepted":
-        return (
-          <span className="px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-            Accepted
-          </span>
-        );
-      case "rejected":
-        return (
-          <span className="px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
-            Rejected
-          </span>
-        );
-      case "withdrawn":
-        return (
-          <span className="px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
-            Withdrawn
-          </span>
-        );
-      default:
-        return null;
-    }
-  };
-
   const handleAccept = async (appId: string) => {
+    const bountyId = applications.find((a) => a.id === appId)?.bounty_id;
+    if (!bountyId) return;
     try {
       setActionLoading(appId);
       setActionError(null);
-
-      const response = await fetch(
-        `/api/bounties/${applications.find((app) => app.id === appId)?.bounty_id}/applications/${appId}/accept`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-        }
-      );
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to accept application");
-      }
-
-      setApplications((prev) => {
-        const acceptedApp = prev.find((app) => app.id === appId);
-        if (!acceptedApp) return prev;
-
-        return prev.map((app) => {
-          if (app.id === appId) {
-            return { ...app, status: "accepted" };
-          }
-          if (app.bounty_id === acceptedApp.bounty_id && app.status === "pending") {
-            return {
-              ...app,
-              status: "rejected",
-            };
-          }
-          return app;
-        });
+      const res = await fetch(`/api/bounties/${bountyId}/applications/${appId}/accept`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
       });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Failed"); }
+      setApplications((prev) =>
+        prev.map((a) => {
+          if (a.id === appId) return { ...a, status: "accepted" };
+          if (a.bounty_id === bountyId && a.status === "pending") return { ...a, status: "rejected" };
+          return a;
+        })
+      );
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "An error occurred");
+      setActionError(err instanceof Error ? err.message : "Error");
     } finally {
       setActionLoading(null);
     }
   };
 
-  const handleReject = async (appId: string, reason?: string) => {
+  const handleReject = async (appId: string) => {
+    const bountyId = applications.find((a) => a.id === appId)?.bounty_id;
+    if (!bountyId) return;
     try {
       setActionLoading(appId);
       setActionError(null);
-
-      const response = await fetch(
-        `/api/bounties/${applications.find((app) => app.id === appId)?.bounty_id}/applications/${appId}/reject`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ reason }),
-        }
-      );
-
-      if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.error || "Failed to reject application");
-      }
-
-      setApplications((prev) =>
-        prev.map((app) => (app.id === appId ? { ...app, status: "rejected" } : app)),
-      );
+      const res = await fetch(`/api/bounties/${bountyId}/applications/${appId}/reject`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      });
+      if (!res.ok) { const d = await res.json(); throw new Error(d.error || "Failed"); }
+      setApplications((prev) => prev.map((a) => (a.id === appId ? { ...a, status: "rejected" } : a)));
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "An error occurred");
+      setActionError(err instanceof Error ? err.message : "Error");
     } finally {
       setActionLoading(null);
     }
@@ -161,232 +101,247 @@ export default function MyApplicationsPage() {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Navbar />
-        <div className="mx-auto max-w-4xl px-4 py-8">
-          <p className="text-gray-600">
-            Please sign in to view your applications.
-          </p>
+        <div className="mx-auto max-w-4xl px-4 py-12 text-center">
+          <p className="text-sm" style={{ color: "var(--text2)" }}>Sign in to view your applications.</p>
         </div>
       </div>
     );
   }
 
-  const isPosterView = role === 'poster';
+  const isPosterView = role === "poster";
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Navbar />
+      <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
 
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-8">
-        <div className="mb-6">
-          <Link
-            href="/"
-            className="text-blue-600 hover:text-blue-700 font-medium"
-          >
-            ← Back
-          </Link>
-        </div>
+        <Link
+          href="/"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
+          style={{ color: "var(--text2)" }}
+        >
+          <ArrowLeft className="h-4 w-4" /> Back
+        </Link>
 
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
+        {/* Header + tab switcher */}
+        <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">
-              {isPosterView ? 'Applications Received' : 'My Applications'}
+            <h1
+              className="text-3xl font-bold"
+              style={{ color: "var(--text)", letterSpacing: "-0.03em" }}
+            >
+              {isPosterView ? "Applications Received" : "My Applications"}
             </h1>
-            <p className="text-gray-600">
+            <p className="mt-1 text-sm" style={{ color: "var(--text2)" }}>
               {isPosterView
-                ? 'Review applications submitted to your bounties.'
-                : 'Track all bounties you have applied to.'}
+                ? "Review submissions from providers."
+                : "Track bounties you have applied to."}
             </p>
           </div>
-          <div className="inline-flex rounded-md bg-white shadow-sm border border-gray-200">
-            <button
-              type="button"
-              onClick={() => setRole('poster')}
-              className={`px-4 py-2 text-sm font-medium transition ${
-                isPosterView
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              Poster
-            </button>
-            <button
-              type="button"
-              onClick={() => setRole('provider')}
-              className={`px-4 py-2 text-sm font-medium transition ${
-                !isPosterView
-                  ? 'bg-blue-600 text-white'
-                  : 'text-gray-700 hover:bg-gray-50'
-              }`}
-            >
-              Provider
-            </button>
+
+          {/* Segmented control */}
+          <div
+            className="inline-flex rounded-lg border p-0.5"
+            style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
+          >
+            {(["poster", "provider"] as const).map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setRole(r)}
+                className="rounded-md px-4 py-1.5 text-sm font-medium transition-all"
+                style={{
+                  background: role === r ? "var(--violet)" : "transparent",
+                  color: role === r ? "#fff" : "var(--text2)",
+                  boxShadow: role === r ? "var(--shadow-violet)" : "none",
+                }}
+              >
+                {r.charAt(0).toUpperCase() + r.slice(1)}
+              </button>
+            ))}
           </div>
         </div>
 
         {actionError && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="text-red-800">{actionError}</p>
+          <div
+            className="mb-4 rounded-xl border p-4 text-sm"
+            style={{ background: "#fef2f2", borderColor: "#fecaca", color: "#b91c1c" }}
+          >
+            {actionError}
           </div>
         )}
 
         {loading ? (
-          <div className="flex justify-center py-12">
-            <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+          <div className="flex flex-col items-center justify-center py-20 gap-3">
+            <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
           </div>
         ) : error ? (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-6 flex items-start gap-4">
-            <AlertCircle className="w-6 h-6 text-red-600 shrink-0 mt-0.5" />
-            <div>
-              <h3 className="font-semibold text-red-900">Error</h3>
-              <p className="text-red-700">{error}</p>
-            </div>
+          <div
+            className="rounded-xl border p-6 flex items-start gap-4"
+            style={{ background: "#fef2f2", borderColor: "#fecaca" }}
+          >
+            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
+            <p className="text-sm" style={{ color: "#991b1b" }}>{error}</p>
           </div>
         ) : applications.length === 0 ? (
-          <div className="bg-white rounded-lg border border-gray-200 p-12 text-center">
-            <AlertCircle className="w-12 h-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              {isPosterView ? 'No applications yet' : 'No applications yet'}
+          <div
+            className="flex flex-col items-center justify-center rounded-xl border bg-white py-20 text-center"
+            style={{ borderColor: "var(--border)" }}
+          >
+            <Inbox className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--text)" }} />
+            <h3 className="mb-1 text-base font-semibold" style={{ color: "var(--text)" }}>
+              No applications yet
             </h3>
-            <p className="text-gray-600 mb-6">
+            <p className="mb-5 text-sm" style={{ color: "var(--text2)" }}>
               {isPosterView
-                ? 'Applications from providers will appear here. If you meant jobs you applied to, switch to Provider.'
-                : 'Browse bounties and apply to start earning.'}
+                ? "Applications to your bounties will appear here."
+                : "Browse bounties and apply to start earning."}
             </p>
             {!isPosterView && (
-              <Button asChild>
-                <Link href="/dashboard">Browse Bounties</Link>
-              </Button>
+              <Link
+                href="/dashboard"
+                className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white"
+                style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+              >
+                Browse bounties
+              </Link>
             )}
           </div>
         ) : (
           <div className="space-y-4">
-            {applications.map((app) => (
-              <div
-                key={app.id}
-                className="bg-white rounded-lg border border-gray-200 p-6 hover:shadow-md transition"
-              >
-                {isPosterView && app.provider_profile ? (
-                  <>
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                          Bounty: {app.bounty?.title || `ID: ${app.bounty_id.slice(0, 8)}...`}
-                        </h3>
-                        <p className="text-sm text-gray-600 mb-2">
-                          Applied {new Date(app.created_at).toLocaleDateString()}
-                        </p>
-                        <div className="bg-blue-50 border border-blue-200 rounded p-3 mb-3">
-                          <p className="text-sm font-medium text-gray-900 mb-1">
-                            Provider Profile
+            {applications.map((app, i) => {
+              const badge = STATUS_BADGE[app.status] ?? STATUS_BADGE.withdrawn;
+              return (
+                <div
+                  key={app.id}
+                  className="rounded-xl border bg-white p-6 transition-shadow hover:shadow-md animate-step-in"
+                  style={{ borderColor: "var(--border)", animationDelay: `${i * 40}ms` }}
+                >
+                  {isPosterView && app.provider_profile ? (
+                    <>
+                      <div className="mb-4 flex items-start justify-between gap-4">
+                        <div className="flex-1">
+                          <h3 className="text-base font-semibold" style={{ color: "var(--text)" }}>
+                            {app.bounty?.title || `Bounty ${app.bounty_id.slice(0, 8)}…`}
+                          </h3>
+                          <p className="mt-0.5 text-xs" style={{ color: "var(--text3)" }}>
+                            Applied {new Date(app.created_at).toLocaleDateString()}
                           </p>
-                          <div className="space-y-1 text-sm text-gray-700">
-                            <p>
-                              <strong>ID:</strong> {app.provider_id.slice(0, 8)}...
+
+                          {/* Provider info box */}
+                          <div
+                            className="mt-3 rounded-lg border p-3 text-sm space-y-1"
+                            style={{ background: "var(--violet-subtle)", borderColor: "rgba(94,58,255,0.3)" }}
+                          >
+                            <p className="font-semibold text-xs" style={{ color: "var(--violet)" }}>
+                              Provider
                             </p>
-                            {app.status === "accepted" && app.provider_profile?.phone_number && (
-                              <p>
-                                <strong>Phone:</strong> {app.provider_profile.phone_number}
-                              </p>
-                            )}
-                            {app.status === "pending" && (
-                              <p className="text-gray-600 italic">Provider phone is shown after you accept.</p>
-                            )}
+                            <p style={{ color: "var(--text2)" }}>
+                              ID: {app.provider_id.slice(0, 8)}…
+                            </p>
                             {app.provider_profile.username && (
-                              <p>
-                                <strong>Username:</strong> {app.provider_profile.username}
+                              <p style={{ color: "var(--text2)" }}>
+                                @{app.provider_profile.username}
                               </p>
                             )}
+                            {app.status === "accepted" && app.provider_profile?.phone_number ? (
+                              <p className="font-semibold" style={{ color: "var(--text)" }}>
+                                📞 {app.provider_profile.phone_number}
+                              </p>
+                            ) : app.status === "pending" ? (
+                              <p className="italic text-xs" style={{ color: "var(--text3)" }}>
+                                Phone shown after acceptance
+                              </p>
+                            ) : null}
                           </div>
                         </div>
+                        <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${badge.cls}`}>
+                          {badge.label}
+                        </span>
                       </div>
-                      {getStatusBadge(app.status)}
-                    </div>
 
-                    {app.status === 'pending' && (
-                      <div className="space-y-4">
-                        <div className="flex gap-3">
-                          <Button
-                            onClick={() => handleAccept(app.id)}
+                      {app.status === "pending" && (
+                        <div className="flex gap-2.5">
+                          <button
+                            onClick={() => void handleAccept(app.id)}
                             disabled={actionLoading === app.id}
-                            className="bg-green-600 hover:bg-green-700 text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="inline-flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50"
+                            style={{ background: "var(--success-color)" }}
                           >
                             {actionLoading === app.id ? (
-                              <>
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                Accepting...
-                              </>
+                              <Loader2 className="h-4 w-4 animate-spin" />
                             ) : (
-                              <>
-                                <CheckCircle className="w-4 h-4 mr-2" />
-                                Accept Application
-                              </>
+                              <CheckCircle className="h-4 w-4" />
                             )}
-                          </Button>
-                          <Button
-                            onClick={() => handleReject(app.id)}
+                            Accept
+                          </button>
+                          <button
+                            onClick={() => void handleReject(app.id)}
                             disabled={actionLoading === app.id}
-                            variant="outline"
+                            className="inline-flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-semibold transition-colors hover:border-red-300 hover:text-red-600 disabled:opacity-50"
+                            style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
                           >
-                            {actionLoading === app.id ? (
-                              <>
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                                Rejecting...
-                              </>
-                            ) : (
-                              <>
-                                <XCircle className="w-4 h-4 mr-2" />
-                                Reject
-                              </>
-                            )}
-                          </Button>
+                            <XCircle className="h-4 w-4" />
+                            Reject
+                          </button>
                         </div>
-                      </div>
-                    )}
-                    {app.status === 'accepted' && app.provider_profile?.phone_number && (
-                      <div className="mt-4 rounded-lg border border-green-200 bg-green-50 p-4">
-                        <p className="text-sm font-semibold text-green-900 mb-2">Call your provider</p>
-                        <Button asChild variant="outline" className="border-green-300 hover:bg-green-100">
-                          <a href={`tel:${app.provider_profile.phone_number}`}>
-                            <Phone className="w-4 h-4 mr-2" />
+                      )}
+
+                      {app.status === "accepted" && app.provider_profile?.phone_number && (
+                        <div className="mt-4 rounded-lg border p-4" style={{ background: "#f0fdf4", borderColor: "#bbf7d0" }}>
+                          <p className="mb-2 text-xs font-semibold" style={{ color: "#166534" }}>Call your provider</p>
+                          <a
+                            href={`tel:${app.provider_profile.phone_number}`}
+                            className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-green-100"
+                            style={{ borderColor: "#86efac", color: "#15803d" }}
+                          >
+                            <Phone className="h-4 w-4" />
                             {app.provider_profile.phone_number}
                           </a>
-                        </Button>
+                        </div>
+                      )}
+                    </>
+                  ) : (
+                    <>
+                      <div className="mb-4 flex items-start justify-between gap-4">
+                        <div>
+                          <h3 className="text-base font-semibold" style={{ color: "var(--text)" }}>
+                            {app.bounty?.title || `Bounty ${app.bounty_id.slice(0, 8)}…`}
+                          </h3>
+                          <p className="mt-0.5 text-xs" style={{ color: "var(--text3)" }}>
+                            Applied {new Date(app.created_at).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${badge.cls}`}>
+                          {badge.label}
+                        </span>
                       </div>
-                    )}
-                  </>
-                ) : (
-                  <>
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                          {app.bounty?.title || `Bounty: ${app.bounty_id.slice(0, 8)}...`}
-                        </h3>
-                        <p className="text-sm text-gray-600">
-                          Applied {new Date(app.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                      {getStatusBadge(app.status)}
-                    </div>
-
-                    <div className="flex gap-3 flex-wrap">
-                      <Button asChild variant="outline">
-                        <Link href={`/bounties/${app.bounty_id}`}>View Bounty</Link>
-                      </Button>
-                      {app.status === "accepted" && app.poster_phone && (
-                        <Button asChild variant="outline" className="border-green-300 bg-green-50 hover:bg-green-100">
-                          <a href={`tel:${app.poster_phone}`}>
-                            <Phone className="w-4 h-4 mr-2" />
+                      <div className="flex flex-wrap gap-2.5">
+                        <Link
+                          href={`/bounties/${app.bounty_id}`}
+                          className="inline-flex items-center rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
+                          style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
+                        >
+                          View bounty
+                        </Link>
+                        {app.status === "accepted" && app.poster_phone && (
+                          <a
+                            href={`tel:${app.poster_phone}`}
+                            className="inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:bg-green-50"
+                            style={{ borderColor: "#86efac", color: "#15803d", background: "#f0fdf4" }}
+                          >
+                            <Phone className="h-4 w-4" />
                             Call poster
                           </a>
-                        </Button>
-                      )}
-                    </div>
-                  </>
-                )}
-              </div>
-            ))}
+                        )}
+                      </div>
+                    </>
+                  )}
+                </div>
+              );
+            })}
           </div>
         )}
       </div>
