@@ -3,10 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { BountyCard } from "@/components/BountyCard";
-import { Button } from "@/components/ui/button";
 import type { BountyFeedItem } from "@/lib/types/bounty";
 import Link from "next/link";
-import { Loader2, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw, Plus, Inbox } from "lucide-react";
 
 export default function DashboardPage() {
   const [items, setItems] = useState<BountyFeedItem[]>([]);
@@ -32,55 +31,93 @@ export default function DashboardPage() {
     }
   }, []);
 
-  useEffect(() => {
-    void loadFeed();
-  }, [loadFeed]);
+  useEffect(() => { void loadFeed(); }, [loadFeed]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Navbar />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+
+        {/* Header */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
+            <h1
+              className="text-3xl font-bold"
+              style={{ color: "var(--text)", letterSpacing: "-0.03em" }}
+            >
               Available bounties
             </h1>
-            <p className="mt-1 text-gray-600">Open tasks from all locations.</p>
+            <p className="mt-1 text-sm" style={{ color: "var(--text2)" }}>
+              Open tasks — apply to start earning.
+            </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" onClick={loadFeed}>
+            <button
+              onClick={loadFeed}
+              className="inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:bg-white"
+              style={{ borderColor: "var(--border2)", color: "var(--text2)", background: "transparent" }}
+            >
               <RefreshCw className="h-4 w-4" />
-              <span className="ml-2">Refresh</span>
-            </Button>
-            <Button asChild className="bg-blue-600 hover:bg-blue-700">
-              <Link href="/bounties/create">Post a bounty</Link>
-            </Button>
+              Refresh
+            </button>
+            <Link
+              href="/bounties/create"
+              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+              style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+            >
+              <Plus className="h-4 w-4" />
+              Post bounty
+            </Link>
           </div>
         </div>
 
+        {/* Error */}
         {error && (
-          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+          <div
+            className="mb-6 rounded-xl border px-4 py-3 text-sm"
+            style={{ background: "#fef2f2", borderColor: "#fecaca", color: "#b91c1c" }}
+          >
             {error}
           </div>
         )}
 
+        {/* Content */}
         {loading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <div className="flex flex-col items-center justify-center py-24 gap-3">
+            <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
+            <p className="text-sm" style={{ color: "var(--text3)" }}>Loading bounties…</p>
           </div>
         ) : items.length === 0 ? (
-          <div className="rounded-lg border border-gray-200 bg-white p-12 text-center">
-            <p className="text-gray-600">
-              No open bounties available right now.
+          <div
+            className="flex flex-col items-center justify-center rounded-xl border bg-white py-20 text-center"
+            style={{ borderColor: "var(--border)" }}
+          >
+            <Inbox className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--text)" }} />
+            <h3 className="mb-1 text-lg font-semibold" style={{ color: "var(--text)" }}>
+              No bounties yet
+            </h3>
+            <p className="mb-6 text-sm" style={{ color: "var(--text2)" }}>
+              Be the first to post a bounty in your area.
             </p>
-            <Button asChild className="mt-6 bg-blue-600 hover:bg-blue-700">
-              <Link href="/bounties/create">Post the first one</Link>
-            </Button>
+            <Link
+              href="/bounties/create"
+              className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white"
+              style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+            >
+              <Plus className="h-4 w-4" />
+              Post the first one
+            </Link>
           </div>
         ) : (
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            {items.map((b) => (
-              <BountyCard key={b.id} bounty={b} />
+          <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-3">
+            {items.map((b, i) => (
+              <div
+                key={b.id}
+                className="animate-step-in"
+                style={{ animationDelay: `${i * 40}ms` }}
+              >
+                <BountyCard bounty={b} />
+              </div>
             ))}
           </div>
         )}

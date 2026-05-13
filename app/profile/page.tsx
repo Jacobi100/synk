@@ -3,9 +3,39 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowLeft, CheckCircle, AlertCircle, User, Phone, CreditCard, Building2 } from "lucide-react";
+
+function FormField({
+  label,
+  icon: Icon,
+  hint,
+  children,
+}: {
+  label: string;
+  icon?: React.ElementType;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium" style={{ color: "var(--text)" }}>
+        {Icon && <Icon className="h-3.5 w-3.5" style={{ color: "var(--text3)" }} />}
+        {label}
+      </label>
+      {children}
+      {hint && <p className="mt-1 text-xs" style={{ color: "var(--text3)" }}>{hint}</p>}
+    </div>
+  );
+}
+
+const inputCls =
+  "w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-[var(--text3)]";
+const inputStyle = {
+  background: "var(--bg2)",
+  borderColor: "var(--border)",
+  color: "var(--text)",
+};
 
 export default function ProfilePage() {
   const { user, isLoaded } = useUser();
@@ -16,7 +46,7 @@ export default function ProfilePage() {
   const [phone, setPhone] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [bankCode, setBankCode] = useState("");
-  const [message, setMessage] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
     if (!isLoaded || !user) return;
@@ -50,87 +80,193 @@ export default function ProfilePage() {
       }),
     });
     setSaving(false);
-    if (!res.ok) setMessage("Could not save profile");
-    else setMessage("Saved");
+    if (!res.ok) setMessage({ type: "error", text: "Could not save profile. Please try again." });
+    else setMessage({ type: "success", text: "Profile saved successfully." });
   };
 
   if (!isLoaded || !user) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Navbar />
-        <div className="px-4 py-12 text-center text-gray-600">Sign in to manage your profile.</div>
+        <div className="px-4 py-12 text-center text-sm" style={{ color: "var(--text2)" }}>
+          Sign in to manage your profile.
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Navbar />
-      <div className="mx-auto max-w-lg px-4 py-10">
-        <Link href="/dashboard" className="text-sm font-medium text-blue-600 hover:underline">
-          ← Back to feed
+      <div className="mx-auto max-w-lg px-4 py-10 sm:px-6">
+        <Link
+          href="/dashboard"
+          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
+          style={{ color: "var(--text2)" }}
+        >
+          <ArrowLeft className="h-4 w-4" /> Back to feed
         </Link>
-        <h1 className="mt-4 text-2xl font-bold text-gray-900">Profile & payout</h1>
-        <p className="mt-1 text-sm text-gray-600">
-          Add a Nigerian bank account (10 digits + bank code) so Squad Transfer can pay you when a poster completes a
-          bounty.
+
+        <h1
+          className="text-2xl font-bold"
+          style={{ color: "var(--text)", letterSpacing: "-0.02em" }}
+        >
+          Profile & payout
+        </h1>
+        <p className="mt-1 mb-8 text-sm" style={{ color: "var(--text2)" }}>
+          Add your Nigerian bank account so Squad Transfer can pay you when a bounty is completed.
         </p>
+
         {loading ? (
-          <div className="mt-10 flex justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+          <div className="flex justify-center py-16">
+            <Loader2 className="h-7 w-7 animate-spin" style={{ color: "var(--violet)" }} />
           </div>
         ) : (
-          <div className="mt-8 space-y-4 rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
-            <div>
-              <label className="text-sm font-medium text-gray-700">Username</label>
+          <div
+            className="rounded-xl border bg-white p-6 shadow-[var(--synk-shadow)] space-y-5"
+            style={{ borderColor: "var(--border)" }}
+          >
+            <FormField label="Username" icon={User}>
               <input
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+                className={inputCls}
+                style={inputStyle}
                 value={username}
+                placeholder="yourhandle"
                 onChange={(e) => setUsername(e.target.value)}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "var(--violet)";
+                  e.target.style.boxShadow = "0 0 0 3px var(--violet-glow)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--border)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700">Full name</label>
+            </FormField>
+
+            <FormField label="Full name" icon={User}>
               <input
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+                className={inputCls}
+                style={inputStyle}
                 value={fullName}
+                placeholder="Your full name"
                 onChange={(e) => setFullName(e.target.value)}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "var(--violet)";
+                  e.target.style.boxShadow = "0 0 0 3px var(--violet-glow)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--border)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700">Phone (080…)</label>
+            </FormField>
+
+            <FormField label="Phone number" icon={Phone} hint="Used to contact you about accepted bounties.">
               <input
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
+                className={inputCls}
+                style={inputStyle}
                 value={phone}
+                placeholder="0801 234 5678"
                 onChange={(e) => setPhone(e.target.value)}
+                onFocus={(e) => {
+                  e.target.style.borderColor = "var(--violet)";
+                  e.target.style.boxShadow = "0 0 0 3px var(--violet-glow)";
+                }}
+                onBlur={(e) => {
+                  e.target.style.borderColor = "var(--border)";
+                  e.target.style.boxShadow = "none";
+                }}
               />
+            </FormField>
+
+            {/* Payout section */}
+            <div
+              className="rounded-lg border p-4 space-y-4"
+              style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
+            >
+              <div>
+                <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                  Payout account
+                </h2>
+                <p className="mt-0.5 text-xs" style={{ color: "var(--text3)" }}>
+                  Required to receive payments via Squad Transfer.
+                </p>
+              </div>
+
+              <FormField label="Bank code" icon={Building2} hint="e.g. 058 for GTBank, 044 for Access Bank">
+                <input
+                  className={inputCls}
+                  style={inputStyle}
+                  value={bankCode}
+                  placeholder="058"
+                  onChange={(e) => setBankCode(e.target.value)}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "var(--violet)";
+                    e.target.style.boxShadow = "0 0 0 3px var(--violet-glow)";
+                    e.target.style.background = "#fff";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "var(--border)";
+                    e.target.style.boxShadow = "none";
+                    e.target.style.background = "var(--bg2)";
+                  }}
+                />
+              </FormField>
+
+              <FormField label="Account number" icon={CreditCard} hint="Must be exactly 10 digits.">
+                <input
+                  className={inputCls}
+                  style={inputStyle}
+                  value={accountNumber}
+                  placeholder="0123456789"
+                  maxLength={10}
+                  onChange={(e) => setAccountNumber(e.target.value)}
+                  onFocus={(e) => {
+                    e.target.style.borderColor = "var(--violet)";
+                    e.target.style.boxShadow = "0 0 0 3px var(--violet-glow)";
+                    e.target.style.background = "#fff";
+                  }}
+                  onBlur={(e) => {
+                    e.target.style.borderColor = "var(--border)";
+                    e.target.style.boxShadow = "none";
+                    e.target.style.background = "var(--bg2)";
+                  }}
+                />
+              </FormField>
             </div>
-            <div className="border-t border-gray-100 pt-4">
-              <h2 className="text-sm font-semibold text-gray-900">Payout account</h2>
-              <p className="text-xs text-gray-500">Used with Squad Transfer when you are the provider.</p>
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700">Bank code</label>
-              <input
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
-                placeholder="e.g. 058"
-                value={bankCode}
-                onChange={(e) => setBankCode(e.target.value)}
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium text-gray-700">Account number</label>
-              <input
-                className="mt-1 w-full rounded-lg border border-gray-300 px-3 py-2"
-                placeholder="10 digits"
-                value={accountNumber}
-                onChange={(e) => setAccountNumber(e.target.value)}
-              />
-            </div>
-            {message && <p className="text-sm text-gray-600">{message}</p>}
-            <Button className="w-full bg-blue-600 hover:bg-blue-700" disabled={saving} onClick={() => void save()}>
-              {saving ? "Saving…" : "Save"}
-            </Button>
+
+            {/* Feedback */}
+            {message && (
+              <div
+                className="flex items-center gap-2 rounded-lg border p-3 text-sm"
+                style={
+                  message.type === "success"
+                    ? { background: "#f0fdf4", borderColor: "#bbf7d0", color: "#15803d" }
+                    : { background: "#fef2f2", borderColor: "#fecaca", color: "#b91c1c" }
+                }
+              >
+                {message.type === "success" ? (
+                  <CheckCircle className="h-4 w-4 shrink-0" />
+                ) : (
+                  <AlertCircle className="h-4 w-4 shrink-0" />
+                )}
+                {message.text}
+              </div>
+            )}
+
+            <button
+              onClick={() => void save()}
+              disabled={saving}
+              className="w-full rounded-lg py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+            >
+              {saving ? (
+                <span className="flex items-center justify-center gap-2">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Saving…
+                </span>
+              ) : "Save profile"}
+            </button>
           </div>
         )}
       </div>
