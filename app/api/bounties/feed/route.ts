@@ -37,7 +37,7 @@ export async function GET(request: NextRequest) {
     for (const b of bounties) {
       let sug: Awaited<ReturnType<typeof computeSuggestedPriceRange>> | null = null;
       if (lat !== null && lng !== null) {
-        sug = suggestCache.get(b.category);
+        sug = suggestCache.get(b.category) || null;
         if (!sug) {
           sug = await computeSuggestedPriceRange(b.category, lat, lng);
           suggestCache.set(b.category, sug);

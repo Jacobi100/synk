@@ -6,25 +6,18 @@ import { BountyCard } from "@/components/BountyCard";
 import { Button } from "@/components/ui/button";
 import type { BountyFeedItem } from "@/lib/types/bounty";
 import Link from "next/link";
-import { Loader2, MapPin, RefreshCw } from "lucide-react";
+import { Loader2, RefreshCw } from "lucide-react";
 
 export default function DashboardPage() {
   const [items, setItems] = useState<BountyFeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [locating, setLocating] = useState(false);
-  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
 
-  const loadFeed = useCallback(async (lat?: number, lng?: number) => {
+  const loadFeed = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
-      const params = new URLSearchParams();
-      if (lat !== undefined && lng !== undefined) {
-        params.append("lat", lat.toString());
-        params.append("lng", lng.toString());
-      }
-      const res = await fetch(`/api/bounties/feed?${params}`);
+      const res = await fetch(`/api/bounties/feed`);
       if (!res.ok) {
         const j = await res.json().catch(() => ({}));
         throw new Error(j.error || "Failed to load feed");
@@ -40,39 +33,8 @@ export default function DashboardPage() {
   }, []);
 
   useEffect(() => {
-    // Load all bounties initially
     void loadFeed();
   }, [loadFeed]);
-
-  useEffect(() => {
-    if (!coords) return;
-    // Reload with location if coords are available
-    void loadFeed(coords.lat, coords.lng);
-  }, [coords, loadFeed]);
-
-  const useMyLocation = () => {
-    if (!navigator.geolocation) {
-      setError("Geolocation is not supported.");
-      return;
-    }
-    setLocating(true);
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
-        setLocating(false);
-      },
-      () => {
-        setError("Unable to read location. Allow location or try again.");
-        setLocating(false);
-      },
-    );
-  };
-
-  useEffect(() => {
-    // Load all bounties on mount
-    void loadFeed();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- one-shot on mount
-  }, []);
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -82,19 +44,13 @@ export default function DashboardPage() {
           <div>
             <h1 className="text-3xl font-bold text-gray-900">Available bounties</h1>
             <p className="mt-1 text-gray-600">
-              Open tasks from all locations, with suggested pricing when location is available.
+              Open tasks from all locations.
             </p>
-            {coords && (
-              <p className="mt-2 text-xs text-gray-500">
-                <MapPin className="mb-0.5 mr-1 inline h-3 w-3" />
-                {coords.lat.toFixed(4)}, {coords.lng.toFixed(4)}
-              </p>
-            )}
           </div>
           <div className="flex flex-wrap gap-2">
-            <Button variant="outline" disabled={locating} onClick={useMyLocation}>
-              {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-              <span className="ml-2">Refresh location</span>
+            <Button variant="outline" onClick={loadFeed}>
+              <RefreshCw className="h-4 w-4" />
+              <span className="ml-2">Refresh</span>
             </Button>
             <Button asChild className="bg-blue-600 hover:bg-blue-700">
               <Link href="/bounties/create">Post a bounty</Link>
