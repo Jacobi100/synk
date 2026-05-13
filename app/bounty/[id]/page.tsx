@@ -8,7 +8,6 @@ import { Bounty } from "@/lib/types/bounty";
 import Link from "next/link";
 import {
   MapPin,
-  DollarSign,
   Calendar,
   Clock,
   Share2,
@@ -31,6 +30,9 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [isOwnBounty, setIsOwnBounty] = useState(false);
+  const [applyLoading, setApplyLoading] = useState(false);
+  const [applyError, setApplyError] = useState<string | null>(null);
+  const [applySuccess, setApplySuccess] = useState(false);
 
   useEffect(() => {
     const fetchBounty = async () => {
@@ -60,6 +62,40 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
     };
     fetchBounty();
   }, [id, user]);
+
+  const handleApply = async () => {
+    if (!user) {
+      setApplyError("Please sign in to apply");
+      return;
+    }
+
+    try {
+      setApplyLoading(true);
+      setApplyError(null);
+
+      const response = await fetch("/api/bounties/apply", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ bountyId: id }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setApplyError(data.error || "Failed to apply to bounty");
+        return;
+      }
+
+      setApplySuccess(true);
+      setTimeout(() => setApplySuccess(false), 5000); // Hide message after 5 seconds
+    } catch (err) {
+      setApplyError(err instanceof Error ? err.message : "An error occurred");
+    } finally {
+      setApplyLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -253,7 +289,6 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
             {/* Price Card */}
             <div className="bg-linear-to-br from-blue-600 to-blue-700 rounded-lg p-6 text-white mb-6">
               <div className="flex items-center text-blue-100 mb-2">
-                <DollarSign className="w-4 h-4 mr-2" />
                 Estimated Budget
               </div>
               <h3 className="text-3xl font-bold mb-3">{priceDisplay()}</h3>
@@ -264,12 +299,36 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
 
             {/* Action Buttons */}
             <div className="space-y-3">
+              {applySuccess && (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <p className="text-green-800 font-medium">
+                    ✓ Application submitted successfully!
+                  </p>
+                </div>
+              )}
+
+              {applyError && (
+                <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+                  <p className="text-red-800 text-sm">{applyError}</p>
+                </div>
+              )}
+
               <Button
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white h-10 disabled:opacity-50 disabled:cursor-not-allowed"
-                disabled={isOwnBounty}
+                disabled={isOwnBounty || applyLoading}
+                onClick={handleApply}
                 title={isOwnBounty ? "You cannot apply to your own bounty" : ""}
               >
-                {isOwnBounty ? "You Posted This Bounty" : "Apply for Bounty"}
+                {applyLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Applying...
+                  </>
+                ) : isOwnBounty ? (
+                  "You Posted This Bounty"
+                ) : (
+                  "Apply for Bounty"
+                )}
               </Button>
               <Button variant="outline" className="w-full h-10">
                 <Share2 className="w-4 h-4 mr-2" />
