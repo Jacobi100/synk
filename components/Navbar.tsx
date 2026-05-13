@@ -25,6 +25,20 @@ export function Navbar() {
 
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center gap-8">
+            <Show when="signed-in">
+              <Link
+                href="/bounty/browse"
+                className="text-gray-600 hover:text-gray-900 font-medium transition"
+              >
+                Browse
+              </Link>
+              <Link
+                href="/applications"
+                className="text-gray-600 hover:text-gray-900 font-medium transition"
+              >
+                My Applications
+              </Link>
+            </Show>
             <Link
               href="#"
               className="text-gray-600 hover:text-gray-900 font-medium transition"
@@ -73,6 +87,20 @@ export function Navbar() {
         {isOpen && (
           <div className="md:hidden pb-4 border-t border-gray-200">
             <div className="flex flex-col gap-3 pt-4">
+              <Show when="signed-in">
+                <Link
+                  href="/bounty/browse"
+                  className="text-gray-600 hover:text-gray-900 font-medium transition"
+                >
+                  Browse
+                </Link>
+                <Link
+                  href="/applications"
+                  className="text-gray-600 hover:text-gray-900 font-medium transition"
+                >
+                  My Applications
+                </Link>
+              </Show>
               <Link
                 href="#"
                 className="text-gray-600 hover:text-gray-900 font-medium transition"

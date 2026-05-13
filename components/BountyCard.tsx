@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { Bounty } from "@/lib/types/bounty";
-import { MapPin, DollarSign, Clock, Zap } from "lucide-react";
+import { MapPin, Clock } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 
 interface BountyCardProps {
