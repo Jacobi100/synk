@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useState, use } from "react";
@@ -17,6 +18,7 @@ import {
   CheckCircle2,
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
+import NavigationMap from "@/components/map/NavigationMap";
 
 type BountyDetail = Bounty & { poster_phone?: string | null; provider_phone?: string | null };
 
@@ -47,14 +49,15 @@ const URGENCY_STYLES: Record<string, string> = {
 };
 
 export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
-  const { id } = use(params);
+  const { id }   = use(params);
   const { user } = useUser();
-  const [bounty, setBounty] = useState<BountyDetail | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+
+  const [bounty, setBounty]         = useState<BountyDetail | null>(null);
+  const [loading, setLoading]       = useState(true);
+  const [error, setError]           = useState<string | null>(null);
   const [isOwnBounty, setIsOwnBounty] = useState(false);
   const [applyLoading, setApplyLoading] = useState(false);
-  const [applyError, setApplyError] = useState<string | null>(null);
+  const [applyError, setApplyError]   = useState<string | null>(null);
   const [applySuccess, setApplySuccess] = useState(false);
 
   useEffect(() => {
@@ -87,9 +90,9 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
       setApplyLoading(true);
       setApplyError(null);
       const response = await fetch("/api/bounties/apply", {
-        method: "POST",
+        method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bountyId: id }),
+        body:    JSON.stringify({ bountyId: id }),
       });
       const data = await response.json();
       if (!response.ok) { setApplyError(data.error || "Failed to apply"); return; }
@@ -142,8 +145,15 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
     return `${bounty.currency} ${bounty.price_max?.toLocaleString()}`;
   };
 
-  const statusStyle = STATUS_STYLES[bounty.status] ?? STATUS_STYLES.cancelled;
+  const statusStyle  = STATUS_STYLES[bounty.status]  ?? STATUS_STYLES.cancelled;
   const urgencyStyle = URGENCY_STYLES[bounty.urgency] ?? "bg-neutral-100 text-neutral-500 border-neutral-200";
+
+  // Show navigation map to the accepted provider only
+  const isAcceptedProvider =
+    !isOwnBounty &&
+    (bounty.status === "in_progress" || bounty.status === "paid") &&
+    bounty.latitude != null &&
+    bounty.longitude != null;
 
   return (
     <div className="min-h-screen">
@@ -160,6 +170,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
         </Link>
 
         <div className="grid gap-6 lg:grid-cols-3">
+
           {/* Main content */}
           <div className="lg:col-span-2 space-y-5">
             <div
@@ -177,14 +188,11 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                   </h1>
                   <p className="mt-1 text-sm" style={{ color: "var(--text2)" }}>{bounty.category}</p>
                 </div>
-                <span
-                  className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${statusStyle}`}
-                >
+                <span className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${statusStyle}`}>
                   {STATUS_LABELS[bounty.status] ?? bounty.status}
                 </span>
               </div>
 
-              {/* Glow divider */}
               <div className="glow-divider mb-5" />
 
               {/* Description */}
@@ -225,9 +233,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                   <div className="mb-1 flex items-center gap-1.5 text-xs" style={{ color: "var(--text3)" }}>
                     <Clock className="h-3.5 w-3.5" /> Urgency
                   </div>
-                  <span
-                    className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold ${urgencyStyle}`}
-                  >
+                  <span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold ${urgencyStyle}`}>
                     {bounty.urgency.charAt(0).toUpperCase() + bounty.urgency.slice(1)}
                   </span>
                 </div>
@@ -273,6 +279,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                   </p>
                 </div>
               )}
+
               {bounty.provider_phone && (
                 <div
                   className="mt-5 rounded-lg border p-4"
@@ -291,6 +298,16 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                 Posted {formatDistanceToNow(new Date(bounty.created_at), { addSuffix: true })}
               </div>
             </div>
+
+            {/* Navigation map — accepted provider only */}
+            {isAcceptedProvider && (
+              <NavigationMap
+                destinationLat={bounty.latitude!}
+                destinationLng={bounty.longitude!}
+                destinationLabel={bounty.location_name ?? undefined}
+                bountyTitle={bounty.title}
+              />
+            )}
           </div>
 
           {/* Sidebar */}
@@ -370,9 +387,10 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                   disabled={applyLoading}
                   onClick={handleApply}
                 >
-                  {applyLoading ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> Applying…</>
-                  ) : "Apply for Bounty"}
+                  {applyLoading
+                    ? <><Loader2 className="h-4 w-4 animate-spin" /> Applying…</>
+                    : "Apply for Bounty"
+                  }
                 </button>
               )}
 
@@ -396,7 +414,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
               </button>
             </div>
 
-            {/* Info */}
+            {/* Payment info */}
             <div
               className="rounded-xl border p-4 space-y-1"
               style={{ borderColor: "var(--border)", background: "var(--bg2)" }}

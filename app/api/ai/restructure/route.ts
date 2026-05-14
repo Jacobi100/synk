@@ -29,7 +29,7 @@ const RequestSchema = z
 type RequestBody = z.infer<typeof RequestSchema>;
 
 // ---------------------------------------------------------------------------
-// Listing output schema — enforced on every Gemini response
+// Listing output schema
 // ---------------------------------------------------------------------------
 
 const PriceRangeSchema = z.object({
@@ -51,24 +51,82 @@ const ListingSchema = z.object({
 type Listing = z.infer<typeof ListingSchema>;
 
 // ---------------------------------------------------------------------------
-// Route response shape
+// Response shape
 // ---------------------------------------------------------------------------
 
 interface SuccessResponse {
-  listing:           Listing;
-  transcript:        string;
-  detectedLanguage?: string;
-  coordinates?:      { lat: number; lng: number };
-  marketplaceType:   "services";
+  listing:             Listing;
+  transcript:          string;
+  detectedLanguage?:   string;
+  coordinates?:        { lat: number; lng: number };
+  neighbourhoodLabel?: string;
+  marketplaceType:     "services";
 }
 
 interface ErrorResponse {
-  error:   string;
+  error:    string;
   details?: string;
 }
 
 // ---------------------------------------------------------------------------
-// System prompt builder
+// Google Maps reverse geocoding
+// ---------------------------------------------------------------------------
+
+async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  if (!apiKey) {
+    console.warn("[restructure] GOOGLE_MAPS_API_KEY is not set — skipping geocoding.");
+    return null;
+  }
+
+  try {
+    const url = `https://maps.googleapis.com/maps/api/geocode/json?latlng=${lat},${lng}&key=${apiKey}`;
+    const res  = await fetch(url);
+    const data = await res.json() as {
+      status:   string;
+      results:  {
+        formatted_address:  string;
+        address_components: { long_name: string; types: string[] }[];
+      }[];
+    };
+
+    if (data.status !== "OK" || !data.results?.length) {
+      console.warn("[restructure] Geocoding returned status:", data.status);
+      return null;
+    }
+
+    const components = data.results[0].address_components;
+
+    // Priority: neighbourhood → sublocality → locality
+    const neighbourhood = components.find((c) =>
+      c.types.includes("neighborhood") ||
+      c.types.includes("sublocality_level_1") ||
+      c.types.includes("sublocality")
+    )?.long_name;
+
+    const city = components.find((c) =>
+      c.types.includes("locality")
+    )?.long_name;
+
+    if (neighbourhood && city) return `${neighbourhood}, ${city}`;
+    if (neighbourhood)         return neighbourhood;
+    if (city)                  return city;
+
+    // Last resort — first two parts of formatted address
+    return data.results[0].formatted_address
+      .split(",")
+      .slice(0, 2)
+      .join(",")
+      .trim();
+
+  } catch (err) {
+    console.error("[restructure] reverseGeocode failed:", err);
+    return null;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// System prompt
 // ---------------------------------------------------------------------------
 
 function buildSystemPrompt(): string {
@@ -113,7 +171,7 @@ OUTPUT RULES
 }
 
 // ---------------------------------------------------------------------------
-// Core business logic — extracted from the route handler
+// Core logic
 // ---------------------------------------------------------------------------
 
 async function processListing(body: RequestBody): Promise<{
@@ -121,25 +179,21 @@ async function processListing(body: RequestBody): Promise<{
   transcript:        string;
   detectedLanguage?: string;
 }> {
-  let transcript:        string;
-  let detectedLanguage:  string | undefined;
+  let transcript:       string;
+  let detectedLanguage: string | undefined;
 
-  // Step 1: Resolve transcript — from audio or direct input
   if (body.audio) {
     const result = await transcribeAudio({
       audioBase64: body.audio,
       mimeType:    (body.mimeType as "audio/webm" | "audio/mp4") ?? "audio/webm",
       language:    body.language as Parameters<typeof transcribeAudio>[0]["language"],
     });
-
     transcript       = result.transcript;
     detectedLanguage = result.detectedLanguage;
   } else {
-    // body.transcript is guaranteed by RequestSchema refinement
     transcript = body.transcript!;
   }
 
-  // Step 2: Build user message — inject location context if coordinates present
   const locationContext =
     body.lat !== undefined && body.lng !== undefined
       ? `The service provider's device reported coordinates: (${body.lat}, ${body.lng}). ` +
@@ -154,7 +208,6 @@ Location context: ${locationContext}
 
 Classify this into a structured service listing.`;
 
-  // Step 3: Call Gemini with controlled generation
   const listing = await callGemini({
     systemPrompt: buildSystemPrompt(),
     userMessage,
@@ -168,8 +221,9 @@ Classify this into a structured service listing.`;
 // Route handler
 // ---------------------------------------------------------------------------
 
-export async function POST(request: NextRequest): Promise<NextResponse<SuccessResponse | ErrorResponse>> {
-  // Parse body
+export async function POST(
+  request: NextRequest
+): Promise<NextResponse<SuccessResponse | ErrorResponse>> {
   let rawBody: unknown;
   try {
     rawBody = await request.json();
@@ -180,7 +234,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<SuccessRe
     );
   }
 
-  // Validate input
   const parsed = RequestSchema.safeParse(rawBody);
   if (!parsed.success) {
     return NextResponse.json(
@@ -194,15 +247,21 @@ export async function POST(request: NextRequest): Promise<NextResponse<SuccessRe
 
   const body = parsed.data;
 
-  // Process listing
   try {
     const { listing, transcript, detectedLanguage } = await processListing(body);
+
+    // Reverse geocode coordinates into a human-readable neighbourhood label
+    let neighbourhoodLabel: string | undefined;
+    if (body.lat !== undefined && body.lng !== undefined) {
+      neighbourhoodLabel = (await reverseGeocode(body.lat, body.lng)) ?? undefined;
+    }
 
     const response: SuccessResponse = {
       listing,
       transcript,
       marketplaceType: "services",
-      ...(detectedLanguage              ? { detectedLanguage }                            : {}),
+      ...(detectedLanguage  ? { detectedLanguage }                          : {}),
+      ...(neighbourhoodLabel ? { neighbourhoodLabel }                        : {}),
       ...(body.lat !== undefined && body.lng !== undefined
         ? { coordinates: { lat: body.lat, lng: body.lng } }
         : {}),
@@ -210,11 +269,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<SuccessRe
 
     return NextResponse.json(response, { status: 200 });
   } catch (err) {
-    // Do not log audio bytes or transcript content — no sensitive data in logs
     const message = err instanceof Error ? err.message : "An unexpected error occurred.";
-
     console.error("[restructure] processListing failed:", message);
-
     return NextResponse.json(
       { error: "Failed to process listing.", details: message },
       { status: 500 }

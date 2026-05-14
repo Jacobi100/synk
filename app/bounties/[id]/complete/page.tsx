@@ -3,163 +3,436 @@
 import { useEffect, useState, use } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
-import { Button } from "@/components/ui/button";
 import { Bounty } from "@/lib/types/bounty";
 import Link from "next/link";
-import { Loader2, AlertCircle, CheckCircle2 } from "lucide-react";
+import {
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+  ShieldAlert,
+  ShieldX,
+  ArrowLeft,
+  Banknote,
+  Receipt,
+} from "lucide-react";
+
+// ---------------------------------------------------------------------------
+// Types
+// ---------------------------------------------------------------------------
 
 interface CompletePageProps {
   params: Promise<{ id: string }>;
 }
 
+type FraudOutcome = "hold" | "block" | null;
+type PageState    = "idle" | "confirming" | "success" | "error";
+
+// ---------------------------------------------------------------------------
+// Page
+// ---------------------------------------------------------------------------
+
 export default function BountyCompletePage({ params }: CompletePageProps) {
-  const { id } = use(params);
+  const { id }   = use(params);
   const { user } = useUser();
-  const [bounty, setBounty] = useState<Bounty | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-  const [completing, setCompleting] = useState(false);
-  const [completed, setCompleted] = useState(false);
+
+  const [bounty, setBounty]           = useState<Bounty | null>(null);
+  const [loading, setLoading]         = useState(true);
+  const [pageState, setPageState]     = useState<PageState>("idle");
+  const [errorMessage, setErrorMessage] = useState<string>("");
+  const [fraudOutcome, setFraudOutcome] = useState<FraudOutcome>(null);
 
   useEffect(() => {
-    const fetchBounty = async () => {
+    if (!user) return;
+    async function fetchBounty() {
       try {
-        setLoading(true);
-        const response = await fetch(`/api/bounties/${id}`);
-        if (!response.ok) throw new Error("Failed to fetch bounty");
-        setBounty(await response.json());
+        const res = await fetch(`/api/bounties/${id}`);
+        if (!res.ok) throw new Error("Failed to fetch bounty.");
+        setBounty(await res.json());
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load bounty");
+        setErrorMessage(err instanceof Error ? err.message : "Failed to load bounty.");
+        setPageState("error");
       } finally {
         setLoading(false);
       }
-    };
-    if (user) void fetchBounty();
+    }
+    void fetchBounty();
   }, [user, id]);
 
+  // -------------------------------------------------------------------------
+  // Mark complete — calls completeBountyForPoster via the API
+  // Handles fraud block/hold (402) distinctly from generic failures
+  // -------------------------------------------------------------------------
+
   const handleMarkComplete = async () => {
+    if (!bounty || bounty.status !== "paid") return;
+
+    setPageState("confirming");
+    setErrorMessage("");
+    setFraudOutcome(null);
+
     try {
-      setCompleting(true);
-      setError(null);
-      const response = await fetch("/api/bounties/complete", {
-        method: "POST",
+      const res  = await fetch("/api/bounties/complete", {
+        method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ bountyId: id }),
+        body:    JSON.stringify({ bountyId: id }),
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Failed to complete bounty");
-      setCompleted(true);
+
+      const data = await res.json() as { error?: string; ok?: boolean };
+
+      if (!res.ok) {
+        if (res.status === 402) {
+          // Fraud detection intercepted — determine hold vs block
+          const outcome: FraudOutcome =
+            data.error?.toLowerCase().includes("review") ? "hold" : "block";
+          setFraudOutcome(outcome);
+        }
+        throw new Error(data.error ?? "Failed to complete bounty.");
+      }
+
+      setPageState("success");
+
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setCompleting(false);
+      setErrorMessage(err instanceof Error ? err.message : "An unexpected error occurred.");
+      if (pageState !== "success") setPageState("error");
     }
   };
 
+  // -------------------------------------------------------------------------
+  // Derived values
+  // -------------------------------------------------------------------------
+
+  const escrowAmount   = bounty?.price_max ?? bounty?.price_min ?? 0;
+  const platformFee    = Math.round(escrowAmount * 0.05 * 100) / 100;
+  const providerPayout = Math.round((escrowAmount - platformFee) * 100) / 100;
+  const currency       = bounty?.currency ?? "NGN";
+
+  const formatNaira = (amount: number) =>
+    `${currency} ${amount.toLocaleString("en-NG")}`;
+
+  // -------------------------------------------------------------------------
+  // Loading
+  // -------------------------------------------------------------------------
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Navbar />
-        <div className="flex justify-center items-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-blue-600" />
+        <div className="flex flex-col items-center justify-center py-24 gap-3">
+          <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
+          <p className="text-sm" style={{ color: "var(--text2)" }}>Loading…</p>
         </div>
       </div>
     );
   }
 
-  if (completed) {
+  // -------------------------------------------------------------------------
+  // Success
+  // -------------------------------------------------------------------------
+
+  if (pageState === "success") {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Navbar />
-        <div className="mx-auto max-w-2xl px-4 py-12">
-          <div className="rounded-lg border border-green-200 bg-green-50 p-8 text-center">
-            <CheckCircle2 className="mx-auto mb-4 h-16 w-16 text-green-600" />
-            <h2 className="mb-2 text-2xl font-bold text-green-900">Bounty completed</h2>
-            <p className="mb-6 text-green-700">Payout was sent to the provider via Squad Transfer.</p>
-            <Button asChild className="bg-green-600 hover:bg-green-700">
-              <Link href="/dashboard">Back to feed</Link>
-            </Button>
+        <div className="mx-auto max-w-lg px-4 py-12 sm:px-6">
+          <div
+            className="rounded-xl border p-10 flex flex-col items-center gap-4 text-center"
+            style={{ borderColor: "#bbf7d0", backgroundColor: "#f0fdf4" }}
+          >
+            <CheckCircle2 className="h-14 w-14" style={{ color: "#16a34a" }} />
+            <h2 className="text-2xl font-bold" style={{ color: "#14532d" }}>
+              Bounty completed
+            </h2>
+            <p className="text-sm" style={{ color: "#15803d" }}>
+              Payout of {formatNaira(providerPayout)} was sent to the provider via Squad Transfer.
+            </p>
+            <Link
+              href="/dashboard"
+              className="mt-2 rounded-lg px-6 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+              style={{ backgroundColor: "#16a34a" }}
+            >
+              Back to feed
+            </Link>
           </div>
         </div>
       </div>
     );
   }
 
-  if (error && !completed) {
+  // -------------------------------------------------------------------------
+  // Fraud — hold
+  // -------------------------------------------------------------------------
+
+  if (pageState === "error" && fraudOutcome === "hold") {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Navbar />
-        <div className="mx-auto max-w-2xl px-4 py-8">
-          <div className="flex gap-4 rounded-lg border border-red-200 bg-red-50 p-6">
-            <AlertCircle className="mt-0.5 h-6 w-6 shrink-0 text-red-600" />
+        <div className="mx-auto max-w-lg px-4 py-12 sm:px-6">
+          <div
+            className="rounded-xl border p-8 flex flex-col items-center gap-4 text-center"
+            style={{ borderColor: "#fed7aa", backgroundColor: "#fff7ed" }}
+          >
+            <ShieldAlert className="h-12 w-12" style={{ color: "#ea580c" }} />
+            <h2 className="text-xl font-bold" style={{ color: "#7c2d12" }}>
+              Payment under review
+            </h2>
+            <p className="text-sm" style={{ color: "#9a3412" }}>
+              Our fraud detection system flagged this transaction for manual review.
+              The payment has not been released. You will be notified once it is cleared.
+            </p>
+            <p className="text-xs mt-1" style={{ color: "#c2410c" }}>
+              If you believe this is a mistake, contact support with bounty ID: {id}
+            </p>
+            <Link
+              href={`/bounties/${id}`}
+              className="mt-2 rounded-lg border px-6 py-2.5 text-sm font-semibold transition-colors"
+              style={{ borderColor: "#fed7aa", color: "#ea580c" }}
+            >
+              Back to bounty
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Fraud — block
+  // -------------------------------------------------------------------------
+
+  if (pageState === "error" && fraudOutcome === "block") {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="mx-auto max-w-lg px-4 py-12 sm:px-6">
+          <div
+            className="rounded-xl border p-8 flex flex-col items-center gap-4 text-center"
+            style={{ borderColor: "#fecaca", backgroundColor: "#fef2f2" }}
+          >
+            <ShieldX className="h-12 w-12" style={{ color: "#dc2626" }} />
+            <h2 className="text-xl font-bold" style={{ color: "#7f1d1d" }}>
+              Payment blocked
+            </h2>
+            <p className="text-sm" style={{ color: "#991b1b" }}>
+              This transaction was blocked by our fraud detection system.
+              The payment has not been released.
+            </p>
+            <p className="text-xs mt-1" style={{ color: "#b91c1c" }}>
+              Contact support with bounty ID: {id}
+            </p>
+            <Link
+              href="/dashboard"
+              className="mt-2 rounded-lg border px-6 py-2.5 text-sm font-semibold transition-colors"
+              style={{ borderColor: "#fecaca", color: "#dc2626" }}
+            >
+              Back to feed
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // -------------------------------------------------------------------------
+  // Generic error
+  // -------------------------------------------------------------------------
+
+  if (pageState === "error" && !fraudOutcome) {
+    return (
+      <div className="min-h-screen">
+        <Navbar />
+        <div className="mx-auto max-w-lg px-4 py-8 sm:px-6">
+          <div
+            className="rounded-xl border p-6 flex items-start gap-4"
+            style={{ backgroundColor: "#fef2f2", borderColor: "#fecaca" }}
+          >
+            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
             <div>
-              <h3 className="font-semibold text-red-900">Error</h3>
-              <p className="text-red-700">{error}</p>
+              <h3 className="font-semibold" style={{ color: "#7f1d1d" }}>
+                Something went wrong
+              </h3>
+              <p className="text-sm mt-0.5" style={{ color: "#991b1b" }}>
+                {errorMessage}
+              </p>
+              <button
+                onClick={() => setPageState("idle")}
+                className="mt-3 text-sm font-medium underline"
+                style={{ color: "#dc2626" }}
+              >
+                Try again
+              </button>
             </div>
           </div>
         </div>
       </div>
     );
   }
+
+  // -------------------------------------------------------------------------
+  // Bounty not found
+  // -------------------------------------------------------------------------
 
   if (!bounty) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen">
         <Navbar />
-        <div className="mx-auto max-w-2xl px-4 py-8">
-          <p className="text-gray-600">Bounty not found</p>
+        <div className="mx-auto max-w-lg px-4 py-8">
+          <p className="text-sm" style={{ color: "var(--text2)" }}>Bounty not found.</p>
         </div>
       </div>
     );
   }
 
+  // -------------------------------------------------------------------------
+  // Main confirmation screen
+  // -------------------------------------------------------------------------
+
+  const canComplete   = bounty.status === "paid";
+  const isConfirming  = pageState === "confirming";
+
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen">
       <Navbar />
-      <div className="mx-auto max-w-2xl px-4 py-8">
-        <Link href={`/bounties/${id}`} className="font-medium text-blue-600 hover:text-blue-700">
-          ← Back
+      <div className="mx-auto max-w-lg px-4 py-10 sm:px-6">
+
+        {/* Back */}
+        <Link
+          href={`/bounties/${id}`}
+          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
+          style={{ color: "var(--text2)" }}
+        >
+          <ArrowLeft className="h-4 w-4" /> Back to bounty
         </Link>
-        <h1 className="mt-6 mb-8 text-3xl font-bold text-gray-900">Mark bounty complete</h1>
-        <div className="rounded-lg border border-gray-200 bg-white p-8">
-          <div className="mb-8 space-y-4 border-b border-gray-200 pb-8">
-            <div className="flex justify-between">
-              <span className="text-gray-600">Bounty</span>
-              <span className="font-medium text-gray-900">{bounty.title}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-gray-600">Status</span>
-              <span className="font-medium text-gray-900 capitalize">{bounty.status.replace("_", " ")}</span>
-            </div>
-          </div>
-          <div className="mb-8 rounded-lg border border-yellow-200 bg-yellow-50 p-4">
-            <p className="text-sm text-yellow-900">
-              This triggers a Squad Transfer to the provider&apos;s bank on file (minus the 5% platform fee).
+
+        <h1
+          className="text-2xl font-bold mb-1"
+          style={{ color: "var(--text)", letterSpacing: "-0.02em" }}
+        >
+          Release payment
+        </h1>
+        <p className="text-sm mb-8" style={{ color: "var(--text2)" }}>
+          Confirm the service is complete and release the provider's payout.
+        </p>
+
+        <div
+          className="rounded-xl border bg-white p-6 space-y-6"
+          style={{ borderColor: "var(--border)", boxShadow: "var(--synk-shadow)" }}
+        >
+          {/* Bounty summary */}
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wide mb-3"
+              style={{ color: "var(--text3)" }}>
+              Bounty
+            </p>
+            <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+              {bounty.title}
+            </p>
+            <p className="text-xs mt-0.5" style={{ color: "var(--text2)" }}>
+              {bounty.category}
             </p>
           </div>
-          <div className="flex gap-3">
-            <Button
-              onClick={() => void handleMarkComplete()}
-              disabled={completing || bounty.status !== "paid"}
-              className="h-12 flex-1 bg-green-600 hover:bg-green-700"
+
+          <div className="glow-divider" />
+
+          {/* Payout breakdown */}
+          <div className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wide"
+              style={{ color: "var(--text3)" }}>
+              Payout breakdown
+            </p>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text2)" }}>
+                <Banknote className="h-4 w-4" />
+                Escrow amount
+              </div>
+              <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                {formatNaira(escrowAmount)}
+              </span>
+            </div>
+
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text2)" }}>
+                <Receipt className="h-4 w-4" />
+                Platform fee (5%)
+              </div>
+              <span className="text-sm" style={{ color: "var(--text2)" }}>
+                − {formatNaira(platformFee)}
+              </span>
+            </div>
+
+            <div
+              className="flex items-center justify-between rounded-lg p-3"
+              style={{ backgroundColor: "var(--bg2)", borderTop: "1px solid var(--border)" }}
             >
-              {completing ? (
+              <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                Provider receives
+              </span>
+              <span className="text-base font-bold" style={{ color: "var(--violet)" }}>
+                {formatNaira(providerPayout)}
+              </span>
+            </div>
+          </div>
+
+          {/* Fraud check notice */}
+          <div
+            className="rounded-lg border p-4 flex items-start gap-3"
+            style={{ backgroundColor: "#f5f3ff", borderColor: "#ddd6fe" }}
+          >
+            <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--violet)" }} />
+            <p className="text-xs leading-relaxed" style={{ color: "#5b21b6" }}>
+              A fraud check runs automatically before funds are released.
+              If flagged, the payment will be held for review — no funds will move without clearance.
+            </p>
+          </div>
+
+          {/* Cannot complete warning */}
+          {!canComplete && (
+            <div
+              className="rounded-lg border p-4 flex items-start gap-3"
+              style={{ backgroundColor: "#fffbeb", borderColor: "#fed7aa" }}
+            >
+              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#d97706" }} />
+              <p className="text-xs" style={{ color: "#92400e" }}>
+                Payment can only be released once the buyer has funded the escrow.
+                Current status: <strong>{bounty.status.replace("_", " ")}</strong>
+              </p>
+            </div>
+          )}
+
+          {/* Actions */}
+          <div className="flex gap-3">
+            <Link
+              href={`/bounties/${id}`}
+              className="flex-1 flex items-center justify-center rounded-lg border py-3 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
+              style={{ borderColor: "var(--border)", color: "var(--text2)" }}
+            >
+              Cancel
+            </Link>
+
+            <button
+              onClick={() => void handleMarkComplete()}
+              disabled={!canComplete || isConfirming}
+              className="flex-1 flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              style={{
+                backgroundColor: canComplete ? "var(--violet)" : "#9ca3af",
+                boxShadow:       canComplete ? "var(--shadow-violet)" : "none",
+              }}
+            >
+              {isConfirming ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  <Loader2 className="h-4 w-4 animate-spin" />
                   Processing…
                 </>
               ) : (
                 <>
-                  <CheckCircle2 className="mr-2 h-4 w-4" />
-                  Mark complete & pay provider
+                  <CheckCircle2 className="h-4 w-4" />
+                  Confirm & release
                 </>
               )}
-            </Button>
-            <Button variant="outline" asChild className="h-12">
-              <Link href={`/bounties/${id}`}>Cancel</Link>
-            </Button>
+            </button>
           </div>
         </div>
+
       </div>
     </div>
   );
