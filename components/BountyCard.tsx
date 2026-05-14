@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import type { Bounty, BountyFeedItem } from "@/lib/types/bounty";
-import { MapPin, Clock, Sparkles, Users } from "lucide-react";
+import { MapPinIcon, ClockIcon, SparklesIcon, UsersIcon } from "@heroicons/react/24/outline";
 import { formatDistanceToNow } from "date-fns";
 import { useRef } from "react";
 

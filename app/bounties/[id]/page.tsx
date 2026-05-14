@@ -6,16 +6,16 @@ import { Navbar } from "@/components/Navbar";
 import { Bounty } from "@/lib/types/bounty";
 import Link from "next/link";
 import {
-  MapPin,
-  Calendar,
-  Clock,
-  Share2,
-  Briefcase,
-  AlertCircle,
-  Loader2,
-  ArrowLeft,
-  CheckCircle2,
-} from "lucide-react";
+  MapPinIconIcon,
+  CalendarDaysIconDaysIcon,
+  ClockIconIcon,
+  ShareIcon,
+  BriefcaseIconIcon,
+  ExclamationCircleIcon,
+  ArrowPathIcon,
+  ArrowLeftIconIcon,
+  CheckCircleIcon,
+} from "@heroicons/react/24/outline";
 import { formatDistanceToNow } from "date-fns";
 
 type BountyDetail = Bounty & { poster_phone?: string | null; provider_phone?: string | null };
@@ -107,7 +107,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
       <div className="min-h-screen">
         <Navbar />
         <div className="flex flex-col items-center justify-center py-24 gap-3">
-          <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
+          <ArrowPathIcon className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
           <p className="text-sm" style={{ color: "var(--text3)" }}>Loading bounty…</p>
         </div>
       </div>
@@ -123,7 +123,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
             className="rounded-xl border p-6 flex items-start gap-4"
             style={{ background: "#fef2f2", borderColor: "#fecaca" }}
           >
-            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
+            <ExclamationCircleIcon className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
             <div>
               <h3 className="font-semibold" style={{ color: "#7f1d1d" }}>Error loading bounty</h3>
               <p className="text-sm mt-0.5" style={{ color: "#991b1b" }}>{error || "Bounty not found"}</p>
@@ -156,7 +156,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
           className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
           style={{ color: "var(--text2)" }}
         >
-          <ArrowLeft className="h-4 w-4" /> Back to feed
+          <ArrowLeftIcon className="h-4 w-4" /> Back to feed
         </Link>
 
         <div className="grid gap-6 lg:grid-cols-3">
@@ -205,7 +205,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                     style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
                   >
                     <div className="mb-1 flex items-center gap-1.5 text-xs" style={{ color: "var(--text3)" }}>
-                      <MapPin className="h-3.5 w-3.5" /> Location
+                      <MapPinIcon className="h-3.5 w-3.5" /> Location
                     </div>
                     <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
                       {bounty.location_name}
@@ -223,7 +223,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                   style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
                 >
                   <div className="mb-1 flex items-center gap-1.5 text-xs" style={{ color: "var(--text3)" }}>
-                    <Clock className="h-3.5 w-3.5" /> Urgency
+                    <ClockIcon className="h-3.5 w-3.5" /> Urgency
                   </div>
                   <span
                     className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold ${urgencyStyle}`}
@@ -238,7 +238,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                     style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
                   >
                     <div className="mb-1 flex items-center gap-1.5 text-xs" style={{ color: "var(--text3)" }}>
-                      <Calendar className="h-3.5 w-3.5" /> Deadline
+                      <CalendarDaysIcon className="h-3.5 w-3.5" /> Deadline
                     </div>
                     <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
                       {new Date(bounty.deadline).toLocaleDateString()}
@@ -251,7 +251,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                   style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
                 >
                   <div className="mb-1 flex items-center gap-1.5 text-xs" style={{ color: "var(--text3)" }}>
-                    <Briefcase className="h-3.5 w-3.5" /> Slots available
+                    <BriefcaseIcon className="h-3.5 w-3.5" /> Slots available
                   </div>
                   <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
                     {bounty.slots_available} {bounty.slots_available === 1 ? "slot" : "slots"}
@@ -325,7 +325,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                   className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
                   style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
                 >
-                  <Briefcase className="h-4 w-4" /> View Applications
+                  <BriefcaseIcon className="h-4 w-4" /> View Applications
                 </Link>
               )}
 
@@ -345,7 +345,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                   className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5"
                   style={{ background: "var(--success-color)", color: "#fff" }}
                 >
-                  <CheckCircle2 className="h-4 w-4" /> Mark complete & release
+                  <CheckCircleIcon className="h-4 w-4" /> Mark complete & release
                 </Link>
               )}
 
@@ -371,7 +371,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                   onClick={handleApply}
                 >
                   {applyLoading ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> Applying…</>
+                    <><ArrowPathIcon className="h-4 w-4 animate-spin" /> Applying…</>
                   ) : "Apply for Bounty"}
                 </button>
               )}
@@ -392,7 +392,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                 className="flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
                 style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
               >
-                <Share2 className="h-4 w-4" /> Share
+                <ShareIcon className="h-4 w-4" /> Share
               </button>
             </div>
 

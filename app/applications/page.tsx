@@ -6,14 +6,14 @@ import { Navbar } from "@/components/Navbar";
 import { BountyApplication, Bounty, ProviderProfile } from "@/lib/types/bounty";
 import Link from "next/link";
 import {
-  Loader2,
-  AlertCircle,
-  CheckCircle,
-  XCircle,
-  Phone,
-  ArrowLeft,
-  Inbox,
-} from "lucide-react";
+  ArrowPathIcon,
+  ExclamationCircleIcon,
+  CheckCircleIconIcon,
+  XCircleIconIcon,
+  PhoneIconIcon,
+  ArrowLeftIconIcon,
+  InboxIconIcon,
+} from "@heroicons/react/24/outline";
 
 interface ApplicationWithDetails extends BountyApplication {
   bounty?: Bounty;
@@ -122,7 +122,7 @@ export default function MyApplicationsPage() {
           className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
           style={{ color: "var(--text2)" }}
         >
-          <ArrowLeft className="h-4 w-4" /> Back
+          <ArrowLeftIcon className="h-4 w-4" /> Back
         </Link>
 
         {/* Header + tab switcher */}
@@ -175,14 +175,14 @@ export default function MyApplicationsPage() {
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
+            <ArrowPathIcon className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
           </div>
         ) : error ? (
           <div
             className="rounded-xl border p-6 flex items-start gap-4"
             style={{ background: "#fef2f2", borderColor: "#fecaca" }}
           >
-            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
+            <ExclamationCircleIcon className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
             <p className="text-sm" style={{ color: "#991b1b" }}>{error}</p>
           </div>
         ) : applications.length === 0 ? (
@@ -190,7 +190,7 @@ export default function MyApplicationsPage() {
             className="flex flex-col items-center justify-center rounded-xl border bg-white py-20 text-center"
             style={{ borderColor: "var(--border)" }}
           >
-            <Inbox className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--text)" }} />
+            <InboxIcon className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--text)" }} />
             <h3 className="mb-1 text-base font-semibold" style={{ color: "var(--text)" }}>
               No applications yet
             </h3>
@@ -252,7 +252,7 @@ export default function MyApplicationsPage() {
                               </p>
                             ) : app.status === "pending" ? (
                               <p className="italic text-xs" style={{ color: "var(--text3)" }}>
-                                Phone shown after acceptance
+                                PhoneIcon shown after acceptance
                               </p>
                             ) : null}
                           </div>
@@ -271,9 +271,9 @@ export default function MyApplicationsPage() {
                             style={{ background: "var(--success-color)" }}
                           >
                             {actionLoading === app.id ? (
-                              <Loader2 className="h-4 w-4 animate-spin" />
+                              <ArrowPathIcon className="h-4 w-4 animate-spin" />
                             ) : (
-                              <CheckCircle className="h-4 w-4" />
+                              <CheckCircleIcon className="h-4 w-4" />
                             )}
                             Accept
                           </button>
@@ -283,7 +283,7 @@ export default function MyApplicationsPage() {
                             className="inline-flex items-center gap-1.5 rounded-lg border px-4 py-2 text-sm font-semibold transition-colors hover:border-red-300 hover:text-red-600 disabled:opacity-50"
                             style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
                           >
-                            <XCircle className="h-4 w-4" />
+                            <XCircleIcon className="h-4 w-4" />
                             Reject
                           </button>
                         </div>
@@ -297,7 +297,7 @@ export default function MyApplicationsPage() {
                             className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-green-100"
                             style={{ borderColor: "#86efac", color: "#15803d" }}
                           >
-                            <Phone className="h-4 w-4" />
+                            <PhoneIcon className="h-4 w-4" />
                             {app.provider_profile.phone_number}
                           </a>
                         </div>
@@ -332,7 +332,7 @@ export default function MyApplicationsPage() {
                             className="inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:bg-green-50"
                             style={{ borderColor: "#86efac", color: "#15803d", background: "#f0fdf4" }}
                           >
-                            <Phone className="h-4 w-4" />
+                            <PhoneIcon className="h-4 w-4" />
                             Call poster
                           </a>
                         )}

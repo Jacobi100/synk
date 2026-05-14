@@ -6,15 +6,15 @@ import { Navbar } from "@/components/Navbar";
 import { Bounty } from "@/lib/types/bounty";
 import Link from "next/link";
 import {
-  Loader2,
-  AlertCircle,
-  MapPin,
-  Clock,
-  Users,
-  Plus,
-  ArrowLeft,
-  Inbox,
-} from "lucide-react";
+  ArrowPathIcon,
+  ExclamationCircleIcon,
+  MapPinIconIcon,
+  ClockIconIcon,
+  UsersIconIcon,
+  PlusIconIcon,
+  ArrowLeftIconIcon,
+  InboxIconIcon,
+} from "@heroicons/react/24/outline";
 
 const STATUS_STYLES: Record<string, string> = {
   open:        "bg-emerald-50  text-emerald-700  border-emerald-200",
@@ -88,7 +88,7 @@ export default function MyPostingsPage() {
           className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
           style={{ color: "var(--text2)" }}
         >
-          <ArrowLeft className="h-4 w-4" /> Back
+          <ArrowLeftIcon className="h-4 w-4" /> Back
         </Link>
 
         <div className="mb-8 flex items-end justify-between gap-4">
@@ -108,20 +108,20 @@ export default function MyPostingsPage() {
             className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
             style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
           >
-            <Plus className="h-4 w-4" /> New bounty
+            <PlusIcon className="h-4 w-4" /> New bounty
           </Link>
         </div>
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
+            <ArrowPathIcon className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
           </div>
         ) : error ? (
           <div
             className="rounded-xl border p-6 flex items-start gap-4"
             style={{ background: "#fef2f2", borderColor: "#fecaca" }}
           >
-            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
+            <ExclamationCircleIcon className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
             <p className="text-sm" style={{ color: "#991b1b" }}>{error}</p>
           </div>
         ) : bounties.length === 0 ? (
@@ -129,7 +129,7 @@ export default function MyPostingsPage() {
             className="flex flex-col items-center justify-center rounded-xl border bg-white py-20 text-center"
             style={{ borderColor: "var(--border)" }}
           >
-            <Inbox className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--text)" }} />
+            <InboxIcon className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--text)" }} />
             <h3 className="mb-1 text-base font-semibold" style={{ color: "var(--text)" }}>
               No bounties posted yet
             </h3>
@@ -141,7 +141,7 @@ export default function MyPostingsPage() {
               className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white"
               style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
             >
-              <Plus className="h-4 w-4" /> Create bounty
+              <PlusIcon className="h-4 w-4" /> Create bounty
             </Link>
           </div>
         ) : (
@@ -189,18 +189,18 @@ export default function MyPostingsPage() {
                   >
                     {bounty.location_name && (
                       <div className="flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
+                        <MapPinIcon className="h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
                         {bounty.location_name}
                       </div>
                     )}
                     {bounty.deadline && (
                       <div className="flex items-center gap-1.5">
-                        <Clock className="h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
+                        <ClockIcon className="h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
                         {new Date(bounty.deadline).toLocaleDateString()}
                       </div>
                     )}
                     <div className="flex items-center gap-1.5">
-                      <Users className="h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
+                      <UsersIcon className="h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
                       {bounty.slots_available} {bounty.slots_available !== 1 ? "slots" : "slot"}
                     </div>
                   </div>

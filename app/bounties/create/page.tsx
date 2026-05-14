@@ -1,7 +1,7 @@
 import { Navbar } from "@/components/Navbar";
 import { BountyForm } from "@/components/BountyForm";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeftIconIcon } from "@heroicons/react/24/outline";
 
 export default async function CreateBountyPage() {
   return (
@@ -14,7 +14,7 @@ export default async function CreateBountyPage() {
           className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
           style={{ color: "var(--text2)" }}
         >
-          <ArrowLeft className="h-4 w-4" /> Back to feed
+          <ArrowLeftIcon className="h-4 w-4" /> Back to feed
         </Link>
 
         <div className="mb-8">
