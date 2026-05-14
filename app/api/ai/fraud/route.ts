@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { assessTransaction } from "@/lib/risk/scorer";
+import { supabaseAdmin } from "@/lib/supabase/server";
 import type { FraudAssessment, Recommendation, RiskSignal } from "@/lib/risk/types";
 
 // ---------------------------------------------------------------------------
@@ -10,6 +11,8 @@ import type { FraudAssessment, Recommendation, RiskSignal } from "@/lib/risk/typ
 const RequestSchema = z.object({
   buyerId:                  z.string().min(1),
   providerId:               z.string().min(1),
+  bountyId:                 z.string().uuid().optional(),
+  transactionId:            z.string().uuid().optional(),
   amount:                   z.number().positive(),
   serviceDescription:       z.string().min(1),
   category:                 z.string().min(1),
@@ -27,16 +30,14 @@ interface ErrorResponse {
 }
 
 // ---------------------------------------------------------------------------
-// Fraud alert persistence
-//
-// Writes a record to the fraud_alerts table for held or blocked transactions.
-// Replace the body of this function with your database client.
-// The interface is DB-agnostic — swap in Prisma, Drizzle, or Supabase.
+// Fraud alert record shape
 // ---------------------------------------------------------------------------
 
 interface FraudAlertRecord {
   buyerId:             string;
   providerId:          string;
+  bountyId?:           string;
+  transactionId?:      string;
   amount:              number;
   finalScore:          number;
   recommendation:      Recommendation;
@@ -49,26 +50,43 @@ interface FraudAlertRecord {
   createdAt:           Date;
 }
 
-async function writeFraudAlert(record: FraudAlertRecord): Promise<void> {
-  // ---------------------------------------------------------------------------
-  // TODO: Replace with your database client.
-  //
-  // Prisma example:
-  //   await prisma.fraudAlert.create({ data: record });
-  //
-  // Drizzle example:
-  //   await db.insert(fraudAlerts).values(record);
-  //
-  // Supabase example:
-  //   await supabase.from("fraud_alerts").insert(record);
-  // ---------------------------------------------------------------------------
+// ---------------------------------------------------------------------------
+// Fraud alert persistence
+// ---------------------------------------------------------------------------
 
-  console.warn(
-    "[fraud] Alert persisted — recommendation:",
-    record.recommendation,
-    "| score:",
-    record.finalScore
-  );
+async function writeFraudAlert(record: FraudAlertRecord): Promise<void> {
+  try {
+    const { error } = await supabaseAdmin.from("fraud_alerts").insert({
+      buyer_id:            record.buyerId,
+      provider_id:         record.providerId,
+      bounty_id:           record.bountyId ?? null,
+      transaction_id:      record.transactionId ?? null,
+      amount:              record.amount,
+      final_score:         record.finalScore,
+      recommendation:      record.recommendation,
+      risk_factors:        record.riskFactors,
+      explanation:         record.explanation,
+      layer1_score:        record.layer1Score,
+      layer2_score:        record.layer2Score,
+      gemini_contribution: record.geminiContribution,
+      signals:             record.signals,
+      created_at:          record.createdAt.toISOString(),
+    });
+
+    if (error) {
+      console.error("[fraud] Failed to write alert to database:", error.message);
+    } else {
+      console.info(
+        "[fraud] Alert persisted — recommendation:",
+        record.recommendation,
+        "| score:",
+        record.finalScore
+      );
+    }
+  } catch (err) {
+    // Never crash the route over a failed write
+    console.error("[fraud] writeFraudAlert threw unexpectedly:", err);
+  }
 }
 
 // ---------------------------------------------------------------------------
@@ -78,7 +96,6 @@ async function writeFraudAlert(record: FraudAlertRecord): Promise<void> {
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<FraudAssessment | ErrorResponse>> {
-  // Parse body
   let rawBody: unknown;
   try {
     rawBody = await request.json();
@@ -89,7 +106,6 @@ export async function POST(
     );
   }
 
-  // Validate input
   const parsed = RequestSchema.safeParse(rawBody);
   if (!parsed.success) {
     return NextResponse.json(
@@ -103,11 +119,9 @@ export async function POST(
 
   const body = parsed.data;
 
-  // Run two-layer fraud assessment
   try {
     const assessment = await assessTransaction(body);
 
-    // Persist alert for held or blocked transactions
     if (
       assessment.recommendation === "hold" ||
       assessment.recommendation === "block"
@@ -115,6 +129,8 @@ export async function POST(
       await writeFraudAlert({
         buyerId:            body.buyerId,
         providerId:         body.providerId,
+        bountyId:           body.bountyId,
+        transactionId:      body.transactionId,
         amount:             body.amount,
         finalScore:         assessment.finalScore,
         recommendation:     assessment.recommendation,
@@ -128,7 +144,6 @@ export async function POST(
       });
     }
 
-    // Anonymised log — no IDs, no amounts, no descriptions
     console.info(
       "[fraud] Assessment complete — recommendation:",
       assessment.recommendation,
@@ -142,9 +157,7 @@ export async function POST(
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "An unexpected error occurred.";
-
     console.error("[fraud] assessTransaction failed:", message);
-
     return NextResponse.json(
       { error: "Failed to assess transaction.", details: message },
       { status: 500 }
