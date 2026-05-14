@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useUserIcon } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
+import { COPY } from "@/lib/copy";
 import Link from "next/link";
 import { ArrowPathIcon, ArrowLeftIconIcon, CheckCircleIconIcon, ExclamationCircleIcon, UserIconIcon, PhoneIconIcon, CreditCardIconIcon, BuildingOffice2Icon } from "@heroicons/react/24/outline";
 

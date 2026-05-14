@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { BountyCard } from "@/components/BountyCard";
+import { COPY } from "@/lib/copy";
 import type { BountyFeedItem } from "@/lib/types/bounty";
 import Link from "next/link";
 import { ArrowPathIcon, PlusIconIcon, InboxIconIcon } from "@heroicons/react/24/outline";
@@ -45,10 +46,10 @@ export default function DashboardPage() {
               className="text-3xl font-bold"
               style={{ color: "var(--text)", letterSpacing: "-0.03em" }}
             >
-              Available bounties
+                {COPY.DASHBOARD.AVAILABLE_JOBS}
             </h1>
             <p className="mt-1 text-sm" style={{ color: "var(--text2)" }}>
-              Open tasks — apply to start earning.
+                {COPY.DASHBOARD.AVAILABLE_JOBS_SUB}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -58,7 +59,7 @@ export default function DashboardPage() {
               style={{ borderColor: "var(--border2)", color: "var(--text2)", background: "transparent" }}
             >
               <ArrowPathIcon className="h-4 w-4" />
-              Refresh
+              {COPY.DASHBOARD.REFRESH}
             </button>
             <Link
               href="/bounties/create"
@@ -66,7 +67,7 @@ export default function DashboardPage() {
               style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
             >
               <PlusIcon className="h-4 w-4" />
-              Post bounty
+              {COPY.DASHBOARD.POST_JOB}
             </Link>
           </div>
         </div>
@@ -85,7 +86,7 @@ export default function DashboardPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <ArrowPathIcon className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
-            <p className="text-sm" style={{ color: "var(--text3)" }}>Loading bounties…</p>
+            <p className="text-sm" style={{ color: "var(--text3)" }}>{COPY.DASHBOARD.LOADING}</p>
           </div>
         ) : items.length === 0 ? (
           <div
@@ -94,10 +95,10 @@ export default function DashboardPage() {
           >
             <InboxIcon className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--text)" }} />
             <h3 className="mb-1 text-lg font-semibold" style={{ color: "var(--text)" }}>
-              No bounties yet
+              {COPY.DASHBOARD.NO_JOBS}
             </h3>
             <p className="mb-6 text-sm" style={{ color: "var(--text2)" }}>
-              Be the first to post a bounty in your area.
+              {COPY.DASHBOARD.NO_JOBS_SUB}
             </p>
             <Link
               href="/bounties/create"
@@ -105,7 +106,7 @@ export default function DashboardPage() {
               style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
             >
               <PlusIcon className="h-4 w-4" />
-              Post the first one
+              {COPY.DASHBOARD.POST_FIRST}
             </Link>
           </div>
         ) : (

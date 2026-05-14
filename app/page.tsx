@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
+import { COPY } from "@/lib/copy";
 import { Navbar } from "@/components/Navbar";
 import { Bounty } from "@/lib/types/bounty";
 import {
@@ -114,16 +115,16 @@ export default function Home() {
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
           <div className="max-w-xl">
             <GlowingBadge variant="info" dot={false} className="mb-3">
-              Welcome back{user?.firstName ? `, ${user.firstName}` : ""}
+              {COPY.HOME.WELCOME(user?.firstName)}
             </GlowingBadge>
             <h1
               className="mb-4 text-4xl font-bold sm:text-5xl"
               style={{ color: "var(--text-inv)", letterSpacing: "-0.03em", lineHeight: 1.1 }}
             >
-              Your bounty<br />command centre
+              {COPY.HOME.HEADLINE}
             </h1>
             <p className="mb-8 text-base leading-relaxed" style={{ color: "var(--text-inv2)" }}>
-              Post tasks and earn money from professionals — all under escrow protection.
+              {COPY.HOME.SUBHEADLINE}
             </p>
 
             <div className="flex flex-wrap gap-3">
@@ -138,7 +139,7 @@ export default function Home() {
                 onMouseLeave={(e) => (e.currentTarget.style.background = "var(--violet)")}
               >
                 <PlusIcon className="h-4 w-4" />
-                Post a bounty
+                {COPY.HOME.POST_A_JOB}
               </Link>
               <Link
                 href="/dashboard"
@@ -152,7 +153,7 @@ export default function Home() {
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-ink2)"; e.currentTarget.style.color = "var(--text-inv2)"; }}
               >
                 <MagnifyingGlassIcon className="h-4 w-4" />
-                Browse feed
+                {COPY.HOME.FIND_JOBS}
                 <ArrowRightIcon className="h-3.5 w-3.5" />
               </Link>
             </div>
@@ -202,17 +203,17 @@ export default function Home() {
             />
             <PlusIcon className="mb-4 h-10 w-10 opacity-70" style={{ color: "var(--violet3)" }} />
             <h2 className="mb-2 text-xl font-bold" style={{ color: "var(--text-inv)" }}>
-              Post a bounty
+              {COPY.HOME.POST_A_JOB}
             </h2>
             <p className="mb-6 text-sm leading-relaxed" style={{ color: "var(--text-inv2)" }}>
-              Offer your services or request help from skilled professionals.
+              {COPY.HOME.POST_JOB_DESC}
             </p>
             <Link
               href="/bounties/create"
               className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
               style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
             >
-              Create bounty <ArrowRightIcon className="h-3.5 w-3.5" />
+              {COPY.HOME.POST_A_JOB} <ArrowRightIcon className="h-3.5 w-3.5" />
             </Link>
           </div>
 
@@ -223,17 +224,17 @@ export default function Home() {
           >
             <MagnifyingGlassIcon className="mb-4 h-10 w-10 opacity-20" style={{ color: "var(--violet)" }} />
             <h2 className="mb-2 text-xl font-bold" style={{ color: "var(--text)" }}>
-              Browse bounties
+              {COPY.HOME.FIND_JOBS}
             </h2>
             <p className="mb-6 text-sm leading-relaxed" style={{ color: "var(--text2)" }}>
-              Find open tasks near you and apply to start earning.
+              {COPY.HOME.FIND_JOBS_DESC}
             </p>
             <Link
               href="/dashboard"
               className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all hover:-translate-y-0.5 hover:border-[var(--violet)] hover:text-[var(--violet)]"
               style={{ borderColor: "var(--border2)", color: "var(--text)" }}
             >
-              Browse feed <ArrowRightIcon className="h-3.5 w-3.5" />
+              {COPY.HOME.FIND_JOBS} <ArrowRightIcon className="h-3.5 w-3.5" />
             </Link>
           </div>
         </div>
