@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { callGemini } from "@/lib/gemini";
+import { supabaseAdmin } from "@/lib/supabase/server";
 import {
   SERVICE_CATEGORIES,
   SERVICE_CATEGORIES_PROMPT_LIST,
@@ -11,8 +12,9 @@ import {
 // Constants
 // ---------------------------------------------------------------------------
 
-const MAX_QUERY_LENGTH   = 300;
+const MAX_QUERY_LENGTH        = 300;
 const LOW_CONFIDENCE_THRESHOLD = 0.4;
+const MAX_RESULTS             = 50;
 
 // ---------------------------------------------------------------------------
 // Request validation schema
@@ -45,11 +47,35 @@ const SearchInterpretationSchema = z.object({
 type SearchInterpretation = z.infer<typeof SearchInterpretationSchema>;
 
 // ---------------------------------------------------------------------------
+// Bounty row shape returned from Supabase
+// ---------------------------------------------------------------------------
+
+interface BountyRow {
+  id:               string;
+  poster_id:        string;
+  title:            string;
+  description:      string;
+  category:         string;
+  latitude:         number | null;
+  longitude:        number | null;
+  location_name:    string | null;
+  price_min:        number | null;
+  price_max:        number | null;
+  currency:         string;
+  price_negotiable: boolean;
+  urgency:          string;
+  slots_available:  number;
+  status:           string;
+  created_at:       string;
+}
+
+// ---------------------------------------------------------------------------
 // Route response shape
 // ---------------------------------------------------------------------------
 
 interface SearchResponse extends SearchInterpretation {
   lowConfidence?: boolean;
+  listings:       BountyRow[];
 }
 
 interface ErrorResponse {
@@ -59,30 +85,109 @@ interface ErrorResponse {
 
 // ---------------------------------------------------------------------------
 // Query sanitisation
-//
-// Strips HTML tags, normalises whitespace, removes characters commonly used
-// in prompt injection attempts. Protects the Gemini prompt from being
-// manipulated by crafted user input.
 // ---------------------------------------------------------------------------
 
 function sanitizeQuery(raw: string): string {
   return raw
-    .replace(/<[^>]*>/g, "")                    // strip HTML tags
-    .replace(/[\r\n\t]+/g, " ")                 // collapse line breaks and tabs
-    .replace(/\s{2,}/g, " ")                    // collapse multiple spaces
-    .replace(/[`{}[\]\\]/g, "")                 // remove prompt injection chars
+    .replace(/<[^>]*>/g, "")
+    .replace(/[\r\n\t]+/g, " ")
+    .replace(/\s{2,}/g, " ")
+    .replace(/[`{}[\]\\]/g, "")
     .trim()
     .slice(0, MAX_QUERY_LENGTH);
+}
+
+// ---------------------------------------------------------------------------
+// Keyword filter — applied in memory after DB fetch
+// ---------------------------------------------------------------------------
+
+function filterByKeywords(bounties: BountyRow[], keywords: string[]): BountyRow[] {
+  if (keywords.length === 0) return bounties;
+  return bounties.filter((b) => {
+    const searchable = `${b.title} ${b.description} ${b.category}`.toLowerCase();
+    return keywords.some((k) => searchable.includes(k.toLowerCase()));
+  });
+}
+
+// ---------------------------------------------------------------------------
+// Fetch matching bounties from Supabase
+// ---------------------------------------------------------------------------
+
+async function fetchMatchingBounties(
+  interpretation: SearchInterpretation,
+  lat?: number,
+  lng?: number
+): Promise<BountyRow[]> {
+  try {
+    // If coordinates provided — use PostGIS RPC for proximity, filter in memory
+    if (lat !== undefined && lng !== undefined) {
+      const { data: nearbyBounties, error } = await supabaseAdmin.rpc(
+        "nearby_open_bounties",
+        { p_lat: lat, p_lng: lng }
+      );
+
+      if (error) {
+        console.error("[search] RPC nearby_open_bounties failed:", error.message);
+        // Fall through to standard query
+      } else {
+        const nearby = (nearbyBounties ?? []) as BountyRow[];
+
+        // Filter by categories if Gemini found any
+        const filtered = interpretation.categories.length > 0
+          ? nearby.filter((b) => interpretation.categories.includes(b.category as never))
+          : nearby;
+
+        return filterByKeywords(filtered, interpretation.keywords);
+      }
+    }
+
+    // No coordinates — standard query with category filter
+    let query = supabaseAdmin
+      .from("bounties")
+      .select("*")
+      .eq("status", "open")
+      .order("created_at", { ascending: false })
+      .limit(MAX_RESULTS);
+
+    if (interpretation.categories.length > 0) {
+      query = query.in("category", interpretation.categories);
+    }
+
+    // Price signal filter
+    if (interpretation.priceSignal === "budget") {
+      query = query.lte("price_max", 10000); // under ₦10k = budget
+    } else if (interpretation.priceSignal === "premium") {
+      query = query.gte("price_min", 20000); // over ₦20k = premium
+    }
+
+    // Urgency filter
+    if (
+      interpretation.urgency === "immediate" ||
+      interpretation.urgency === "today"
+    ) {
+      query = query.eq("urgency", "asap");
+    }
+
+    const { data, error } = await query;
+
+    if (error) {
+      console.error("[search] Bounty query failed:", error.message);
+      return [];
+    }
+
+    return filterByKeywords((data ?? []) as BountyRow[], interpretation.keywords);
+
+  } catch (err) {
+    console.error("[search] fetchMatchingBounties threw unexpectedly:", err);
+    return [];
+  }
 }
 
 // ---------------------------------------------------------------------------
 // System prompt builder
 // ---------------------------------------------------------------------------
 
-function buildSearchSystemPrompt(
-  lat?: number,
-  lng?: number
-): string {
+function buildSearchSystemPrompt(lat?: number, lng?: number): string {
   const locationContext =
     lat !== undefined && lng !== undefined
       ? `The buyer's current GPS coordinates are (${lat}, ${lng}). ` +
@@ -130,9 +235,9 @@ CLASSIFICATION RULES
    - "standard": no price signal — default
    - "premium": best, top quality, professional, premium, I go pay well
    - Default to "unspecified" if ambiguous.
-6. confidence: A score from 0.0 to 1.0 representing how clearly you understood the query intent. 1.0 = fully clear, 0.5 = required significant inference, 0.0 = could not understand.
-7. isRelevant: Set to false if the query is completely unrelated to buying or finding services or goods — for example weather questions, jokes, general knowledge queries. Set to true for anything that could be a legitimate service or product search even if unusual.
-8. originalQuery: Return the query text exactly as you received it — do not modify it.
+6. confidence: A score from 0.0 to 1.0 representing how clearly you understood the query intent.
+7. isRelevant: Set to false if the query is completely unrelated to buying or finding services or goods.
+8. originalQuery: Return the query text exactly as you received it.
 
 OUTPUT RULES
 - Respond with ONLY a valid JSON object matching the schema.
@@ -140,12 +245,10 @@ OUTPUT RULES
 }
 
 // ---------------------------------------------------------------------------
-// Core interpretation logic — extracted from route handler
+// Core interpretation logic
 // ---------------------------------------------------------------------------
 
-async function interpretSearchQuery(
-  body: RequestBody
-): Promise<SearchInterpretation> {
+async function interpretSearchQuery(body: RequestBody): Promise<SearchInterpretation> {
   const cleanedQuery = sanitizeQuery(body.query);
 
   const userMessage = `Search query: "${cleanedQuery}"${
@@ -168,7 +271,6 @@ Interpret this query and return the structured search intent object.`;
 export async function POST(
   request: NextRequest
 ): Promise<NextResponse<SearchResponse | ErrorResponse>> {
-  // Parse body
   let rawBody: unknown;
   try {
     rawBody = await request.json();
@@ -179,7 +281,6 @@ export async function POST(
     );
   }
 
-  // Validate input
   const parsed = RequestSchema.safeParse(rawBody);
   if (!parsed.success) {
     return NextResponse.json(
@@ -193,22 +294,26 @@ export async function POST(
 
   const body = parsed.data;
 
-  // Interpret query
   try {
     const interpretation = await interpretSearchQuery(body);
 
-    // Build response — attach lowConfidence flag if below threshold
+    // Fetch matching listings — empty array if query is irrelevant
+    const listings = interpretation.isRelevant
+      ? await fetchMatchingBounties(interpretation, body.lat, body.lng)
+      : [];
+
     const response: SearchResponse = {
       ...interpretation,
+      listings,
       ...(interpretation.confidence < LOW_CONFIDENCE_THRESHOLD
         ? { lowConfidence: true }
         : {}),
     };
 
-    // Anonymised log — query shape only, no raw content
     console.info(
       "[search] Query interpreted —",
       "categories:", interpretation.categories.length,
+      "| listings found:", listings.length,
       "| urgency:", interpretation.urgency,
       "| priceSignal:", interpretation.priceSignal,
       "| isRelevant:", interpretation.isRelevant,
@@ -218,12 +323,11 @@ export async function POST(
     );
 
     return NextResponse.json(response, { status: 200 });
+
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "An unexpected error occurred.";
-
     console.error("[search] interpretSearchQuery failed:", message);
-
     return NextResponse.json(
       { error: "Failed to interpret search query.", details: message },
       { status: 500 }
