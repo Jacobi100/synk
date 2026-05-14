@@ -6,8 +6,7 @@ import { BountyCard } from "@/components/BountyCard";
 import { COPY } from "@/lib/copy";
 import type { BountyFeedItem } from "@/lib/types/bounty";
 import Link from "next/link";
-import { ArrowPathIcon, PlusIconIcon, InboxIconIcon } from "@heroicons/react/24/outline";
-import { COPY } from "@/lib/copy";
+import { ArrowPathIcon, PlusIcon, InboxIcon } from "@heroicons/react/24/outline";
 
 export default function DashboardPage() {
   const [items, setItems] = useState<BountyFeedItem[]>([]);

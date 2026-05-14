@@ -8,11 +8,11 @@ import Link from "next/link";
 import {
   ArrowPathIcon,
   ExclamationCircleIcon,
-  CheckCircleIconIcon,
-  XCircleIconIcon,
-  PhoneIconIcon,
-  ArrowLeftIconIcon,
-  InboxIconIcon,
+  CheckCircleIcon,
+  XCircleIcon,
+  PhoneIcon,
+  ArrowLeftIcon,
+  InboxIcon,
 } from "@heroicons/react/24/outline";
 import { COPY } from "@/lib/copy";
 
@@ -193,7 +193,7 @@ export default function MyApplicationsPage() {
           >
             <InboxIcon className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--text)" }} />
             <h3 className="mb-1 text-base font-semibold" style={{ color: "var(--text)" }}>
-              {COPY.MY_APPLICATIONS.EMPTY}
+              {COPY.MY_APPLICATIONS.EMPTY_TITLE}
             </h3>
             <p className="mb-5 text-sm" style={{ color: "var(--text2)" }}>
               {isPosterView
@@ -237,7 +237,7 @@ export default function MyApplicationsPage() {
                             style={{ background: "var(--violet-subtle)", borderColor: "rgba(94,58,255,0.3)" }}
                           >
                             <p className="font-semibold text-xs" style={{ color: "var(--violet)" }}>
-                              {COPY.APPLICATIONS.HELPER_LABEL}
+                              {COPY.MY_APPLICATIONS.HELPER_LABEL}
                             </p>
                             <p style={{ color: "var(--text2)" }}>
                               ID: {app.provider_id.slice(0, 8)}…
@@ -253,7 +253,7 @@ export default function MyApplicationsPage() {
                               </p>
                             ) : app.status === "pending" ? (
                               <p className="italic text-xs" style={{ color: "var(--text3)" }}>
-                                {COPY.APPLICATIONS.PHONE_HIDDEN}
+                                {COPY.MY_APPLICATIONS.PHONE_HIDDEN}
                               </p>
                             ) : null}
                           </div>

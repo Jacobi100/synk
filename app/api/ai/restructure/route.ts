@@ -73,9 +73,9 @@ interface ErrorResponse {
 // ---------------------------------------------------------------------------
 
 async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
-  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
-    console.warn("[restructure] GOOGLE_MAPS_API_KEY is not set — skipping geocoding.");
+    console.warn("[restructure] NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set — skipping geocoding.");
     return null;
   }
 

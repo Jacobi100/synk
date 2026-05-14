@@ -535,3 +535,20 @@ export async function updateTransactionReleased(
   }
   return data as TransactionRow;
 }
+
+// --- Reviews ---
+
+export async function createReview(input: {
+  bounty_id: string;
+  poster_id: string;
+  provider_id: string;
+  rating: number;
+  comment?: string;
+}): Promise<boolean> {
+  const { error } = await db.from("reviews").insert(input);
+  if (error) {
+    console.error("createReview:", error);
+    return false;
+  }
+  return true;
+}

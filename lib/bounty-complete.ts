@@ -133,10 +133,10 @@ async function updateProviderReputation(providerId: string): Promise<void> {
       .select("id", { count: "exact", head: true })
       .eq("provider_id", providerId);
 
-    // Account age
+    // Account age & Ratings
     const { data: profileRow } = await supabaseAdmin
       .from("profiles")
-      .select("created_at")
+      .select("created_at, average_rating, rating_count")
       .eq("id", providerId)
       .single();
 
@@ -158,6 +158,8 @@ async function updateProviderReputation(providerId: string): Promise<void> {
       fraudFlags:                 fraudFlags ?? 0,
       averageResponseTimeMinutes: 60, // default until response time tracking is added
       accountAgeDays,
+      averageRating:              Number(profileRow?.average_rating || 0),
+      ratingCount:                Number(profileRow?.rating_count || 0),
     });
 
     const { error } = await supabaseAdmin
@@ -237,7 +239,7 @@ export async function completeBountyForPoster(clerkUserId: string, bountyId: str
     buyerId:       bounty.poster_id,
     providerId:    tx.provider_id,
     amount:        Number(tx.amount),
-    description:   bounty.description,
+    description:   bounty.description || "",
     category:      bounty.category,
     createdAt:     tx.created_at,
   });

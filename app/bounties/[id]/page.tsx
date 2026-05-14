@@ -8,19 +8,18 @@ import { Bounty } from "@/lib/types/bounty";
 import { COPY } from "@/lib/copy";
 import Link from "next/link";
 import {
-  MapPinIconIcon,
-  CalendarDaysIconDaysIcon,
-  ClockIconIcon,
+  MapPinIcon,
+  CalendarDaysIcon,
+  ClockIcon,
   ShareIcon,
-  BriefcaseIconIcon,
+  BriefcaseIcon,
   ExclamationCircleIcon,
   ArrowPathIcon,
-  ArrowLeftIconIcon,
+  ArrowLeftIcon,
   CheckCircleIcon,
 } from "@heroicons/react/24/outline";
 import { formatDistanceToNow } from "date-fns";
 import NavigationMap from "@/components/map/NavigationMap";
-import { COPY } from "@/lib/copy";
 
 type BountyDetail = Bounty & { poster_phone?: string | null; provider_phone?: string | null };
 
@@ -390,7 +389,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                   onClick={handleApply}
                 >
                   {applyLoading ? (
-                    <><Loader2 className="h-4 w-4 animate-spin" /> {COPY.JOB_DETAIL.APPLYING}</>
+                    <><ArrowPathIcon className="h-4 w-4 animate-spin" /> {COPY.JOB_DETAIL.APPLYING}</>
                   ) : COPY.JOB_DETAIL.APPLY_BUTTON}
                 </button>
               )}

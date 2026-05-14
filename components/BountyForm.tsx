@@ -212,7 +212,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
           className="flex items-start gap-3 rounded-xl border p-4 text-sm"
           style={{ background: "var(--violet-subtle)", borderColor: "var(--violet)", color: "var(--violet)" }}
         >
-          <Sparkles className="mt-0.5 h-4 w-4 shrink-0" />
+          <SparklesIcon className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
             {COPY.BOUNTY_FORM.PRICE_SUGGESTION(
               suggest.suggested_min.toLocaleString("en-NG"),
@@ -297,7 +297,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <FieldLabel>
-            <MapPin className="mr-1 inline h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
+            <MapPinIcon className="mr-1 inline h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
             {COPY.BOUNTY_FORM.FIELD_LOCATION}
           </FieldLabel>
           <div className="flex gap-2">
@@ -311,7 +311,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
               className="flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)] disabled:opacity-50"
               style={{ borderColor: "var(--border2)", color: "var(--text2)", background: "var(--bg2)" }}
             >
-              {locating ? <Loader2 className="h-4 w-4 animate-spin" /> : <MapPin className="h-4 w-4" />}
+              {locating ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : <MapPinIcon className="h-4 w-4" />}
               {locating ? "" : "GPS"}
             </button>
           </div>
@@ -366,7 +366,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <FieldLabel>
-            <Calendar className="mr-1 inline h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
+            <CalendarDaysIcon className="mr-1 inline h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
             {COPY.BOUNTY_FORM.FIELD_DEADLINE}
           </FieldLabel>
           <input
@@ -407,7 +407,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
           className="flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed"
           style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
         >
-          {loading && <Loader2 className="h-4 w-4 animate-spin" />}
+          {loading && <ArrowPathIcon className="h-4 w-4 animate-spin" />}
           {bounty ? "Update bounty" : "Post bounty"}
         </button>
         <button
