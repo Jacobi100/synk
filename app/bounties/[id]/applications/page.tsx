@@ -6,6 +6,7 @@ import { useUserIcon } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import type { BountyApplication, ProviderProfile } from "@/lib/types/bounty";
+import { COPY } from "@/lib/copy";
 import Link from "next/link";
 import { ArrowPathIcon, ExclamationCircleIcon, CheckCircleIconIcon, XCircleIconIcon, UserIconIcon } from "@heroicons/react/24/outline";
 import { COPY } from "@/lib/copy";
@@ -138,7 +139,7 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
           <div className="flex gap-4 rounded-lg border border-red-200 bg-red-50 p-6">
             <ExclamationCircleIcon className="mt-0.5 h-6 w-6 shrink-0 text-red-600" />
             <div>
-              <h3 className="font-semibold text-red-900">Error</h3>
+              <h3 className="font-semibold text-red-900">{COPY.APPLICATIONS.ERROR_TITLE}</h3>
               <p className="text-red-700">{error}</p>
             </div>
           </div>
@@ -161,7 +162,7 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                     </div>
                   </div>
                   <span className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusColor(app.status)}`}>
-                    {app.status.charAt(0).toUpperCase() + app.status.slice(1)}
+                    {COPY.APPLICATION_STATUS[app.status as keyof typeof COPY.APPLICATION_STATUS] ?? app.status}
                   </span>
                 </div>
                 {app.status === "pending" && (
@@ -174,7 +175,7 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                       {actionLoading === app.id ? (
                         <>
                           <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                          Accepting…
+                                Accepting…
                         </>
                       ) : (
                         <>

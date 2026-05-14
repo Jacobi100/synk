@@ -5,6 +5,7 @@ import { useEffect, useState, use } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
 import { Bounty } from "@/lib/types/bounty";
+import { COPY } from "@/lib/copy";
 import Link from "next/link";
 import {
   MapPinIconIcon,
@@ -86,7 +87,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
   }, [id, user]);
 
   const handleApply = async () => {
-    if (!user) { setApplyError("Please sign in to apply"); return; }
+    if (!user) { setApplyError(COPY.JOB_DETAIL.SIGN_IN_TO_APPLY); return; }
     try {
       setApplyLoading(true);
       setApplyError(null);
@@ -96,7 +97,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
         body:    JSON.stringify({ bountyId: id }),
       });
       const data = await response.json();
-      if (!response.ok) { setApplyError(data.error || "Failed to apply"); return; }
+      if (!response.ok) { setApplyError(data.error || COPY.JOB_DETAIL.APPLY_ERROR_GENERIC); return; }
       setApplySuccess(true);
       setTimeout(() => setApplySuccess(false), 5000);
     } catch (err) {
@@ -261,7 +262,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                     <BriefcaseIcon className="h-3.5 w-3.5" /> {COPY.HELPERS_NEEDED}
                   </div>
                   <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-                    {bounty.slots_available} {bounty.slots_available === 1 ? "slot" : "slots"}
+                    {COPY.HELPERS_NEEDED_COUNT(bounty.slots_available)}
                   </p>
                 </div>
               </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { VoiceInput } from "@/components/voice/VoiceInput";
+import { COPY } from "@/lib/copy";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import type { RestructureResult } from "@/components/voice/VoiceInput";
@@ -210,7 +211,7 @@ export default function CreateListingPage() {
           <div className="bg-white rounded-2xl shadow-sm p-6 space-y-5">
 
             <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Title</label>
+              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{COPY.CREATE_JOB.FIELD_TITLE}</label>
               <input
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -219,7 +220,7 @@ export default function CreateListingPage() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Category</label>
+              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{COPY.CREATE_JOB.FIELD_CATEGORY}</label>
               <input
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
@@ -228,7 +229,7 @@ export default function CreateListingPage() {
             </div>
 
             <div>
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Description</label>
+              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{COPY.CREATE_JOB.FIELD_DESCRIPTION}</label>
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
@@ -239,7 +240,7 @@ export default function CreateListingPage() {
 
             <div className="flex gap-3">
               <div className="flex-1">
-                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Min Price (₦)</label>
+                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{COPY.CREATE_JOB.FIELD_MIN_PRICE}</label>
                 <input
                   type="number"
                   value={priceMin}
@@ -248,7 +249,7 @@ export default function CreateListingPage() {
                 />
               </div>
               <div className="flex-1">
-                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Max Price (₦)</label>
+                <label className="text-xs font-semibold text-gray-400 uppercase tracking-wide">{COPY.CREATE_JOB.FIELD_MAX_PRICE}</label>
                 <input
                   type="number"
                   value={priceMax}

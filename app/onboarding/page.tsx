@@ -3,6 +3,7 @@
 import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { COPY } from "@/lib/copy";
 import {
   AtSymbolIcon,
   PhoneIcon,
@@ -22,7 +23,7 @@ import {
 } from "@/components/unlumen-ui/floating-tooltip";
 import { COPY } from "@/lib/copy";
 
-const STEPS = ["Account", "Profile", "Complete"];
+const STEPS = [COPY.ONBOARDING.STEP_ACCOUNT, COPY.ONBOARDING.STEP_PROFILE, COPY.ONBOARDING.STEP_DONE];
 
 function AvatarPlaceholder({ name }: { name?: string | null }) {
   const initials = name
@@ -125,7 +126,7 @@ export default function OnboardingPage() {
 
     if (!res.ok) {
       const { error } = await res.json();
-      setError(error || "Something went wrong");
+      setError(error || COPY.ONBOARDING.ERROR);
       setLoading(false);
       return;
     }
@@ -187,7 +188,7 @@ export default function OnboardingPage() {
               <BoltIcon className="h-5 w-5 text-white" />
             </div>
             <span className="text-2xl font-semibold tracking-tight text-white">
-              Synk
+              {COPY.ONBOARDING.BRAND}
             </span>
           </div>
 
@@ -198,7 +199,7 @@ export default function OnboardingPage() {
               profile.
             </h1>
             <p className="mt-6 text-base leading-relaxed text-white/70 md:text-lg">
-              A few details to personalise your Synk experience.
+              {COPY.ONBOARDING.SUBTITLE}
             </p>
           </div>
 
@@ -224,7 +225,7 @@ export default function OnboardingPage() {
               >
                 <BoltIcon className="h-5 w-5 text-white" />
                 <span className="text-[15px] font-bold tracking-tight text-white">
-                  Synk
+                  {COPY.ONBOARDING.BRAND}
                 </span>
               </div>
             </div>
@@ -242,10 +243,10 @@ export default function OnboardingPage() {
                     className="mb-1 text-2xl font-bold text-white"
                     style={{ letterSpacing: "-0.02em" }}
                   >
-                    Set up your account
+                    {COPY.ONBOARDING.TITLE}
                   </h1>
                   <p className="text-sm text-white/70">
-                    Step <AnimateCount>1</AnimateCount> of {STEPS.length}
+                    {COPY.ONBOARDING.STEP_OF(1, STEPS.length)}
                   </p>
                 </div>
               }
@@ -285,7 +286,7 @@ export default function OnboardingPage() {
                     </Label>
                     <FloatingTooltip.Trigger
                       content="Nigerian number preferred"
-                      description="Used for verification and notifications"
+                      description={COPY.ONBOARDING.PHONE_HINT}
                     >
                       <div className="relative">
                         <PhoneIcon
@@ -294,7 +295,7 @@ export default function OnboardingPage() {
                         />
                         <Input
                           id="phone_number" name="phone_number" type="tel"
-                          placeholder="+234 801 234 5678"
+                          placeholder={COPY.ONBOARDING.PHONE_PLACEHOLDER}
                           required autoComplete="tel"
                           className="pl-9"
                         />
@@ -305,11 +306,11 @@ export default function OnboardingPage() {
                   {/* DOB */}
                   <div className="space-y-1.5">
                     <Label htmlFor="date_of_birth" style={{ color: "var(--text)" }}>
-                      Date of birth
+                      {COPY.ONBOARDING.FIELD_DOB}
                     </Label>
                     <FloatingTooltip.Trigger
                       content="Must be 18+"
-                      description="Your date of birth is private and never shared"
+                      description={COPY.ONBOARDING.DOB_HINT}
                     >
                       <div className="relative">
                         <CalendarDaysIcon
@@ -346,7 +347,7 @@ export default function OnboardingPage() {
                     {loading ? (
                       <><ArrowPathIcon className="h-4 w-4 animate-spin" /> {COPY.PROFILE.SAVING}</>
                     ) : (
-                      <>Continue <ArrowRightIcon className="h-4 w-4" /></>
+                      <>{COPY.ONBOARDING.CONTINUE} <ArrowRightIcon className="h-4 w-4" /></>
                     )}
                   </button>
                 </form>

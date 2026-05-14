@@ -4,6 +4,7 @@ import { useEffect, useState, use } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
 import { Bounty } from "@/lib/types/bounty";
+import { COPY } from "@/lib/copy";
 import Link from "next/link";
 import {
   Loader2,
@@ -275,7 +276,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
       <div className="min-h-screen">
         <Navbar />
         <div className="mx-auto max-w-lg px-4 py-8">
-          <p className="text-sm" style={{ color: "var(--text2)" }}>Bounty not found.</p>
+          <p className="text-sm" style={{ color: "var(--text2)" }}>{COPY.COMPLETE.NOT_FOUND}</p>
         </div>
       </div>
     );
@@ -318,7 +319,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
         >
           {/* Bounty summary */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-3"
+              <p className="text-xs font-semibold uppercase tracking-wide mb-3"
               style={{ color: "var(--text3)" }}>
               {COPY.COMPLETE.SECTION_JOB}
             </p>
@@ -398,7 +399,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
 
           {/* Actions */}
           <div className="flex gap-3">
-            <Link
+              <Link
               href={`/bounties/${id}`}
               className="flex-1 flex items-center justify-center rounded-lg border py-3 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
               style={{ borderColor: "var(--border)", color: "var(--text2)" }}

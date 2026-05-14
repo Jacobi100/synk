@@ -3,6 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { BountyCard } from "@/components/BountyCard";
+import { COPY } from "@/lib/copy";
 import type { BountyFeedItem } from "@/lib/types/bounty";
 import Link from "next/link";
 import { ArrowPathIcon, PlusIconIcon, InboxIconIcon } from "@heroicons/react/24/outline";

@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
+import { COPY } from "@/lib/copy";
 import { Bounty } from "@/lib/types/bounty";
 import Link from "next/link";
 import {
