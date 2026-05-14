@@ -3,6 +3,7 @@
 import { useUser } from "@clerk/nextjs";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { COPY } from "@/lib/copy";
 import {
   AtSymbolIcon,
   PhoneIcon,
@@ -21,7 +22,7 @@ import {
   FloatingTooltip,
 } from "@/components/unlumen-ui/floating-tooltip";
 
-const STEPS = ["Account", "Profile", "Complete"];
+const STEPS = [COPY.ONBOARDING.STEP_ACCOUNT, COPY.ONBOARDING.STEP_PROFILE, COPY.ONBOARDING.STEP_DONE];
 
 function AvatarPlaceholder({ name }: { name?: string | null }) {
   const initials = name
@@ -241,10 +242,10 @@ export default function OnboardingPage() {
                     className="mb-1 text-2xl font-bold text-white"
                     style={{ letterSpacing: "-0.02em" }}
                   >
-                    Set up your account
+                    {COPY.ONBOARDING.TITLE}
                   </h1>
                   <p className="text-sm text-white/70">
-                    Step <AnimateCount>1</AnimateCount> of {STEPS.length}
+                    {COPY.ONBOARDING.STEP_OF(1, STEPS.length)}
                   </p>
                 </div>
               }
@@ -256,7 +257,7 @@ export default function OnboardingPage() {
                   {/* Username */}
                   <div className="space-y-1.5">
                     <Label htmlFor="username" style={{ color: "var(--text)" }}>
-                      Username
+                      {COPY.ONBOARDING.FIELD_USERNAME}
                     </Label>
                     <FloatingTooltip.Trigger
                       content="Pick a unique handle"
@@ -280,7 +281,7 @@ export default function OnboardingPage() {
                   {/* Phone */}
                   <div className="space-y-1.5">
                     <Label htmlFor="phone_number" style={{ color: "var(--text)" }}>
-                      Phone number
+                      {COPY.ONBOARDING.FIELD_PHONE}
                     </Label>
                     <FloatingTooltip.Trigger
                       content="Nigerian number preferred"
