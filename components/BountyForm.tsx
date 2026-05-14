@@ -4,6 +4,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Bounty, CreateBountyInput } from "@/lib/types/bounty";
 import { ArrowPathIcon, MapPinIcon, CalendarDaysIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import { COPY } from "@/lib/copy";
 
 interface BountyFormProps {
   bounty?: Bounty;
@@ -213,10 +214,12 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
         >
           <Sparkles className="mt-0.5 h-4 w-4 shrink-0" />
           <div>
-            <span className="font-semibold">AI price suggestion: </span>
-            ₦{suggest.suggested_min.toLocaleString("en-NG")} – ₦{suggest.suggested_max.toLocaleString("en-NG")}
+            {COPY.BOUNTY_FORM.PRICE_SUGGESTION(
+              suggest.suggested_min.toLocaleString("en-NG"),
+              suggest.suggested_max.toLocaleString("en-NG")
+            )}
             {suggest.avg != null && (
-              <span className="opacity-70"> (avg ₦{Math.round(suggest.avg).toLocaleString("en-NG")})</span>
+              <span className="opacity-70"> {COPY.BOUNTY_FORM.PRICE_AVERAGE(Math.round(suggest.avg).toLocaleString("en-NG"))}</span>
             )}
           </div>
         </div>
@@ -236,7 +239,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
 
       {/* Title */}
       <div>
-        <FieldLabel>Bounty title *</FieldLabel>
+        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_TITLE}</FieldLabel>
         <input
           type="text" name="title" value={formData.title} onChange={handleChange} required
           placeholder="What do you need done?"
@@ -246,7 +249,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
 
       {/* Description */}
       <div>
-        <FieldLabel>Description</FieldLabel>
+        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_DESCRIPTION}</FieldLabel>
         <textarea
           name="description" value={formData.description || ""} onChange={handleChange}
           placeholder="Provide detailed information about the task, requirements, and expectations…"
@@ -256,7 +259,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
 
       {/* Category */}
       <div>
-        <FieldLabel>Category *</FieldLabel>
+        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_CATEGORY}</FieldLabel>
         <select
           name="category" value={formData.category} onChange={handleChange} required
           className={inputBase} style={inputStyle} {...focus}
@@ -270,7 +273,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
 
       {/* Photos */}
       <div>
-        <FieldLabel>Photos (optional)</FieldLabel>
+        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_IMAGES}</FieldLabel>
         <div
           className="rounded-lg border border-dashed px-4 py-3 text-sm transition-colors hover:border-[var(--violet)]"
           style={{ borderColor: "var(--border2)", color: "var(--text3)" }}
@@ -295,7 +298,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
         <div>
           <FieldLabel>
             <MapPin className="mr-1 inline h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
-            Location name
+            {COPY.BOUNTY_FORM.FIELD_LOCATION}
           </FieldLabel>
           <div className="flex gap-2">
             <input
@@ -329,7 +332,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       <SectionDivider title="Pricing" />
 
       <div>
-        <FieldLabel>Budget (NGN)</FieldLabel>
+        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_PRICE}</FieldLabel>
         <div className="grid gap-3 md:grid-cols-2">
           <div>
             <label className="mb-1 block text-xs" style={{ color: "var(--text3)" }}>Minimum</label>
@@ -354,7 +357,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
             onChange={handleChange}
             className="h-4 w-4 rounded accent-[var(--violet)]"
           />
-          Price is negotiable
+          {COPY.BOUNTY_FORM.FIELD_NEGOTIABLE}
         </label>
       </div>
 
@@ -364,7 +367,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
         <div>
           <FieldLabel>
             <Calendar className="mr-1 inline h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
-            Deadline (optional)
+            {COPY.BOUNTY_FORM.FIELD_DEADLINE}
           </FieldLabel>
           <input
             type="datetime-local" name="deadline" value={formData.deadline || ""}
@@ -373,7 +376,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
           />
         </div>
         <div>
-          <FieldLabel>Urgency *</FieldLabel>
+          <FieldLabel>{COPY.BOUNTY_FORM.FIELD_URGENCY}</FieldLabel>
           <select
             name="urgency" value={formData.urgency} onChange={handleChange}
             className={inputBase} style={inputStyle} {...focus}
@@ -386,7 +389,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       </div>
 
       <div>
-        <FieldLabel>Slots available</FieldLabel>
+        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_SLOTS}</FieldLabel>
         <input
           type="number" name="slots_available" value={formData.slots_available}
           onChange={handleNumberChange} min={1}

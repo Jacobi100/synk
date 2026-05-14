@@ -15,6 +15,7 @@ import {
   ArrowLeftIconIcon,
   InboxIconIcon,
 } from "@heroicons/react/24/outline";
+import { COPY } from "@/lib/copy";
 
 const STATUS_STYLES: Record<string, string> = {
   open:        "bg-emerald-50  text-emerald-700  border-emerald-200",
@@ -25,11 +26,11 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  open:        "Open",
-  in_progress: "In Progress",
-  paid:        "Paid",
-  completed:   "Completed",
-  cancelled:   "Cancelled",
+  open:        COPY.STATUS.open,
+  in_progress: COPY.STATUS.in_progress,
+  paid:        COPY.STATUS.paid,
+  completed:   COPY.STATUS.completed,
+  cancelled:   COPY.STATUS.cancelled,
 };
 
 const URGENCY_STYLES: Record<string, string> = {
@@ -72,7 +73,7 @@ export default function MyPostingsPage() {
       <div className="min-h-screen">
         <Navbar />
         <div className="mx-auto max-w-4xl px-4 py-12 text-center text-sm" style={{ color: "var(--text2)" }}>
-          Sign in to view your postings.
+          Sign in to view your postings.{/* COPY.MY_POSTINGS.SIGN_IN_REQUIRED — key missing from lib/copy.ts */}
         </div>
       </div>
     );
@@ -97,10 +98,10 @@ export default function MyPostingsPage() {
               className="text-3xl font-bold"
               style={{ color: "var(--text)", letterSpacing: "-0.03em" }}
             >
-              My Postings
+              {COPY.MY_POSTINGS.TITLE}
             </h1>
             <p className="mt-1 text-sm" style={{ color: "var(--text2)" }}>
-              Manage and track all bounties you have posted.
+              {COPY.MY_POSTINGS.SUBTITLE}
             </p>
           </div>
           <Link
@@ -108,7 +109,7 @@ export default function MyPostingsPage() {
             className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
             style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
           >
-            <PlusIcon className="h-4 w-4" /> New bounty
+            <PlusIcon className="h-4 w-4" /> {COPY.MY_POSTINGS.NEW_JOB}
           </Link>
         </div>
 
@@ -131,17 +132,17 @@ export default function MyPostingsPage() {
           >
             <InboxIcon className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--text)" }} />
             <h3 className="mb-1 text-base font-semibold" style={{ color: "var(--text)" }}>
-              No bounties posted yet
+              {COPY.MY_POSTINGS.EMPTY_TITLE}
             </h3>
             <p className="mb-5 text-sm" style={{ color: "var(--text2)" }}>
-              Create your first bounty to start receiving applications.
+              {COPY.MY_POSTINGS.EMPTY_SUB}
             </p>
             <Link
               href="/bounties/create"
               className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white"
               style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
             >
-              <PlusIcon className="h-4 w-4" /> Create bounty
+              <PlusIcon className="h-4 w-4" /> {COPY.MY_POSTINGS.NEW_JOB}
             </Link>
           </div>
         ) : (
@@ -212,7 +213,7 @@ export default function MyPostingsPage() {
                       className="inline-flex items-center rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
                       style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
                     >
-                      View details
+                      View details{/* COPY.MY_POSTINGS.VIEW_DETAILS — key missing from lib/copy.ts */}
                     </Link>
                     {bounty.status === "open" && (
                       <Link
@@ -220,7 +221,7 @@ export default function MyPostingsPage() {
                         className="inline-flex items-center rounded-lg px-3.5 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
                         style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
                       >
-                        View applications
+                        {COPY.MY_POSTINGS.VIEW_HELPERS}
                       </Link>
                     )}
                     {bounty.status === "in_progress" && (
@@ -230,14 +231,14 @@ export default function MyPostingsPage() {
                           className="inline-flex items-center rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
                           style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
                         >
-                          Payment
+                          {COPY.MY_POSTINGS.PAYMENT}
                         </Link>
                         <Link
                           href={`/bounties/${bounty.id}/complete`}
                           className="inline-flex items-center rounded-lg px-3.5 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
                           style={{ background: "var(--success-color)" }}
                         >
-                          Mark complete
+                          {COPY.MY_POSTINGS.CONFIRM_DONE}
                         </Link>
                       </>
                     )}

@@ -6,6 +6,7 @@ import { VoiceInput } from "@/components/voice/VoiceInput";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import type { RestructureResult } from "@/components/voice/VoiceInput";
+import { COPY } from "@/lib/copy";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -148,14 +149,14 @@ export default function CreateListingPage() {
         className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
         style={{ color: "var(--text2)" }}
       >
-        <ArrowLeftIcon className="h-4 w-4" /> Back to feed
+        <ArrowLeftIcon className="h-4 w-4" /> {COPY.BACK_TO_FEED}
       </Link>
 
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">Post a Service</h1>
+        <h1 className="text-2xl font-bold text-gray-900">{COPY.CREATE_JOB.TITLE}</h1>
         <p className="text-gray-500 text-sm mt-1">
-          Speak what you offer and we will handle the rest.
+          {COPY.CREATE_JOB.SUBTITLE}
         </p>
       </div>
 
@@ -163,7 +164,7 @@ export default function CreateListingPage() {
       {(state === "idle" || state === "recording") && (
         <div className="bg-white rounded-2xl shadow-sm p-6">
           <p className="text-sm text-gray-600 mb-4 text-center">
-            Tap the mic and describe your service in any language.
+            {COPY.CREATE_JOB.MIC_INSTRUCTION}
           </p>
           <VoiceInput
             onTranscript={() => setState("processing")}
@@ -171,7 +172,7 @@ export default function CreateListingPage() {
             coordinates={coords}
           />
           <p className="text-xs text-gray-400 text-center mt-2">
-            Yoruba · Igbo · Hausa · Pidgin · English
+            {COPY.CREATE_JOB.LANGUAGE_SUPPORT}
           </p>
         </div>
       )}
@@ -180,7 +181,7 @@ export default function CreateListingPage() {
       {state === "processing" && (
         <div className="bg-white rounded-2xl shadow-sm p-10 flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-gray-500 text-sm">Understanding your listing...</p>
+          <p className="text-gray-500 text-sm">{COPY.CREATE_JOB.PROCESSING}</p>
         </div>
       )}
 
@@ -192,7 +193,7 @@ export default function CreateListingPage() {
           {preview.confidence < 0.5 && (
             <div className="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
               <p className="text-yellow-800 text-sm font-medium">
-                ⚠️ We weren't fully sure about some details — please review carefully.
+                {COPY.CREATE_JOB.LOW_CONFIDENCE}
               </p>
             </div>
           )}
@@ -200,7 +201,7 @@ export default function CreateListingPage() {
           {/* What we heard */}
           <div className="bg-blue-50 rounded-xl p-4">
             <p className="text-xs text-blue-500 font-medium mb-1 uppercase tracking-wide">
-              What we heard {preview.detectedLanguage ? `· ${preview.detectedLanguage}` : ""}
+              {COPY.CREATE_JOB.WHAT_WE_HEARD} {preview.detectedLanguage ? `· ${preview.detectedLanguage}` : ""}
             </p>
             <p className="text-sm text-blue-900 italic">"{preview.transcript}"</p>
           </div>
@@ -291,13 +292,13 @@ export default function CreateListingPage() {
               onClick={() => { setState("idle"); setPreview(null); setErrorMsg(""); }}
               className="flex-1 border border-gray-200 rounded-xl py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 transition"
             >
-              Record Again
+              {COPY.CREATE_JOB.RECORD_AGAIN}
             </button>
             <button
               onClick={handleSave}
               className="flex-1 bg-blue-600 rounded-xl py-3 text-sm font-medium text-white hover:bg-blue-700 transition"
             >
-              Post Listing
+              {COPY.CREATE_JOB.POST_LISTING}
             </button>
           </div>
         </div>
@@ -307,7 +308,7 @@ export default function CreateListingPage() {
       {state === "saving" && (
         <div className="bg-white rounded-2xl shadow-sm p-10 flex flex-col items-center gap-4">
           <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-gray-500 text-sm">Posting your listing...</p>
+          <p className="text-gray-500 text-sm">{COPY.CREATE_JOB.POSTING}</p>
         </div>
       )}
 
@@ -315,8 +316,8 @@ export default function CreateListingPage() {
       {state === "success" && (
         <div className="bg-white rounded-2xl shadow-sm p-10 flex flex-col items-center gap-4">
           <div className="text-5xl">✅</div>
-          <p className="text-gray-800 font-semibold">Listing posted!</p>
-          <p className="text-gray-400 text-sm">Taking you back...</p>
+          <p className="text-gray-800 font-semibold">{COPY.CREATE_JOB.SUCCESS}</p>
+          <p className="text-gray-400 text-sm">Taking you back...</p>{/* COPY.CREATE_JOB.REDIRECTING — key missing */}
         </div>
       )}
 
@@ -324,13 +325,13 @@ export default function CreateListingPage() {
       {state === "error" && !preview && (
         <div className="space-y-4">
           <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-            <p className="text-red-600 text-sm">{errorMsg || "Something went wrong."}</p>
+            <p className="text-red-600 text-sm">{errorMsg || "Something went wrong."}{/* COPY.CREATE_JOB.ERROR_GENERIC — key missing */}</p>
           </div>
           <button
             onClick={() => { setState("idle"); setErrorMsg(""); }}
             className="w-full border border-gray-200 rounded-xl py-3 text-sm font-medium text-gray-600 hover:bg-gray-50 transition"
           >
-            Try Again
+            {COPY.CREATE_JOB.TRY_AGAIN}
           </button>
         </div>
       )}

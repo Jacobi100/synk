@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import type { BountyApplication, ProviderProfile } from "@/lib/types/bounty";
 import Link from "next/link";
 import { ArrowPathIcon, ExclamationCircleIcon, CheckCircleIconIcon, XCircleIconIcon, UserIconIcon } from "@heroicons/react/24/outline";
+import { COPY } from "@/lib/copy";
 
 type AppRow = BountyApplication & { provider_profile?: ProviderProfile | null };
 
@@ -120,10 +121,10 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
       <Navbar />
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <Link href={`/bounties/${id}`} className="font-medium text-blue-600 hover:text-blue-700">
-          ← Back to bounty
+          {COPY.BACK_TO_JOB}
         </Link>
-        <h1 className="mt-6 mb-2 text-3xl font-bold text-gray-900">Applications</h1>
-        <p className="mb-8 text-gray-600">Review providers who applied to this bounty.</p>
+        <h1 className="mt-6 mb-2 text-3xl font-bold text-gray-900">{COPY.APPLICATIONS.TITLE}</h1>
+        <p className="mb-8 text-gray-600">{COPY.APPLICATIONS.SUBTITLE}</p>
         {actionError && (
           <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
             <p className="text-red-800">{actionError}</p>
@@ -143,7 +144,7 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
           </div>
         ) : applications.length === 0 ? (
           <div className="rounded-lg border border-gray-200 bg-white p-12 text-center text-gray-600">
-            No applications yet.
+            {COPY.APPLICATIONS.EMPTY}
           </div>
         ) : (
           <div className="space-y-4">
@@ -156,7 +157,7 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">{providerLabel(app)}</h3>
-                      <p className="text-sm text-gray-600">Applied {new Date(app.created_at).toLocaleDateString()}</p>
+                      <p className="text-sm text-gray-600">{COPY.APPLICATIONS.APPLIED_ON(new Date(app.created_at).toLocaleDateString())}</p>
                     </div>
                   </div>
                   <span className={`rounded-full px-3 py-1 text-sm font-medium ${getStatusColor(app.status)}`}>
@@ -178,7 +179,7 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                       ) : (
                         <>
                           <CheckCircleIcon className="mr-2 h-4 w-4" />
-                          Accept
+                          {COPY.APPLICATIONS.ACCEPT}
                         </>
                       )}
                     </Button>
@@ -191,7 +192,7 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                       ) : (
                         <>
                           <XCircleIcon className="mr-2 h-4 w-4" />
-                          Reject
+                          {COPY.APPLICATIONS.DECLINE}
                         </>
                       )}
                     </Button>

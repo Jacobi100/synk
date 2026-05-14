@@ -5,6 +5,7 @@ import type { Bounty, BountyFeedItem } from "@/lib/types/bounty";
 import { MapPinIcon, ClockIcon, SparklesIcon, UsersIcon } from "@heroicons/react/24/outline";
 import { formatDistanceToNow } from "date-fns";
 import { useRef } from "react";
+import { COPY } from "@/lib/copy";
 
 interface BountyCardProps {
   bounty: Bounty | BountyFeedItem;
@@ -23,11 +24,11 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  open:        "Open",
-  in_progress: "In Progress",
-  paid:        "Paid",
-  completed:   "Completed",
-  cancelled:   "Cancelled",
+  open:        COPY.STATUS.open,
+  in_progress: COPY.STATUS.in_progress,
+  paid:        COPY.STATUS.paid,
+  completed:   COPY.STATUS.completed,
+  cancelled:   COPY.STATUS.cancelled,
 };
 
 const URGENCY_STYLES: Record<string, string> = {
@@ -90,7 +91,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
             </p>
             {feed?.poster_name && (
               <p className="mt-0.5 text-xs" style={{ color: "var(--text3)" }}>
-                by {feed.poster_name}
+                {COPY.BOUNTY_CARD.BY(feed.poster_name)}
               </p>
             )}
           </div>
@@ -103,7 +104,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
 
         {/* Description */}
         <p className="mb-4 line-clamp-2 text-[13px] leading-relaxed" style={{ color: "var(--text2)" }}>
-          {bounty.description || "No description provided."}
+          {bounty.description || COPY.BOUNTY_CARD.NO_DESCRIPTION}
         </p>
 
         {/* Meta row */}
@@ -139,7 +140,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
                   borderColor: "var(--violet)",
                 }}
               >
-                Negotiable
+                {COPY.BOUNTY_FORM.FIELD_NEGOTIABLE}
               </span>
             )}
             {feed?.suggested_price_min != null && feed.suggested_price_max != null && (
@@ -169,7 +170,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
             style={{ color: "var(--success-color)" }}
           >
             <Users className="h-3.5 w-3.5" />
-            {bounty.slots_available} {bounty.slots_available === 1 ? "slot" : "slots"} available
+            {COPY.BOUNTY_CARD.HELPERS_NEEDED(bounty.slots_available)}
           </div>
         )}
       </div>

@@ -20,6 +20,7 @@ import { AnimateCount } from "@/components/unlumen-ui/animate-count";
 import {
   FloatingTooltip,
 } from "@/components/unlumen-ui/floating-tooltip";
+import { COPY } from "@/lib/copy";
 
 const STEPS = ["Account", "Profile", "Complete"];
 
@@ -256,7 +257,7 @@ export default function OnboardingPage() {
                   {/* Username */}
                   <div className="space-y-1.5">
                     <Label htmlFor="username" style={{ color: "var(--text)" }}>
-                      Username
+                      {COPY.PROFILE.FIELD_USERNAME}
                     </Label>
                     <FloatingTooltip.Trigger
                       content="Pick a unique handle"
@@ -280,7 +281,7 @@ export default function OnboardingPage() {
                   {/* Phone */}
                   <div className="space-y-1.5">
                     <Label htmlFor="phone_number" style={{ color: "var(--text)" }}>
-                      Phone number
+                      {COPY.PROFILE.FIELD_PHONE}
                     </Label>
                     <FloatingTooltip.Trigger
                       content="Nigerian number preferred"
@@ -343,7 +344,7 @@ export default function OnboardingPage() {
                     style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
                   >
                     {loading ? (
-                      <><ArrowPathIcon className="h-4 w-4 animate-spin" /> Saving…</>
+                      <><ArrowPathIcon className="h-4 w-4 animate-spin" /> {COPY.PROFILE.SAVING}</>
                     ) : (
                       <>Continue <ArrowRightIcon className="h-4 w-4" /></>
                     )}
