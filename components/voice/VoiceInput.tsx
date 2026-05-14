@@ -23,9 +23,32 @@ interface Language {
   label: string;
 }
 
+// Full response shape from /api/ai/restructure
+export interface RestructureResult {
+  listing: {
+    title:              string;
+    category:           string;
+    description:        string;
+    tags:               string[];
+    priceRange:         { minPrice: number; maxPrice: number };
+    userProvidedPrice?: number;
+    currency:           "NGN";
+    confidence:         number;
+  };
+  transcript:            string;
+  detectedLanguage?:     string;
+  neighbourhoodLabel?:   string;
+  coordinates?:          { lat: number; lng: number };
+  marketplaceType:       "services";
+}
+
 export interface VoiceInputProps {
   /** Called with the English transcript once Gemini processes the audio. */
   onTranscript: (transcript: string) => void;
+  /** Called with the full structured result — use this for listing creation. */
+  onResult?: (result: RestructureResult) => void;
+  /** Coordinates to pass to the restructure route for geocoding. */
+  coordinates?: { lat: number; lng: number };
   /** Optional initial language override from a parent component. */
   language?: string;
 }
@@ -55,8 +78,7 @@ const CHECK_INTERVAL_MS = 100;
 // Component
 // ---------------------------------------------------------------------------
 
-export function VoiceInput({ onTranscript, language: languageProp }: VoiceInputProps) {
-  const [state, setState] = useState<RecordingState>("idle");
+export function VoiceInput({ onTranscript, onResult, coordinates, language: languageProp }: VoiceInputProps) {  const [state, setState] = useState<RecordingState>("idle");
   const [selectedLanguage, setSelectedLanguage] = useState<string>(languageProp ?? "pcm-NG");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [silenceSeconds, setSilenceSeconds] = useState<number>(0);
@@ -178,7 +200,13 @@ export function VoiceInput({ onTranscript, language: languageProp }: VoiceInputP
       const res = await fetch("/api/ai/restructure", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ audio, language: lang, mimeType }),
+        body: JSON.stringify({
+          audio,
+          language: lang,
+          mimeType,
+          lat: coordinates?.lat,
+          lng: coordinates?.lng,
+        }),
       });
 
       if (!res.ok) {
@@ -186,10 +214,13 @@ export function VoiceInput({ onTranscript, language: languageProp }: VoiceInputP
         throw new Error(err.message ?? `Server error ${res.status}`);
       }
 
-      const data = await res.json() as { transcript: string };
+      const data = await res.json() as RestructureResult;
       if (!data.transcript) throw new Error("No transcript returned from server");
 
+      // Call both callbacks — onResult for listing creation, onTranscript for other uses
       onTranscript(data.transcript);
+      onResult?.(data);
+
       setState("idle");
     } catch (err) {
       setErrorMessage(
