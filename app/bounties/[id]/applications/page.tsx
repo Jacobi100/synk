@@ -2,16 +2,25 @@
 
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
-import { useUserIcon } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import type { BountyApplication, ProviderProfile } from "@/lib/types/bounty";
-import { COPY } from "@/lib/copy";
+
 import Link from "next/link";
-import { ArrowPathIcon, ExclamationCircleIcon, CheckCircleIconIcon, XCircleIconIcon, UserIconIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, ArrowLeftIcon, CheckCircleIcon, ExclamationCircleIcon, UserIcon, PhoneIcon, CreditCardIcon, BuildingOffice2Icon, XCircleIcon } from "@heroicons/react/24/outline";
 import { COPY } from "@/lib/copy";
 
-type AppRow = BountyApplication & { provider_profile?: ProviderProfile | null };
+
+type AppRow = BountyApplication & { 
+  provider_profile?: ProviderProfile | null;
+  risk?: {
+    riskScore: number;
+    riskLevel: "low" | "medium" | "high";
+    factors: string[];
+    recommendation: "accept" | "caution" | "reject";
+  } | null;
+};
 
 interface ApplicationsPageProps {
   params: Promise<{ id: string }>;
@@ -20,7 +29,7 @@ interface ApplicationsPageProps {
 export default function BountyApplicationsPage({ params }: ApplicationsPageProps) {
   const { id } = use(params);
   const router = useRouter();
-  const { user } = useUserIcon();
+  const { user, isLoaded } = useUser();
   const [applications, setApplications] = useState<AppRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -165,6 +174,41 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                     {COPY.APPLICATION_STATUS[app.status as keyof typeof COPY.APPLICATION_STATUS] ?? app.status}
                   </span>
                 </div>
+
+                {/* Risk Assessment */}
+                {app.risk && (
+                  <div className={`mb-6 rounded-xl border p-4 ${
+                    app.risk.riskLevel === 'low' ? 'bg-emerald-50/50 border-emerald-100' :
+                    app.risk.riskLevel === 'medium' ? 'bg-amber-50/50 border-amber-100' :
+                    'bg-rose-50/50 border-rose-100'
+                  }`}>
+                    <div className="flex items-center justify-between mb-2.5">
+                      <div className="flex items-center gap-2">
+                        <div className={`h-2 w-2 rounded-full ${
+                          app.risk.riskLevel === 'low' ? 'bg-emerald-500' :
+                          app.risk.riskLevel === 'medium' ? 'bg-amber-500' :
+                          'bg-rose-500'
+                        }`} />
+                        <span className={`text-[11px] font-bold uppercase tracking-wider ${
+                          app.risk.riskLevel === 'low' ? 'text-emerald-700' :
+                          app.risk.riskLevel === 'medium' ? 'text-amber-700' :
+                          'text-rose-700'
+                        }`}>
+                          {app.risk.riskLevel} Risk Assessment
+                        </span>
+                      </div>
+                      <span className="text-[10px] font-mono text-gray-400">SCORE: {100 - app.risk.riskScore}/100</span>
+                    </div>
+                    <ul className="space-y-1.5">
+                      {app.risk.factors.map((f, i) => (
+                        <li key={i} className="flex items-start gap-2 text-[13px] leading-tight text-gray-700">
+                          <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-gray-300" />
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                )}
                 {app.status === "pending" && (
                   <div className="flex gap-3">
                     <Button

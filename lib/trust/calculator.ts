@@ -63,6 +63,21 @@ function scoreExperience(completedJobs: number): TrustSignal {
   };
 }
 
+function scoreRating(avg: number, count: number): TrustSignal {
+  // Scales linearly from 0 to max at 4.5+ rating.
+  // Requires at least 3 ratings to get full scaling, otherwise penalty.
+  const ratingWeight = Math.min(avg / 4.5, 1);
+  const countPenalty = count < 3 ? 0.5 : 1;
+  const points = Math.round(ratingWeight * TRUST_SCORE_WEIGHTS.averageRating * countPenalty);
+  
+  return {
+    signalId: "RATING",
+    label:    "Average customer rating",
+    points,
+    rawValue: `${avg} (${count} reviews)`,
+  };
+}
+
 function computeTrustScore(stats: ProviderStats): {
   score:   number;
   signals: TrustSignal[];
@@ -72,6 +87,7 @@ function computeTrustScore(stats: ProviderStats): {
     scoreRepeatBuyerRatio(stats.repeatBuyerRatio),
     scoreDisputeRecord(stats.disputeCount),
     scoreExperience(stats.completedJobs),
+    scoreRating(stats.averageRating, stats.ratingCount),
   ];
 
   const raw   = signals.reduce((sum, s) => sum + s.points, 0);

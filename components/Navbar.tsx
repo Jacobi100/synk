@@ -35,7 +35,7 @@ export function Navbar() {
               className="flex h-8 w-8 items-center justify-center rounded-lg transition-transform group-hover:scale-105"
               style={{ background: "linear-gradient(135deg, var(--violet), var(--violet2))" }}
             >
-              <Zap className="h-4 w-4 text-white" strokeWidth={2.5} />
+              <BoltIcon className="h-4 w-4 text-white" />
             </div>
             <span
               className="hidden text-[15px] font-bold tracking-tight sm:inline"
@@ -119,7 +119,7 @@ export function Navbar() {
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Toggle menu"
             >
-              {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+              {isOpen ? <XMarkIcon className="h-5 w-5" /> : <Bars3Icon className="h-5 w-5" />}
             </button>
           </div>
         </div>

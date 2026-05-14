@@ -21,7 +21,6 @@ import { AnimateCount } from "@/components/unlumen-ui/animate-count";
 import {
   FloatingTooltip,
 } from "@/components/unlumen-ui/floating-tooltip";
-import { COPY } from "@/lib/copy";
 
 const STEPS = [COPY.ONBOARDING.STEP_ACCOUNT, COPY.ONBOARDING.STEP_PROFILE, COPY.ONBOARDING.STEP_DONE];
 

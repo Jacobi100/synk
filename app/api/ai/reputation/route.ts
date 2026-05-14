@@ -19,6 +19,8 @@ const RequestSchema = z.object({
   fraudFlags:                 z.number().int().nonnegative(),
   averageResponseTimeMinutes: z.number().nonnegative(),
   accountAgeDays:             z.number().int().nonnegative(),
+  averageRating:              z.number().min(0).max(5).default(0),
+  ratingCount:                z.number().int().nonnegative().default(0),
 });
 
 // ---------------------------------------------------------------------------

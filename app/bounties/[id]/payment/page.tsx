@@ -6,7 +6,7 @@ import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Bounty } from "@/lib/types/bounty";
 import Link from "next/link";
-import { ArrowPathIcon, ExclamationCircleIcon, ShieldCheckIconCheckIcon, CheckCircleIconIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, ExclamationCircleIcon, ShieldCheckIcon, CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 import { COPY } from "@/lib/copy";
 
 interface EscrowPayload {
@@ -91,7 +91,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
           </Link>
         </div>
 
-        <h1 className="mb-2 text-3xl font-bold text-gray-900">{COPY.PAYMENT.SAFE_PAYMENT_TITLE}</h1>
+        <h1 className="mb-2 text-3xl font-bold text-gray-900">{COPY.PAYMENT.TITLE}</h1>
         <p className="mb-8 text-gray-600">
           Transfer the agreed amount to the Squad virtual account below. We will notify the provider when payment
           clears.{/* COPY.PAYMENT — no key for this full sentence */}
@@ -133,8 +133,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
                 </Button>
               </div>
               <p className="mt-3 text-xs text-indigo-800">
-                {COPY.PAYMENT.TRANSFER_INSTRUCTION} Status:{" "}
-                <strong>{escrow.status}</strong>
+                {COPY.PAYMENT.TRANSFER_INSTRUCTION(escrow.status)}
               </p>
             </div>
           ) : (

@@ -3,17 +3,16 @@
 import Link from "next/link";
 import { useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
-import { COPY } from "@/lib/copy";
 import { Navbar } from "@/components/Navbar";
 import { Bounty } from "@/lib/types/bounty";
 import {
-  PlusIconIcon,
+  PlusIcon,
   MagnifyingGlassIcon,
-  BriefcaseIconIcon,
-  ArrowArrowTrendingUpIconIcon,
-  ClockIconIcon,
-  CheckCircleIconIcon,
-  ArrowRightIconIcon,
+  BriefcaseIcon,
+  ArrowTrendingUpIcon,
+  ClockIcon,
+  CheckCircleIcon,
+  ArrowRightIcon,
 } from "@heroicons/react/24/outline";
 import { AnimateCount } from "@/components/unlumen-ui/animate-count";
 import { ShimmerSkeleton } from "@/components/unlumen-ui/shimmer-skeleton";
@@ -75,10 +74,10 @@ export default function Home() {
   }, [user]);
 
   const statCards: StatCard[] = [
-    { label: COPY.DASHBOARD.ACTIVE_JOBS,    value: stats.activeBounties, icon: BriefcaseIcon, iconColor: "var(--violet)" },
-    { label: COPY.DASHBOARD.IN_PROGRESS,    value: stats.inProgress,     icon: ClockIcon,     iconColor: "#d97706" },
-    { label: COPY.DASHBOARD.COMPLETED,      value: stats.completed,      icon: CheckCircleIcon, iconColor: "var(--success-color)" },
-    { label: COPY.DASHBOARD.TOTAL_EARNINGS, value: stats.totalEarnings,  prefix: "₦",     icon: ArrowTrendingUpIcon, iconColor: "var(--violet)" },
+    { label: COPY.HOME.ACTIVE_JOBS,    value: stats.activeBounties, icon: BriefcaseIcon, iconColor: "var(--violet)" },
+    { label: COPY.HOME.IN_PROGRESS,    value: stats.inProgress,     icon: ClockIcon,     iconColor: "#d97706" },
+    { label: COPY.HOME.COMPLETED,      value: stats.completed,      icon: CheckCircleIcon, iconColor: "var(--success-color)" },
+    { label: COPY.HOME.TOTAL_EARNINGS, value: stats.totalEarnings,  prefix: "₦",     icon: ArrowTrendingUpIcon, iconColor: "var(--violet)" },
   ];
 
   return (

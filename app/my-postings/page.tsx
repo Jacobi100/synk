@@ -9,14 +9,13 @@ import Link from "next/link";
 import {
   ArrowPathIcon,
   ExclamationCircleIcon,
-  MapPinIconIcon,
-  ClockIconIcon,
-  UsersIconIcon,
-  PlusIconIcon,
-  ArrowLeftIconIcon,
-  InboxIconIcon,
+  MapPinIcon,
+  ClockIcon,
+  UsersIcon,
+  PlusIcon,
+  ArrowLeftIcon,
+  InboxIcon,
 } from "@heroicons/react/24/outline";
-import { COPY } from "@/lib/copy";
 
 const STATUS_STYLES: Record<string, string> = {
   open:        "bg-emerald-50  text-emerald-700  border-emerald-200",

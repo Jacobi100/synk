@@ -16,7 +16,6 @@ import {
   Banknote,
   Receipt,
 } from "lucide-react";
-import { COPY } from "@/lib/copy";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -42,6 +41,11 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
   const [pageState, setPageState]     = useState<PageState>("idle");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [fraudOutcome, setFraudOutcome] = useState<FraudOutcome>(null);
+
+  const [rating, setRating]           = useState(5);
+  const [comment, setComment]         = useState("");
+  const [submittingReview, setSubmittingReview] = useState(false);
+  const [reviewed, setReviewed]       = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -99,6 +103,22 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
     }
   };
 
+  const handleSubmitReview = async () => {
+    setSubmittingReview(true);
+    try {
+      const res = await fetch(`/api/bounties/${id}/review`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating, comment }),
+      });
+      if (res.ok) setReviewed(true);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSubmittingReview(false);
+    }
+  };
+
   // -------------------------------------------------------------------------
   // Derived values
   // -------------------------------------------------------------------------
@@ -147,9 +167,48 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
             <p className="text-sm" style={{ color: "#15803d" }}>
               {COPY.COMPLETE.SUCCESS_BODY(formatNaira(providerPayout))}
             </p>
+
+            {!reviewed ? (
+              <div className="mt-6 w-full border-t border-green-200 pt-6 text-left">
+                <h3 className="mb-3 text-sm font-bold text-green-900 uppercase tracking-wide">Rate your experience</h3>
+                <div className="flex gap-1.5 mb-5">
+                  {[1, 2, 3, 4, 5].map((star) => (
+                    <button
+                      key={star}
+                      onClick={() => setRating(star)}
+                      className="text-3xl transition-transform hover:scale-110 active:scale-95"
+                    >
+                      {rating >= star ? "⭐" : "☆"}
+                    </button>
+                  ))}
+                </div>
+                <textarea
+                  className="w-full rounded-xl border border-green-200 bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all placeholder:text-green-300"
+                  placeholder="Tell us more about the service..."
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  rows={3}
+                />
+                <button
+                  onClick={() => void handleSubmitReview()}
+                  disabled={submittingReview}
+                  className="mt-4 w-full rounded-xl py-3 text-sm font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
+                  style={{ background: "#16a34a" }}
+                >
+                  {submittingReview ? "Saving..." : "Submit Review"}
+                </button>
+              </div>
+            ) : (
+              <div className="mt-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
+                <p className="rounded-full bg-green-100 px-4 py-1.5 text-xs font-bold text-green-700 uppercase tracking-wider">
+                  Feedback Received!
+                </p>
+              </div>
+            )}
+
             <Link
               href="/dashboard"
-              className="mt-2 rounded-lg px-6 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+              className="mt-4 rounded-lg px-6 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
               style={{ backgroundColor: "#16a34a" }}
             >
               {COPY.COMPLETE.BACK_TO_FEED}

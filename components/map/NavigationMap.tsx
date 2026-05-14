@@ -170,10 +170,7 @@ export default function NavigationMap({
             destination,
             travelMode: google.maps.TravelMode.DRIVING,
           },
-          (
-            result: google.maps.DirectionsResult | null,
-            status: google.maps.DirectionsStatus
-          ) => {
+          (result, status) => {
             if (!isMounted) return;
 
             if (status === google.maps.DirectionsStatus.OK && result) {
@@ -222,7 +219,7 @@ export default function NavigationMap({
             {COPY.NAV_MAP.TITLE}
           </span>
         </div>
-        
+        <a
           href={googleMapsDirectionsUrl}
           target="_blank"
           rel="noopener noreferrer"
@@ -294,7 +291,7 @@ export default function NavigationMap({
             <p className="text-sm text-center" style={{ color: "var(--text2)" }}>
               {errorMessage}
             </p>
-            
+            <a
               href={googleMapsDirectionsUrl}
               target="_blank"
               rel="noopener noreferrer"

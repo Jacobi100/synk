@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useUserIcon } from "@clerk/nextjs";
+import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
 import { COPY } from "@/lib/copy";
 import Link from "next/link";
-import { ArrowPathIcon, ArrowLeftIconIcon, CheckCircleIconIcon, ExclamationCircleIcon, UserIconIcon, PhoneIconIcon, CreditCardIconIcon, BuildingOffice2Icon } from "@heroicons/react/24/outline";
-import { COPY } from "@/lib/copy";
+import { ArrowPathIcon, ArrowLeftIcon, CheckCircleIcon, ExclamationCircleIcon, UserIcon, PhoneIcon, CreditCardIcon, BuildingOffice2Icon } from "@heroicons/react/24/outline";
+
 
 function FormField({
   label,
@@ -40,12 +40,12 @@ const inputStyle = {
 };
 
 export default function ProfilePage() {
-  const { user, isLoaded } = useUserIcon();
+  const { user, isLoaded } = useUser();
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [username, setUserIconname] = useState("");
+  const [username, setUsername] = useState("");
   const [fullName, setFullName] = useState("");
-  const [phone, setPhoneIcon] = useState("");
+  const [phone, setPhone] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
   const [bankCode, setBankCode] = useState("");
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
@@ -57,9 +57,9 @@ export default function ProfilePage() {
       const res = await fetch("/api/profile");
       if (res.ok) {
         const p = await res.json();
-        setUserIconname(p.username || "");
+        setUsername(p.username || "");
         setFullName(p.full_name || "");
-        setPhoneIcon(p.phone_number || "");
+        setPhone(p.phone_number || "");
         setAccountNumber(p.account_number || "");
         setBankCode(p.bank_code || "");
       }
@@ -134,7 +134,7 @@ export default function ProfilePage() {
                 style={inputStyle}
                 value={username}
                 placeholder="yourhandle"
-                onChange={(e) => setUserIconname(e.target.value)}
+                onChange={(e) => setUsername(e.target.value)}
                 onFocus={(e) => {
                   e.target.style.borderColor = "var(--violet)";
                   e.target.style.boxShadow = "0 0 0 3px var(--violet-glow)";
@@ -170,7 +170,7 @@ export default function ProfilePage() {
                 style={inputStyle}
                 value={phone}
                 placeholder="0801 234 5678"
-                onChange={(e) => setPhoneIcon(e.target.value)}
+                onChange={(e) => setPhone(e.target.value)}
                 onFocus={(e) => {
                   e.target.style.borderColor = "var(--violet)";
                   e.target.style.boxShadow = "0 0 0 3px var(--violet-glow)";

@@ -35,7 +35,7 @@ export function NotificationBell() {
         style={{ color: "var(--text2)" }}
         aria-label="Notifications"
       >
-        <Bell className="h-5 w-5" />
+        <BellIcon className="h-5 w-5" />
         {unreadCount > 0 && (
           <span
             className="absolute -right-0.5 -top-0.5 flex h-4.5 min-w-[1.1rem] items-center justify-center rounded-full px-1 text-[10px] font-bold text-white"
@@ -81,7 +81,7 @@ export function NotificationBell() {
           <div className="max-h-80 overflow-y-auto">
             {loading && recent.length === 0 ? (
               <div className="flex justify-center py-8">
-                <Loader2 className="h-5 w-5 animate-spin" style={{ color: "var(--violet3)" }} />
+                <ArrowPathIcon className="h-5 w-5 animate-spin" style={{ color: "var(--violet3)" }} />
               </div>
             ) : recent.length === 0 ? (
               <p className="px-4 py-6 text-center text-sm" style={{ color: "var(--text-inv2)" }}>

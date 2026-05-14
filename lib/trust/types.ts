@@ -59,10 +59,11 @@ export const BADGE_THRESHOLDS = {
 // ---------------------------------------------------------------------------
 
 export const TRUST_SCORE_WEIGHTS = {
-  completionRate:    40,   // 0–40 points
-  repeatBuyerRatio:  30,   // 0–30 points
-  noDisputeBonus:    15,   // 0–15 points (scales down with dispute count)
-  experienceBonus:   15,   // 0–15 points (scales with completed jobs, caps at 50)
+  completionRate:    30,   // 0–30 points
+  repeatBuyerRatio:  20,   // 0–20 points
+  averageRating:     30,   // 0–30 points (new)
+  noDisputeBonus:    10,   // 0–10 points
+  experienceBonus:   10,   // 0–10 points
 } as const;
 
 // ---------------------------------------------------------------------------
@@ -106,6 +107,8 @@ export interface ProviderStats {
   fraudFlags:                 number;
   averageResponseTimeMinutes: number;
   accountAgeDays:             number;
+  averageRating:              number;   // 0–5
+  ratingCount:                number;
 }
 
 // ---------------------------------------------------------------------------

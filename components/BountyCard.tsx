@@ -91,7 +91,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
             </p>
             {feed?.poster_name && (
               <p className="mt-0.5 text-xs" style={{ color: "var(--text3)" }}>
-                {COPY.BOUNTY_CARD.BY(feed.poster_name)}
+                {COPY.BOUNTY_CARD.POSTED_BY(feed.poster_name)}
               </p>
             )}
           </div>
@@ -111,7 +111,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
         <div className="mb-4 space-y-1.5">
           {bounty.location_name && (
             <div className="flex items-center gap-1.5 text-[13px]" style={{ color: "var(--text2)" }}>
-              <MapPin className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--text3)" }} />
+              <MapPinIcon className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--text3)" }} />
               {bounty.location_name}
             </div>
           )}
@@ -152,14 +152,14 @@ export function BountyCard({ bounty }: BountyCardProps) {
                   borderColor: "var(--violet)",
                 }}
               >
-                <Sparkles className="h-3 w-3" />
+                <SparklesIcon className="h-3 w-3" />
                 ₦{feed.suggested_price_min.toLocaleString("en-NG")}–
                 {feed.suggested_price_max.toLocaleString("en-NG")}
               </span>
             )}
           </div>
           <div className="flex items-center gap-1 text-[11px]" style={{ color: "var(--text3)" }}>
-            <Clock className="h-3 w-3" />
+            <ClockIcon className="h-3 w-3" />
             {formatDistanceToNow(new Date(bounty.created_at), { addSuffix: true })}
           </div>
         </div>
@@ -169,7 +169,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
             className="mt-2.5 flex items-center gap-1.5 text-xs font-medium"
             style={{ color: "var(--success-color)" }}
           >
-            <Users className="h-3.5 w-3.5" />
+            <UsersIcon className="h-3.5 w-3.5" />
             {COPY.BOUNTY_CARD.HELPERS_NEEDED(bounty.slots_available)}
           </div>
         )}
