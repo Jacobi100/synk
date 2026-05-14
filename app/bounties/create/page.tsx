@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { VoiceInput } from "@/components/voice/VoiceInput";
+import Link from "next/link";
+import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import type { RestructureResult } from "@/components/voice/VoiceInput";
 
 // ---------------------------------------------------------------------------
@@ -140,6 +142,14 @@ export default function CreateListingPage() {
 
   return (
     <div className="min-h-screen bg-gray-50 px-4 py-8 max-w-lg mx-auto">
+
+      <Link
+        href="/dashboard"
+        className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
+        style={{ color: "var(--text2)" }}
+      >
+        <ArrowLeftIcon className="h-4 w-4" /> Back to feed
+      </Link>
 
       {/* Header */}
       <div className="mb-8">

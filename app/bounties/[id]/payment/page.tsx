@@ -6,7 +6,7 @@ import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Bounty } from "@/lib/types/bounty";
 import Link from "next/link";
-import { Loader2, AlertCircle, Shield, CheckCircle, Copy } from "lucide-react";
+import { ArrowPathIcon, ExclamationCircleIcon, ShieldCheckIconCheckIcon, CheckCircleIconIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
 
 interface EscrowPayload {
   virtual_account_number: string | null;
@@ -61,7 +61,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
       <div className="min-h-screen bg-gray-50">
         <Navbar />
         <div className="flex justify-center items-center py-20">
-          <Loader2 className="w-8 h-8 text-blue-600 animate-spin" />
+          <ArrowPathIcon className="w-8 h-8 text-blue-600 animate-spin" />
         </div>
       </div>
     );
@@ -128,7 +128,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
                   {escrow.virtual_account_number}
                 </code>
                 <Button type="button" variant="outline" size="sm" onClick={copyVa} className="shrink-0">
-                  <Copy className="h-4 w-4" />
+                  <DocumentDuplicateIcon className="h-4 w-4" />
                 </Button>
               </div>
               <p className="mt-3 text-xs text-indigo-800">
@@ -138,7 +138,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
             </div>
           ) : (
             <div className="mb-8 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
-              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
+              <ExclamationCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
               <p className="text-sm text-amber-900">
                 Escrow details are not available yet, or you are not the poster for this bounty.
               </p>
@@ -147,14 +147,14 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
 
           <div className="mb-8 space-y-3">
             <div className="flex items-start gap-3">
-              <Shield className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+              <ShieldCheckIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
               <div>
                 <h3 className="font-semibold text-gray-900">Squad escrow</h3>
                 <p className="text-sm text-gray-600">Funds are held until you mark the bounty complete.</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
-              <CheckCircle className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+              <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
               <div>
                 <h3 className="font-semibold text-gray-900">Webhook</h3>
                 <p className="text-sm text-gray-600">

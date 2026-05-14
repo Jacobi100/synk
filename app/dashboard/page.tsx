@@ -5,7 +5,7 @@ import { Navbar } from "@/components/Navbar";
 import { BountyCard } from "@/components/BountyCard";
 import type { BountyFeedItem } from "@/lib/types/bounty";
 import Link from "next/link";
-import { Loader2, RefreshCw, Plus, Inbox } from "lucide-react";
+import { ArrowPathIcon, PlusIconIcon, InboxIconIcon } from "@heroicons/react/24/outline";
 
 export default function DashboardPage() {
   const [items, setItems] = useState<BountyFeedItem[]>([]);
@@ -57,7 +57,7 @@ export default function DashboardPage() {
               className="inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:bg-white"
               style={{ borderColor: "var(--border2)", color: "var(--text2)", background: "transparent" }}
             >
-              <RefreshCw className="h-4 w-4" />
+              <ArrowPathIcon className="h-4 w-4" />
               Refresh
             </button>
             <Link
@@ -65,7 +65,7 @@ export default function DashboardPage() {
               className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
               style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
             >
-              <Plus className="h-4 w-4" />
+              <PlusIcon className="h-4 w-4" />
               Post bounty
             </Link>
           </div>
@@ -84,7 +84,7 @@ export default function DashboardPage() {
         {/* Content */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
-            <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
+            <ArrowPathIcon className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
             <p className="text-sm" style={{ color: "var(--text3)" }}>Loading bounties…</p>
           </div>
         ) : items.length === 0 ? (
@@ -92,7 +92,7 @@ export default function DashboardPage() {
             className="flex flex-col items-center justify-center rounded-xl border bg-white py-20 text-center"
             style={{ borderColor: "var(--border)" }}
           >
-            <Inbox className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--text)" }} />
+            <InboxIcon className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--text)" }} />
             <h3 className="mb-1 text-lg font-semibold" style={{ color: "var(--text)" }}>
               No bounties yet
             </h3>
@@ -104,7 +104,7 @@ export default function DashboardPage() {
               className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white"
               style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
             >
-              <Plus className="h-4 w-4" />
+              <PlusIcon className="h-4 w-4" />
               Post the first one
             </Link>
           </div>

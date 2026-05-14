@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Bell, Loader2 } from "lucide-react";
+import { BellIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Button } from "@/components/ui/button";
 

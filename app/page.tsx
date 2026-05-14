@@ -6,21 +6,31 @@ import { useEffect, useState } from "react";
 import { Navbar } from "@/components/Navbar";
 import { Bounty } from "@/lib/types/bounty";
 import {
-  Plus,
-  Search,
-  Briefcase,
-  TrendingUp,
-  Clock,
-  CheckCircle,
-  Loader2,
-  ArrowRight,
-} from "lucide-react";
+  PlusIconIcon,
+  MagnifyingGlassIcon,
+  BriefcaseIconIcon,
+  ArrowArrowTrendingUpIconIcon,
+  ClockIconIcon,
+  CheckCircleIconIcon,
+  ArrowRightIconIcon,
+} from "@heroicons/react/24/outline";
+import { AnimateCount } from "@/components/unlumen-ui/animate-count";
+import { ShimmerSkeleton } from "@/components/unlumen-ui/shimmer-skeleton";
+import { GlowingBadge } from "@/components/unlumen-ui/glowing-badge";
 
 interface DashboardStats {
   activeBounties: number;
   inProgress: number;
   completed: number;
   totalEarnings: number;
+}
+
+interface StatCard {
+  label: string;
+  value: number;
+  prefix?: string;
+  icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
+  iconColor: string;
 }
 
 const SYMBOLS = [
@@ -62,6 +72,13 @@ export default function Home() {
     })();
   }, [user]);
 
+  const statCards: StatCard[] = [
+    { label: "Active Bounties", value: stats.activeBounties, icon: BriefcaseIcon, iconColor: "var(--violet)" },
+    { label: "In Progress",     value: stats.inProgress,     icon: ClockIcon,     iconColor: "#d97706" },
+    { label: "Completed",       value: stats.completed,      icon: CheckCircleIcon, iconColor: "var(--success-color)" },
+    { label: "Total Earnings",  value: stats.totalEarnings,  prefix: "₦",     icon: ArrowTrendingUpIcon, iconColor: "var(--violet)" },
+  ];
+
   return (
     <div className="min-h-screen">
       <Navbar />
@@ -96,12 +113,9 @@ export default function Home() {
 
         <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
           <div className="max-w-xl">
-            <p
-              className="mb-3 font-mono text-[11px] font-bold uppercase tracking-widest"
-              style={{ color: "var(--violet3)" }}
-            >
+            <GlowingBadge variant="info" dot={false} className="mb-3">
               Welcome back{user?.firstName ? `, ${user.firstName}` : ""}
-            </p>
+            </GlowingBadge>
             <h1
               className="mb-4 text-4xl font-bold sm:text-5xl"
               style={{ color: "var(--text-inv)", letterSpacing: "-0.03em", lineHeight: 1.1 }}
@@ -123,7 +137,7 @@ export default function Home() {
                 onMouseEnter={(e) => (e.currentTarget.style.background = "var(--violet2)")}
                 onMouseLeave={(e) => (e.currentTarget.style.background = "var(--violet)")}
               >
-                <Plus className="h-4 w-4" />
+                <PlusIcon className="h-4 w-4" />
                 Post a bounty
               </Link>
               <Link
@@ -137,9 +151,9 @@ export default function Home() {
                 onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--violet3)"; e.currentTarget.style.color = "var(--text-inv)"; }}
                 onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-ink2)"; e.currentTarget.style.color = "var(--text-inv2)"; }}
               >
-                <Search className="h-4 w-4" />
+                <MagnifyingGlassIcon className="h-4 w-4" />
                 Browse feed
-                <ArrowRight className="h-3.5 w-3.5" />
+                <ArrowRightIcon className="h-3.5 w-3.5" />
               </Link>
             </div>
           </div>
@@ -149,25 +163,21 @@ export default function Home() {
       {/* Stats */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-4 py-8 sm:grid-cols-4">
-          {[
-            { label: "Active Bounties", value: stats.activeBounties, icon: Briefcase, iconColor: "var(--violet)" },
-            { label: "In Progress",     value: stats.inProgress,     icon: Clock,     iconColor: "#d97706" },
-            { label: "Completed",       value: stats.completed,      icon: CheckCircle, iconColor: "var(--success-color)" },
-            { label: "Total Earnings",  value: `₦${stats.totalEarnings.toLocaleString()}`, icon: TrendingUp, iconColor: "var(--violet)" },
-          ].map(({ label, value, icon: Icon, iconColor }) => (
+          {statCards.map(({ label, value, prefix, icon: Icon, iconColor }) => (
             <div
               key={label}
-              className="rounded-xl border bg-white p-5"
+              className="rounded-xl border p-5"
               style={{ borderColor: "var(--border)", boxShadow: "var(--synk-shadow)" }}
             >
               <div className="flex items-start justify-between">
                 <div>
                   <p className="text-xs font-medium" style={{ color: "var(--text3)" }}>{label}</p>
                   {loading ? (
-                    <Loader2 className="mt-2 h-5 w-5 animate-spin" style={{ color: "var(--violet)" }} />
+                    <ShimmerSkeleton className="mt-2 h-7 w-20" />
                   ) : (
-                    <p className="mt-1.5 text-2xl font-bold" style={{ color: "var(--text)" }}>
-                      {value}
+                    <p className="mt-1.5 text-2xl font-bold tabular-nums" style={{ color: "var(--text)" }}>
+                      {prefix && <span>{prefix}</span>}
+                      <AnimateCount>{value}</AnimateCount>
                     </p>
                   )}
                 </div>
@@ -190,7 +200,7 @@ export default function Home() {
               className="pointer-events-none absolute -bottom-10 -right-10 h-48 w-48 rounded-full blur-3xl"
               style={{ background: "rgba(94,58,255,0.12)" }}
             />
-            <Plus className="mb-4 h-10 w-10 opacity-70" style={{ color: "var(--violet3)" }} />
+            <PlusIcon className="mb-4 h-10 w-10 opacity-70" style={{ color: "var(--violet3)" }} />
             <h2 className="mb-2 text-xl font-bold" style={{ color: "var(--text-inv)" }}>
               Post a bounty
             </h2>
@@ -202,16 +212,16 @@ export default function Home() {
               className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
               style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
             >
-              Create bounty <ArrowRight className="h-3.5 w-3.5" />
+              Create bounty <ArrowRightIcon className="h-3.5 w-3.5" />
             </Link>
           </div>
 
           {/* Browse card */}
           <div
-            className="relative overflow-hidden rounded-xl border bg-white p-8"
-            style={{ borderColor: "var(--border)", boxShadow: "var(--synk-shadow)" }}
+            className="relative overflow-hidden rounded-xl p-8"
+            style={{ border: "1px solid var(--border)", boxShadow: "var(--synk-shadow)" }}
           >
-            <Search className="mb-4 h-10 w-10 opacity-20" style={{ color: "var(--violet)" }} />
+            <MagnifyingGlassIcon className="mb-4 h-10 w-10 opacity-20" style={{ color: "var(--violet)" }} />
             <h2 className="mb-2 text-xl font-bold" style={{ color: "var(--text)" }}>
               Browse bounties
             </h2>
@@ -223,7 +233,7 @@ export default function Home() {
               className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all hover:-translate-y-0.5 hover:border-[var(--violet)] hover:text-[var(--violet)]"
               style={{ borderColor: "var(--border2)", color: "var(--text)" }}
             >
-              Browse feed <ArrowRight className="h-3.5 w-3.5" />
+              Browse feed <ArrowRightIcon className="h-3.5 w-3.5" />
             </Link>
           </div>
         </div>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { Show, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
-import { Menu, X, Zap } from "lucide-react";
+import { Bars3Icon, XMarkIcon, BoltIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { NotificationBell } from "@/components/NotificationBell";

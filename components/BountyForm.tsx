@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Bounty, CreateBountyInput } from "@/lib/types/bounty";
-import { Loader2, MapPin, Calendar, Sparkles } from "lucide-react";
+import { ArrowPathIcon, MapPinIcon, CalendarDaysIcon, SparklesIcon } from "@heroicons/react/24/outline";
 
 interface BountyFormProps {
   bounty?: Bounty;

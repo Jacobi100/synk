@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { Mic, MicOff, Loader2, AlertCircle } from "lucide-react";
+import { MicrophoneIcon, ArrowPathIcon, ExclamationCircleIcon } from "@heroicons/react/24/outline";
 
 // ---------------------------------------------------------------------------
 // Safari compatibility — webkit prefix without using `any`
@@ -322,7 +322,7 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
   const buttonColour: Record<RecordingState, string> = {
     idle:       "bg-green-600 hover:bg-green-700 active:scale-95 focus:ring-green-400",
     recording:  "bg-red-500 scale-110 hover:bg-red-600 focus:ring-red-400",
-    processing: "bg-gray-400 cursor-not-allowed focus:ring-gray-300",
+    processing: "bg-muted-foreground/50 cursor-not-allowed focus:ring-muted-foreground/30",
     error:      "bg-orange-500 hover:bg-orange-600 active:scale-95 focus:ring-orange-400",
   };
 
@@ -352,7 +352,7 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
                 "focus:outline-none focus:ring-2 focus:ring-offset-1",
                 selectedLanguage === lang.code
                   ? "bg-green-600 text-white shadow scale-105 focus:ring-green-500"
-                  : "bg-gray-100 text-gray-600 hover:bg-gray-200 focus:ring-gray-400",
+                  : "bg-muted text-muted-foreground hover:bg-accent focus:ring-muted-foreground",
               ].join(" ")}
             >
               {lang.label}
@@ -395,16 +395,16 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
           ].join(" ")}
         >
           {state === "processing" && (
-            <Loader2 className="w-9 h-9 text-white animate-spin" aria-hidden="true" />
+            <ArrowPathIcon className="w-9 h-9 text-white animate-spin" aria-hidden="true" />
           )}
           {state === "recording" && (
-            <MicOff className="w-9 h-9 text-white" aria-hidden="true" />
+            <MicrophoneIcon className="w-9 h-9 text-white opacity-50" aria-hidden="true" />
           )}
           {state === "error" && (
-            <AlertCircle className="w-9 h-9 text-white" aria-hidden="true" />
+            <ExclamationCircleIcon className="w-9 h-9 text-white" aria-hidden="true" />
           )}
           {state === "idle" && (
-            <Mic className="w-9 h-9 text-white" aria-hidden="true" />
+            <MicrophoneIcon className="w-9 h-9 text-white" aria-hidden="true" />
           )}
         </button>
       </div>
@@ -412,7 +412,7 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
       {/* ── Silence countdown bar ────────────────────────────────────────── */}
       {state === "recording" && silenceSeconds > 0 && (
         <div className="flex flex-col items-center gap-1 w-44">
-          <div className="w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
             <div
               role="progressbar"
               aria-valuenow={silenceSeconds}
@@ -423,7 +423,7 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
               style={{ width: `${silenceProgress}%` }}
             />
           </div>
-          <p className="text-xs text-gray-400">
+          <p className="text-xs text-muted-foreground">
             Sends in {10 - silenceSeconds}s if silent
           </p>
         </div>
@@ -435,10 +435,10 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
         aria-live="polite"
         className={[
           "text-sm font-medium text-center leading-snug max-w-[220px]",
-          state === "recording"  ? "text-red-500"    : "",
-          state === "processing" ? "text-gray-500"   : "",
-          state === "error"      ? "text-orange-600" : "",
-          state === "idle"       ? "text-gray-500"   : "",
+          state === "recording"  ? "text-red-500"          : "",
+          state === "processing" ? "text-muted-foreground" : "",
+          state === "error"      ? "text-orange-600"       : "",
+          state === "idle"       ? "text-muted-foreground" : "",
         ].join(" ")}
       >
         {statusText[state]}

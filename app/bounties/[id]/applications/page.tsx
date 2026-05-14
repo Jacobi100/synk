@@ -2,12 +2,12 @@
 
 import { useEffect, useState, use } from "react";
 import { useRouter } from "next/navigation";
-import { useUser } from "@clerk/nextjs";
+import { useUserIcon } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import type { BountyApplication, ProviderProfile } from "@/lib/types/bounty";
 import Link from "next/link";
-import { Loader2, AlertCircle, CheckCircle, XCircle, User } from "lucide-react";
+import { ArrowPathIcon, ExclamationCircleIcon, CheckCircleIconIcon, XCircleIconIcon, UserIconIcon } from "@heroicons/react/24/outline";
 
 type AppRow = BountyApplication & { provider_profile?: ProviderProfile | null };
 
@@ -18,7 +18,7 @@ interface ApplicationsPageProps {
 export default function BountyApplicationsPage({ params }: ApplicationsPageProps) {
   const { id } = use(params);
   const router = useRouter();
-  const { user } = useUser();
+  const { user } = useUserIcon();
   const [applications, setApplications] = useState<AppRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -131,11 +131,11 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
         )}
         {loading ? (
           <div className="flex justify-center py-12">
-            <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
+            <ArrowPathIcon className="h-8 w-8 animate-spin text-blue-600" />
           </div>
         ) : error ? (
           <div className="flex gap-4 rounded-lg border border-red-200 bg-red-50 p-6">
-            <AlertCircle className="mt-0.5 h-6 w-6 shrink-0 text-red-600" />
+            <ExclamationCircleIcon className="mt-0.5 h-6 w-6 shrink-0 text-red-600" />
             <div>
               <h3 className="font-semibold text-red-900">Error</h3>
               <p className="text-red-700">{error}</p>
@@ -152,7 +152,7 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                 <div className="mb-4 flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-br from-blue-400 to-blue-600 text-white">
-                      <User className="h-6 w-6" />
+                      <UserIcon className="h-6 w-6" />
                     </div>
                     <div>
                       <h3 className="font-semibold text-gray-900">{providerLabel(app)}</h3>
@@ -172,12 +172,12 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                     >
                       {actionLoading === app.id ? (
                         <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
                           Accepting…
                         </>
                       ) : (
                         <>
-                          <CheckCircle className="mr-2 h-4 w-4" />
+                          <CheckCircleIcon className="mr-2 h-4 w-4" />
                           Accept
                         </>
                       )}
@@ -185,12 +185,12 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                     <Button onClick={() => void handleReject(app.id)} disabled={actionLoading === app.id} variant="outline">
                       {actionLoading === app.id ? (
                         <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
                           Rejecting…
                         </>
                       ) : (
                         <>
-                          <XCircle className="mr-2 h-4 w-4" />
+                          <XCircleIcon className="mr-2 h-4 w-4" />
                           Reject
                         </>
                       )}
