@@ -344,7 +344,7 @@ export default function OnboardingPage() {
                     style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
                   >
                     {loading ? (
-                      <><ArrowPathIcon className="h-4 w-4 animate-spin" /> Saving…</>
+                      <><ArrowPathIcon className="h-4 w-4 animate-spin" /> {COPY.PROFILE.SAVING}</>
                     ) : (
                       <>{COPY.ONBOARDING.CONTINUE} <ArrowRightIcon className="h-4 w-4" /></>
                     )}
