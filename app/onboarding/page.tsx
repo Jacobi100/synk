@@ -305,7 +305,7 @@ export default function OnboardingPage() {
                   {/* DOB */}
                   <div className="space-y-1.5">
                     <Label htmlFor="date_of_birth" style={{ color: "var(--text)" }}>
-                      Date of birth
+                      {COPY.ONBOARDING.FIELD_DOB}
                     </Label>
                     <FloatingTooltip.Trigger
                       content="Must be 18+"
@@ -346,7 +346,7 @@ export default function OnboardingPage() {
                     {loading ? (
                       <><ArrowPathIcon className="h-4 w-4 animate-spin" /> Saving…</>
                     ) : (
-                      <>Continue <ArrowRightIcon className="h-4 w-4" /></>
+                      <>{COPY.ONBOARDING.CONTINUE} <ArrowRightIcon className="h-4 w-4" /></>
                     )}
                   </button>
                 </form>
