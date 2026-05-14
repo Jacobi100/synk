@@ -29,6 +29,8 @@
   --color-destructive: var(--destructive);
   --color-accent-foreground: var(--accent-foreground);
   --color-accent: var(--accent);
+  --color-accent-brand: var(--accent-brand);
+  --color-accent-brand-foreground: var(--accent-brand-foreground);
   --color-muted-foreground: var(--muted-foreground);
   --color-muted: var(--muted);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -77,6 +79,8 @@
   --violet3: #7b5fff;
   --violet-glow: rgba(94, 58, 255, 0.28);
   --violet-subtle: rgba(94, 58, 255, 0.08);
+  --accent-brand: #5e3aff;
+  --accent-brand-foreground: #ffffff;
 
   /* Semantic */
   --success-color: #16a34a;
@@ -140,6 +144,8 @@
   --violet3: #9b80ff;
   --violet-glow: rgba(94, 58, 255, 0.32);
   --violet-subtle: rgba(94, 58, 255, 0.1);
+  --accent-brand: #7b5fff;
+  --accent-brand-foreground: #ffffff;
   --success-color: #22c55e;
   --synk-shadow: 0 4px 32px rgba(0, 0, 0, 0.48);
   --symbol-float: #1e1e2e;
