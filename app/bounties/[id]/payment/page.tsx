@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, useCallback, use } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
@@ -30,32 +30,67 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Simulate payment state
+  const [simulating, setSimulating] = useState(false);
+  const [simResult, setSimResult] = useState<{ ok: boolean; message: string } | null>(null);
+
+  const loadData = useCallback(async () => {
+    try {
+      setLoading(true);
+      const [br, er] = await Promise.all([
+        fetch(`/api/bounties/${id}`),
+        fetch(`/api/bounties/${id}/escrow`),
+      ]);
+      if (!br.ok) throw new Error("Failed to fetch bounty");
+      setBounty(await br.json());
+      if (er.ok) setEscrow(await er.json());
+      else setEscrow(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Failed to load");
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
   useEffect(() => {
-    const load = async () => {
-      try {
-        setLoading(true);
-        const [br, er] = await Promise.all([
-          fetch(`/api/bounties/${id}`),
-          fetch(`/api/bounties/${id}/escrow`),
-        ]);
-        if (!br.ok) throw new Error("Failed to fetch bounty");
-        setBounty(await br.json());
-        if (er.ok) setEscrow(await er.json());
-        else setEscrow(null);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load");
-      } finally {
-        setLoading(false);
-      }
-    };
-    if (user) void load();
-  }, [user, id]);
+    if (user) void loadData();
+  }, [user, loadData]);
 
   const copyVa = () => {
     if (escrow?.virtual_account_number) {
       void navigator.clipboard.writeText(escrow.virtual_account_number);
     }
   };
+
+  const handleSimulatePayment = async () => {
+    setSimulating(true);
+    setSimResult(null);
+    try {
+      const res = await fetch(`/api/bounties/${id}/simulate-payment`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setSimResult({ ok: false, message: data.error || "Simulation failed" });
+        return;
+      }
+      setSimResult({
+        ok: true,
+        message: data.message || "Payment simulated successfully!",
+      });
+      // Refresh escrow data after successful simulation
+      await loadData();
+    } catch (err) {
+      setSimResult({
+        ok: false,
+        message: err instanceof Error ? err.message : "Simulation failed",
+      });
+    } finally {
+      setSimulating(false);
+    }
+  };
+
+  const isPaid = escrow?.status === "paid" || escrow?.status === "released" || escrow?.bounty_status === "paid";
 
   if (loading) {
     return (
@@ -121,6 +156,19 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
             )}
           </div>
 
+          {/* Payment status banner */}
+          {isPaid && (
+            <div className="mb-6 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
+              <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
+              <div>
+                <p className="font-semibold text-green-900">Payment confirmed</p>
+                <p className="text-sm text-green-800">
+                  This bounty has been funded. The provider has been notified to proceed.
+                </p>
+              </div>
+            </div>
+          )}
+
           {escrow?.virtual_account_number ? (
             <div className="mb-8 rounded-xl border-2 border-indigo-200 bg-indigo-50 p-6">
               <p className="mb-1 text-sm font-medium text-indigo-900">Virtual account number{/* COPY.PAYMENT.VIRTUAL_ACCOUNT_LABEL — key missing from lib/copy.ts */}</p>
@@ -145,28 +193,78 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
             </div>
           )}
 
+          {/* Pay Now Section */}
+          {escrow && !isPaid && (
+            <div className="mb-8">
+              {simResult && (
+                <div
+                  className={`mb-4 rounded-lg p-3 text-sm ${
+                    simResult.ok
+                      ? "border border-green-200 bg-green-50 text-green-800"
+                      : "border border-red-200 bg-red-50 text-red-800"
+                  }`}
+                >
+                  {simResult.message}
+                </div>
+              )}
+
+              <Button
+                type="button"
+                onClick={handleSimulatePayment}
+                disabled={simulating}
+                className="w-full py-6 text-base font-semibold text-white rounded-xl transition-all hover:-translate-y-0.5"
+                style={{
+                  background: "var(--violet)",
+                  boxShadow: "var(--shadow-violet)",
+                }}
+              >
+                {simulating ? (
+                  <>
+                    <ArrowPathIcon className="mr-2 h-5 w-5 animate-spin" />
+                    Processing payment…
+                  </>
+                ) : (
+                  <>
+                    Pay ₦{Number(escrow.amount).toLocaleString("en-NG")}
+                  </>
+                )}
+              </Button>
+            </div>
+          )}
+
+          {/* Already paid — go to completion */}
+          {isPaid && (
+            <div className="mb-8">
+              <Button asChild className="w-full py-6 text-base font-semibold text-white rounded-xl" style={{ background: "var(--success-color)" }}>
+                <Link href={`/bounties/${id}/complete`}>
+                  <CheckCircleIcon className="mr-2 h-5 w-5" />
+                  Confirm Done & Pay Helper
+                </Link>
+              </Button>
+            </div>
+          )}
+
           <div className="mb-8 space-y-3">
             <div className="flex items-start gap-3">
               <ShieldCheckIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
               <div>
-                <h3 className="font-semibold text-gray-900">Squad escrow</h3>
+                <h3 className="font-semibold text-gray-900">Your money is safe</h3>
                 <p className="text-sm text-gray-600">{COPY.PAYMENT.HELD_NOTICE}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
               <div>
-                <h3 className="font-semibold text-gray-900">Webhook</h3>
+                <h3 className="font-semibold text-gray-900">Instant confirmation</h3>
                 <p className="text-sm text-gray-600">
-                  Configure your Squad webhook to this deployment&apos;s{" "}
-                  <code className="rounded bg-gray-100 px-1">/api/webhooks/squad</code> URL (e.g. via ngrok).
+                  The helper will be notified immediately once your payment is received.
                 </p>
               </div>
             </div>
           </div>
 
           <Button variant="outline" asChild className="w-full">
-            <Link href={`/bounties/${id}`}>Done</Link>
+            <Link href={`/bounties/${id}`}>Back to Job</Link>
           </Button>
         </div>
       </div>

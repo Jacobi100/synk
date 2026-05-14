@@ -228,19 +228,28 @@ export default function MyPostingsPage() {
                       <>
                         <Link
                           href={`/bounties/${bounty.id}/payment`}
-                          className="inline-flex items-center rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
-                          style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
+                          className="inline-flex items-center rounded-lg px-3.5 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+                          style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
                         >
                           {COPY.MY_POSTINGS.PAYMENT}
                         </Link>
                         <Link
                           href={`/bounties/${bounty.id}/complete`}
-                          className="inline-flex items-center rounded-lg px-3.5 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
-                          style={{ background: "var(--success-color)" }}
+                          className="inline-flex items-center rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
+                          style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
                         >
                           {COPY.MY_POSTINGS.CONFIRM_DONE}
                         </Link>
                       </>
+                    )}
+                    {bounty.status === "paid" && (
+                      <Link
+                        href={`/bounties/${bounty.id}/complete`}
+                        className="inline-flex items-center rounded-lg px-3.5 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+                        style={{ background: "var(--success-color)" }}
+                      >
+                        {COPY.MY_POSTINGS.CONFIRM_DONE}
+                      </Link>
                     )}
                   </div>
                 </div>

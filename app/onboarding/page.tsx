@@ -11,6 +11,8 @@ import {
   ArrowRightIcon,
   ArrowPathIcon,
   BoltIcon,
+  BuildingOffice2Icon,
+  CreditCardIcon,
 } from "@heroicons/react/24/outline";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -116,11 +118,13 @@ export default function OnboardingPage() {
     const username = (form.elements.namedItem("username") as HTMLInputElement).value;
     const phone_number = (form.elements.namedItem("phone_number") as HTMLInputElement).value;
     const date_of_birth = (form.elements.namedItem("date_of_birth") as HTMLInputElement).value;
+    const bank_code = (form.elements.namedItem("bank_code") as HTMLInputElement).value;
+    const account_number = (form.elements.namedItem("account_number") as HTMLInputElement).value;
 
     const res = await fetch("/api/onboarding", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, phone_number, date_of_birth }),
+      body: JSON.stringify({ username, phone_number, date_of_birth, bank_code, account_number }),
     });
 
     if (!res.ok) {
@@ -323,6 +327,66 @@ export default function OnboardingPage() {
                         />
                       </div>
                     </FloatingTooltip.Trigger>
+                  </div>
+
+                  {/* Bank details section */}
+                  <div
+                    className="rounded-lg p-4 space-y-3"
+                    style={{
+                      background: "rgba(255,255,255,0.04)",
+                      border: "1px solid rgba(255,255,255,0.08)",
+                    }}
+                  >
+                    <p className="text-xs font-semibold" style={{ color: "var(--text2)" }}>
+                      Bank Account (for receiving payments)
+                    </p>
+
+                    {/* Bank Code */}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="bank_code" style={{ color: "var(--text)" }}>
+                        Bank Code
+                      </Label>
+                      <FloatingTooltip.Trigger
+                        content="Your bank's CBN code"
+                        description="e.g. 058 for GTBank, 044 for Access Bank"
+                      >
+                        <div className="relative">
+                          <BuildingOffice2Icon
+                            className="absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2"
+                            style={{ color: "var(--text3)" }}
+                          />
+                          <Input
+                            id="bank_code" name="bank_code" type="text"
+                            placeholder="058"
+                            className="pl-9"
+                          />
+                        </div>
+                      </FloatingTooltip.Trigger>
+                    </div>
+
+                    {/* Account Number */}
+                    <div className="space-y-1.5">
+                      <Label htmlFor="account_number" style={{ color: "var(--text)" }}>
+                        Account Number
+                      </Label>
+                      <FloatingTooltip.Trigger
+                        content="10-digit NUBAN number"
+                        description="This is where you'll receive payments for completed jobs"
+                      >
+                        <div className="relative">
+                          <CreditCardIcon
+                            className="absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2"
+                            style={{ color: "var(--text3)" }}
+                          />
+                          <Input
+                            id="account_number" name="account_number" type="text"
+                            placeholder="0123456789"
+                            maxLength={10}
+                            className="pl-9"
+                          />
+                        </div>
+                      </FloatingTooltip.Trigger>
+                    </div>
                   </div>
 
                   {error && (
