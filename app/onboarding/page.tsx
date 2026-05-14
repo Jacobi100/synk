@@ -125,7 +125,7 @@ export default function OnboardingPage() {
 
     if (!res.ok) {
       const { error } = await res.json();
-      setError(error || "Something went wrong");
+      setError(error || COPY.ONBOARDING.ERROR);
       setLoading(false);
       return;
     }
@@ -187,7 +187,7 @@ export default function OnboardingPage() {
               <BoltIcon className="h-5 w-5 text-white" />
             </div>
             <span className="text-2xl font-semibold tracking-tight text-white">
-              Synk
+              {COPY.ONBOARDING.BRAND}
             </span>
           </div>
 
@@ -198,7 +198,7 @@ export default function OnboardingPage() {
               profile.
             </h1>
             <p className="mt-6 text-base leading-relaxed text-white/70 md:text-lg">
-              A few details to personalise your Synk experience.
+              {COPY.ONBOARDING.SUBTITLE}
             </p>
           </div>
 
@@ -224,7 +224,7 @@ export default function OnboardingPage() {
               >
                 <BoltIcon className="h-5 w-5 text-white" />
                 <span className="text-[15px] font-bold tracking-tight text-white">
-                  Synk
+                  {COPY.ONBOARDING.BRAND}
                 </span>
               </div>
             </div>
@@ -285,7 +285,7 @@ export default function OnboardingPage() {
                     </Label>
                     <FloatingTooltip.Trigger
                       content="Nigerian number preferred"
-                      description="Used for verification and notifications"
+                      description={COPY.ONBOARDING.PHONE_HINT}
                     >
                       <div className="relative">
                         <PhoneIcon
@@ -294,7 +294,7 @@ export default function OnboardingPage() {
                         />
                         <Input
                           id="phone_number" name="phone_number" type="tel"
-                          placeholder="+234 801 234 5678"
+                          placeholder={COPY.ONBOARDING.PHONE_PLACEHOLDER}
                           required autoComplete="tel"
                           className="pl-9"
                         />
@@ -309,7 +309,7 @@ export default function OnboardingPage() {
                     </Label>
                     <FloatingTooltip.Trigger
                       content="Must be 18+"
-                      description="Your date of birth is private and never shared"
+                      description={COPY.ONBOARDING.DOB_HINT}
                     >
                       <div className="relative">
                         <CalendarDaysIcon
