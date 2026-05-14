@@ -4,6 +4,7 @@ import { useEffect, useState, use } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
 import { Bounty } from "@/lib/types/bounty";
+import { COPY } from "@/lib/copy";
 import Link from "next/link";
 import {
   Loader2,
@@ -119,7 +120,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
         <Navbar />
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
-          <p className="text-sm" style={{ color: "var(--text2)" }}>Loading…</p>
+          <p className="text-sm" style={{ color: "var(--text2)" }}>{COPY.COMPLETE.LOADING}</p>
         </div>
       </div>
     );
@@ -140,17 +141,17 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
           >
             <CheckCircle2 className="h-14 w-14" style={{ color: "#16a34a" }} />
             <h2 className="text-2xl font-bold" style={{ color: "#14532d" }}>
-              Bounty completed
+              {COPY.COMPLETE.SUCCESS_TITLE}
             </h2>
             <p className="text-sm" style={{ color: "#15803d" }}>
-              Payout of {formatNaira(providerPayout)} was sent to the provider via Squad Transfer.
+              {COPY.COMPLETE.SUCCESS_BODY(formatNaira(providerPayout))}
             </p>
             <Link
               href="/dashboard"
               className="mt-2 rounded-lg px-6 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
               style={{ backgroundColor: "#16a34a" }}
             >
-              Back to feed
+              {COPY.COMPLETE.BACK_TO_FEED}
             </Link>
           </div>
         </div>
@@ -172,22 +173,21 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
             style={{ borderColor: "#fed7aa", backgroundColor: "#fff7ed" }}
           >
             <ShieldAlert className="h-12 w-12" style={{ color: "#ea580c" }} />
-            <h2 className="text-xl font-bold" style={{ color: "#7c2d12" }}>
-              Payment under review
+              <h2 className="text-xl font-bold" style={{ color: "#7c2d12" }}>
+              {COPY.COMPLETE.HOLD_TITLE}
             </h2>
             <p className="text-sm" style={{ color: "#9a3412" }}>
-              Our fraud detection system flagged this transaction for manual review.
-              The payment has not been released. You will be notified once it is cleared.
+              {COPY.COMPLETE.HOLD_BODY}
             </p>
             <p className="text-xs mt-1" style={{ color: "#c2410c" }}>
-              If you believe this is a mistake, contact support with bounty ID: {id}
+              {COPY.COMPLETE.HOLD_CONTACT(id)}
             </p>
             <Link
               href={`/bounties/${id}`}
               className="mt-2 rounded-lg border px-6 py-2.5 text-sm font-semibold transition-colors"
               style={{ borderColor: "#fed7aa", color: "#ea580c" }}
             >
-              Back to bounty
+              {COPY.COMPLETE.BACK_TO_JOB}
             </Link>
           </div>
         </div>
@@ -209,22 +209,21 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
             style={{ borderColor: "#fecaca", backgroundColor: "#fef2f2" }}
           >
             <ShieldX className="h-12 w-12" style={{ color: "#dc2626" }} />
-            <h2 className="text-xl font-bold" style={{ color: "#7f1d1d" }}>
-              Payment blocked
+              <h2 className="text-xl font-bold" style={{ color: "#7f1d1d" }}>
+              {COPY.COMPLETE.BLOCK_TITLE}
             </h2>
             <p className="text-sm" style={{ color: "#991b1b" }}>
-              This transaction was blocked by our fraud detection system.
-              The payment has not been released.
+              {COPY.COMPLETE.BLOCK_BODY}
             </p>
             <p className="text-xs mt-1" style={{ color: "#b91c1c" }}>
-              Contact support with bounty ID: {id}
+              {COPY.COMPLETE.BLOCK_CONTACT(id)}
             </p>
             <Link
               href="/dashboard"
               className="mt-2 rounded-lg border px-6 py-2.5 text-sm font-semibold transition-colors"
               style={{ borderColor: "#fecaca", color: "#dc2626" }}
             >
-              Back to feed
+              {COPY.COMPLETE.BACK_TO_FEED}
             </Link>
           </div>
         </div>
@@ -248,7 +247,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
             <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
             <div>
               <h3 className="font-semibold" style={{ color: "#7f1d1d" }}>
-                Something went wrong
+                {COPY.COMPLETE.ERROR_TITLE}
               </h3>
               <p className="text-sm mt-0.5" style={{ color: "#991b1b" }}>
                 {errorMessage}
@@ -258,7 +257,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
                 className="mt-3 text-sm font-medium underline"
                 style={{ color: "#dc2626" }}
               >
-                Try again
+                {COPY.COMPLETE.TRY_AGAIN}
               </button>
             </div>
           </div>
@@ -276,7 +275,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
       <div className="min-h-screen">
         <Navbar />
         <div className="mx-auto max-w-lg px-4 py-8">
-          <p className="text-sm" style={{ color: "var(--text2)" }}>Bounty not found.</p>
+          <p className="text-sm" style={{ color: "var(--text2)" }}>{COPY.COMPLETE.NOT_FOUND}</p>
         </div>
       </div>
     );
@@ -300,17 +299,17 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
           className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
           style={{ color: "var(--text2)" }}
         >
-          <ArrowLeft className="h-4 w-4" /> Back to bounty
+          <ArrowLeft className="h-4 w-4" /> {COPY.COMPLETE.BACK_TO_JOB}
         </Link>
 
         <h1
           className="text-2xl font-bold mb-1"
           style={{ color: "var(--text)", letterSpacing: "-0.02em" }}
         >
-          Release payment
+          {COPY.COMPLETE.PAGE_TITLE}
         </h1>
         <p className="text-sm mb-8" style={{ color: "var(--text2)" }}>
-          Confirm the service is complete and release the provider's payout.
+          {COPY.COMPLETE.PAGE_SUBTITLE}
         </p>
 
         <div
@@ -319,9 +318,9 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
         >
           {/* Bounty summary */}
           <div>
-            <p className="text-xs font-semibold uppercase tracking-wide mb-3"
+              <p className="text-xs font-semibold uppercase tracking-wide mb-3"
               style={{ color: "var(--text3)" }}>
-              Bounty
+              {COPY.COMPLETE.SECTION_JOB}
             </p>
             <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
               {bounty.title}
@@ -337,13 +336,13 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
           <div className="space-y-3">
             <p className="text-xs font-semibold uppercase tracking-wide"
               style={{ color: "var(--text3)" }}>
-              Payout breakdown
+              {COPY.COMPLETE.SECTION_BREAKDOWN}
             </p>
 
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text2)" }}>
                 <Banknote className="h-4 w-4" />
-                Escrow amount
+                  {COPY.COMPLETE.TOTAL_AMOUNT}
               </div>
               <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
                 {formatNaira(escrowAmount)}
@@ -353,7 +352,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text2)" }}>
                 <Receipt className="h-4 w-4" />
-                Platform fee (5%)
+                {COPY.COMPLETE.SERVICE_CHARGE}
               </div>
               <span className="text-sm" style={{ color: "var(--text2)" }}>
                 − {formatNaira(platformFee)}
@@ -364,8 +363,8 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
               className="flex items-center justify-between rounded-lg p-3"
               style={{ backgroundColor: "var(--bg2)", borderTop: "1px solid var(--border)" }}
             >
-              <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-                Provider receives
+                <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                {COPY.COMPLETE.HELPER_RECEIVES}
               </span>
               <span className="text-base font-bold" style={{ color: "var(--violet)" }}>
                 {formatNaira(providerPayout)}
@@ -379,9 +378,8 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
             style={{ backgroundColor: "#f5f3ff", borderColor: "#ddd6fe" }}
           >
             <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--violet)" }} />
-            <p className="text-xs leading-relaxed" style={{ color: "#5b21b6" }}>
-              A fraud check runs automatically before funds are released.
-              If flagged, the payment will be held for review — no funds will move without clearance.
+              <p className="text-xs leading-relaxed" style={{ color: "#5b21b6" }}>
+              {COPY.COMPLETE.SAFETY_NOTICE}
             </p>
           </div>
 
@@ -392,21 +390,20 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
               style={{ backgroundColor: "#fffbeb", borderColor: "#fed7aa" }}
             >
               <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#d97706" }} />
-              <p className="text-xs" style={{ color: "#92400e" }}>
-                Payment can only be released once the buyer has funded the escrow.
-                Current status: <strong>{bounty.status.replace("_", " ")}</strong>
+                <p className="text-xs" style={{ color: "#92400e" }}>
+                {COPY.COMPLETE.CANNOT_PAY_YET(bounty.status.replace("_", " "))}
               </p>
             </div>
           )}
 
           {/* Actions */}
           <div className="flex gap-3">
-            <Link
+              <Link
               href={`/bounties/${id}`}
               className="flex-1 flex items-center justify-center rounded-lg border py-3 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
               style={{ borderColor: "var(--border)", color: "var(--text2)" }}
             >
-              Cancel
+                {COPY.COMPLETE.CANCEL}
             </Link>
 
             <button
@@ -421,12 +418,12 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
               {isConfirming ? (
                 <>
                   <Loader2 className="h-4 w-4 animate-spin" />
-                  Processing…
+                  {COPY.COMPLETE.PROCESSING}
                 </>
               ) : (
                 <>
                   <CheckCircle2 className="h-4 w-4" />
-                  Confirm & release
+                  {COPY.COMPLETE.CONFIRM_BUTTON}
                 </>
               )}
             </button>
