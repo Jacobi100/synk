@@ -18,6 +18,7 @@ import {
 import { AnimateCount } from "@/components/unlumen-ui/animate-count";
 import { ShimmerSkeleton } from "@/components/unlumen-ui/shimmer-skeleton";
 import { GlowingBadge } from "@/components/unlumen-ui/glowing-badge";
+import { COPY } from "@/lib/copy";
 
 interface DashboardStats {
   activeBounties: number;
@@ -74,10 +75,10 @@ export default function Home() {
   }, [user]);
 
   const statCards: StatCard[] = [
-    { label: "Active Bounties", value: stats.activeBounties, icon: BriefcaseIcon, iconColor: "var(--violet)" },
-    { label: "In Progress",     value: stats.inProgress,     icon: ClockIcon,     iconColor: "#d97706" },
-    { label: "Completed",       value: stats.completed,      icon: CheckCircleIcon, iconColor: "var(--success-color)" },
-    { label: "Total Earnings",  value: stats.totalEarnings,  prefix: "₦",     icon: ArrowTrendingUpIcon, iconColor: "var(--violet)" },
+    { label: COPY.DASHBOARD.ACTIVE_JOBS,    value: stats.activeBounties, icon: BriefcaseIcon, iconColor: "var(--violet)" },
+    { label: COPY.DASHBOARD.IN_PROGRESS,    value: stats.inProgress,     icon: ClockIcon,     iconColor: "#d97706" },
+    { label: COPY.DASHBOARD.COMPLETED,      value: stats.completed,      icon: CheckCircleIcon, iconColor: "var(--success-color)" },
+    { label: COPY.DASHBOARD.TOTAL_EARNINGS, value: stats.totalEarnings,  prefix: "₦",     icon: ArrowTrendingUpIcon, iconColor: "var(--violet)" },
   ];
 
   return (

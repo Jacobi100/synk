@@ -14,6 +14,7 @@ import {
   ArrowLeftIconIcon,
   InboxIconIcon,
 } from "@heroicons/react/24/outline";
+import { COPY } from "@/lib/copy";
 
 interface ApplicationWithDetails extends BountyApplication {
   bounty?: Bounty;
@@ -132,12 +133,12 @@ export default function MyApplicationsPage() {
               className="text-3xl font-bold"
               style={{ color: "var(--text)", letterSpacing: "-0.03em" }}
             >
-              {isPosterView ? "Applications Received" : "My Applications"}
+              {isPosterView ? COPY.MY_APPLICATIONS.TITLE_RECEIVED : COPY.MY_APPLICATIONS.TITLE_SENT}
             </h1>
             <p className="mt-1 text-sm" style={{ color: "var(--text2)" }}>
               {isPosterView
-                ? "Review submissions from providers."
-                : "Track bounties you have applied to."}
+                ? COPY.MY_APPLICATIONS.SUBTITLE_RECEIVED
+                : COPY.MY_APPLICATIONS.SUBTITLE_SENT}
             </p>
           </div>
 
@@ -192,12 +193,12 @@ export default function MyApplicationsPage() {
           >
             <InboxIcon className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--text)" }} />
             <h3 className="mb-1 text-base font-semibold" style={{ color: "var(--text)" }}>
-              No applications yet
+              {COPY.MY_APPLICATIONS.EMPTY}
             </h3>
             <p className="mb-5 text-sm" style={{ color: "var(--text2)" }}>
               {isPosterView
-                ? "Applications to your bounties will appear here."
-                : "Browse bounties and apply to start earning."}
+                ? COPY.MY_APPLICATIONS.EMPTY_RECEIVED
+                : COPY.MY_APPLICATIONS.EMPTY_SENT}
             </p>
             {!isPosterView && (
               <Link
@@ -205,7 +206,7 @@ export default function MyApplicationsPage() {
                 className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white"
                 style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
               >
-                Browse bounties
+                {COPY.MY_APPLICATIONS.BROWSE_JOBS}
               </Link>
             )}
           </div>
@@ -227,7 +228,7 @@ export default function MyApplicationsPage() {
                             {app.bounty?.title || `Bounty ${app.bounty_id.slice(0, 8)}…`}
                           </h3>
                           <p className="mt-0.5 text-xs" style={{ color: "var(--text3)" }}>
-                            Applied {new Date(app.created_at).toLocaleDateString()}
+                            {COPY.APPLICATIONS.APPLIED_ON(new Date(app.created_at).toLocaleDateString())}
                           </p>
 
                           {/* Provider info box */}
@@ -236,7 +237,7 @@ export default function MyApplicationsPage() {
                             style={{ background: "var(--violet-subtle)", borderColor: "rgba(94,58,255,0.3)" }}
                           >
                             <p className="font-semibold text-xs" style={{ color: "var(--violet)" }}>
-                              Provider
+                              {COPY.APPLICATIONS.HELPER_LABEL}
                             </p>
                             <p style={{ color: "var(--text2)" }}>
                               ID: {app.provider_id.slice(0, 8)}…
@@ -252,7 +253,7 @@ export default function MyApplicationsPage() {
                               </p>
                             ) : app.status === "pending" ? (
                               <p className="italic text-xs" style={{ color: "var(--text3)" }}>
-                                PhoneIcon shown after acceptance
+                                {COPY.APPLICATIONS.PHONE_HIDDEN}
                               </p>
                             ) : null}
                           </div>
@@ -275,7 +276,7 @@ export default function MyApplicationsPage() {
                             ) : (
                               <CheckCircleIcon className="h-4 w-4" />
                             )}
-                            Accept
+                            {COPY.APPLICATIONS.ACCEPT}
                           </button>
                           <button
                             onClick={() => void handleReject(app.id)}
@@ -284,14 +285,14 @@ export default function MyApplicationsPage() {
                             style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
                           >
                             <XCircleIcon className="h-4 w-4" />
-                            Reject
+                            {COPY.APPLICATIONS.DECLINE}
                           </button>
                         </div>
                       )}
 
                       {app.status === "accepted" && app.provider_profile?.phone_number && (
                         <div className="mt-4 rounded-lg border p-4" style={{ background: "#f0fdf4", borderColor: "#bbf7d0" }}>
-                          <p className="mb-2 text-xs font-semibold" style={{ color: "#166534" }}>Call your provider</p>
+                          <p className="mb-2 text-xs font-semibold" style={{ color: "#166534" }}>{COPY.MY_APPLICATIONS.CALL_CUSTOMER}</p>
                           <a
                             href={`tel:${app.provider_profile.phone_number}`}
                             className="inline-flex items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors hover:bg-green-100"
@@ -311,7 +312,7 @@ export default function MyApplicationsPage() {
                             {app.bounty?.title || `Bounty ${app.bounty_id.slice(0, 8)}…`}
                           </h3>
                           <p className="mt-0.5 text-xs" style={{ color: "var(--text3)" }}>
-                            Applied {new Date(app.created_at).toLocaleDateString()}
+                            {COPY.APPLICATIONS.APPLIED_ON(new Date(app.created_at).toLocaleDateString())}
                           </p>
                         </div>
                         <span className={`shrink-0 rounded-full border px-2.5 py-0.5 text-xs font-semibold ${badge.cls}`}>
@@ -324,7 +325,7 @@ export default function MyApplicationsPage() {
                           className="inline-flex items-center rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
                           style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
                         >
-                          View bounty
+                          {COPY.MY_APPLICATIONS.VIEW_JOB}
                         </Link>
                         {app.status === "accepted" && app.poster_phone && (
                           <a
@@ -333,7 +334,7 @@ export default function MyApplicationsPage() {
                             style={{ borderColor: "#86efac", color: "#15803d", background: "#f0fdf4" }}
                           >
                             <PhoneIcon className="h-4 w-4" />
-                            Call poster
+                            {COPY.MY_APPLICATIONS.CALL_CUSTOMER}
                           </a>
                         )}
                       </div>

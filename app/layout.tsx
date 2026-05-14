@@ -4,6 +4,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { COPY } from "@/lib/copy";
 import Script from "next/script";
 import "./globals.css";
+import { COPY } from "@/lib/copy";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",

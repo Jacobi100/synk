@@ -7,6 +7,7 @@ import { COPY } from "@/lib/copy";
 import Link from "next/link";
 import { ArrowLeftIcon } from "@heroicons/react/24/outline";
 import type { RestructureResult } from "@/components/voice/VoiceInput";
+import { COPY } from "@/lib/copy";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -317,7 +318,7 @@ export default function CreateListingPage() {
         <div className="bg-white rounded-2xl shadow-sm p-10 flex flex-col items-center gap-4">
           <div className="text-5xl">✅</div>
           <p className="text-gray-800 font-semibold">{COPY.CREATE_JOB.SUCCESS}</p>
-          <p className="text-gray-400 text-sm">{COPY.CREATE_JOB.REDIRECTING}</p>
+          <p className="text-gray-400 text-sm">Taking you back...</p>{/* COPY.CREATE_JOB.REDIRECTING — key missing */}
         </div>
       )}
 
@@ -325,7 +326,7 @@ export default function CreateListingPage() {
       {state === "error" && !preview && (
         <div className="space-y-4">
           <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-            <p className="text-red-600 text-sm">{errorMsg || "Something went wrong."}</p>
+            <p className="text-red-600 text-sm">{errorMsg || "Something went wrong."}{/* COPY.CREATE_JOB.ERROR_GENERIC — key missing */}</p>
           </div>
           <button
             onClick={() => { setState("idle"); setErrorMsg(""); }}

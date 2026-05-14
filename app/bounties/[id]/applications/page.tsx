@@ -9,6 +9,7 @@ import type { BountyApplication, ProviderProfile } from "@/lib/types/bounty";
 import { COPY } from "@/lib/copy";
 import Link from "next/link";
 import { ArrowPathIcon, ExclamationCircleIcon, CheckCircleIconIcon, XCircleIconIcon, UserIconIcon } from "@heroicons/react/24/outline";
+import { COPY } from "@/lib/copy";
 
 type AppRow = BountyApplication & { provider_profile?: ProviderProfile | null };
 
@@ -179,7 +180,7 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                       ) : (
                         <>
                           <CheckCircleIcon className="mr-2 h-4 w-4" />
-                                {COPY.APPLICATIONS.ACCEPT}
+                          {COPY.APPLICATIONS.ACCEPT}
                         </>
                       )}
                     </Button>

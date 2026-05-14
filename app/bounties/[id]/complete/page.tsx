@@ -16,6 +16,7 @@ import {
   Banknote,
   Receipt,
 } from "lucide-react";
+import { COPY } from "@/lib/copy";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -120,7 +121,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
         <Navbar />
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
-          <p className="text-sm" style={{ color: "var(--text2)" }}>{COPY.COMPLETE.LOADING}</p>
+          <p className="text-sm" style={{ color: "var(--text2)" }}>{COPY.LOADING}</p>
         </div>
       </div>
     );
@@ -173,7 +174,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
             style={{ borderColor: "#fed7aa", backgroundColor: "#fff7ed" }}
           >
             <ShieldAlert className="h-12 w-12" style={{ color: "#ea580c" }} />
-              <h2 className="text-xl font-bold" style={{ color: "#7c2d12" }}>
+            <h2 className="text-xl font-bold" style={{ color: "#7c2d12" }}>
               {COPY.COMPLETE.HOLD_TITLE}
             </h2>
             <p className="text-sm" style={{ color: "#9a3412" }}>
@@ -209,7 +210,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
             style={{ borderColor: "#fecaca", backgroundColor: "#fef2f2" }}
           >
             <ShieldX className="h-12 w-12" style={{ color: "#dc2626" }} />
-              <h2 className="text-xl font-bold" style={{ color: "#7f1d1d" }}>
+            <h2 className="text-xl font-bold" style={{ color: "#7f1d1d" }}>
               {COPY.COMPLETE.BLOCK_TITLE}
             </h2>
             <p className="text-sm" style={{ color: "#991b1b" }}>
@@ -223,7 +224,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
               className="mt-2 rounded-lg border px-6 py-2.5 text-sm font-semibold transition-colors"
               style={{ borderColor: "#fecaca", color: "#dc2626" }}
             >
-              {COPY.COMPLETE.BACK_TO_FEED}
+              {COPY.BACK_TO_FEED}
             </Link>
           </div>
         </div>
@@ -342,7 +343,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text2)" }}>
                 <Banknote className="h-4 w-4" />
-                  {COPY.COMPLETE.TOTAL_AMOUNT}
+                {COPY.COMPLETE.TOTAL_AMOUNT}
               </div>
               <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
                 {formatNaira(escrowAmount)}
@@ -363,7 +364,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
               className="flex items-center justify-between rounded-lg p-3"
               style={{ backgroundColor: "var(--bg2)", borderTop: "1px solid var(--border)" }}
             >
-                <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+              <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
                 {COPY.COMPLETE.HELPER_RECEIVES}
               </span>
               <span className="text-base font-bold" style={{ color: "var(--violet)" }}>
@@ -378,7 +379,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
             style={{ backgroundColor: "#f5f3ff", borderColor: "#ddd6fe" }}
           >
             <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--violet)" }} />
-              <p className="text-xs leading-relaxed" style={{ color: "#5b21b6" }}>
+            <p className="text-xs leading-relaxed" style={{ color: "#5b21b6" }}>
               {COPY.COMPLETE.SAFETY_NOTICE}
             </p>
           </div>
@@ -390,7 +391,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
               style={{ backgroundColor: "#fffbeb", borderColor: "#fed7aa" }}
             >
               <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#d97706" }} />
-                <p className="text-xs" style={{ color: "#92400e" }}>
+              <p className="text-xs" style={{ color: "#92400e" }}>
                 {COPY.COMPLETE.CANNOT_PAY_YET(bounty.status.replace("_", " "))}
               </p>
             </div>
@@ -403,7 +404,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
               className="flex-1 flex items-center justify-center rounded-lg border py-3 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
               style={{ borderColor: "var(--border)", color: "var(--text2)" }}
             >
-                {COPY.COMPLETE.CANCEL}
+              {COPY.COMPLETE.CANCEL}
             </Link>
 
             <button

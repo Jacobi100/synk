@@ -6,6 +6,7 @@ import { Navbar } from "@/components/Navbar";
 import { COPY } from "@/lib/copy";
 import Link from "next/link";
 import { ArrowPathIcon, ArrowLeftIconIcon, CheckCircleIconIcon, ExclamationCircleIcon, UserIconIcon, PhoneIconIcon, CreditCardIconIcon, BuildingOffice2Icon } from "@heroicons/react/24/outline";
+import { COPY } from "@/lib/copy";
 
 function FormField({
   label,
@@ -81,8 +82,8 @@ export default function ProfilePage() {
       }),
     });
     setSaving(false);
-    if (!res.ok) setMessage({ type: "error", text: "Could not save profile. Please try again." });
-    else setMessage({ type: "success", text: "Profile saved successfully." });
+    if (!res.ok) setMessage({ type: "error", text: COPY.PROFILE.ERROR });
+    else setMessage({ type: "success", text: COPY.PROFILE.SUCCESS });
   };
 
   if (!isLoaded || !user) {
@@ -105,17 +106,17 @@ export default function ProfilePage() {
           className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
           style={{ color: "var(--text2)" }}
         >
-          <ArrowLeftIcon className="h-4 w-4" /> Back to feed
+          <ArrowLeftIcon className="h-4 w-4" /> {COPY.BACK_TO_FEED}
         </Link>
 
         <h1
           className="text-2xl font-bold"
           style={{ color: "var(--text)", letterSpacing: "-0.02em" }}
         >
-          Profile & payout
+          {COPY.PROFILE.TITLE}
         </h1>
         <p className="mt-1 mb-8 text-sm" style={{ color: "var(--text2)" }}>
-          Add your Nigerian bank account so Squad Transfer can pay you when a bounty is completed.
+          {COPY.PROFILE.SUBTITLE}
         </p>
 
         {loading ? (
@@ -127,7 +128,7 @@ export default function ProfilePage() {
             className="rounded-xl border bg-white p-6 shadow-[var(--synk-shadow)] space-y-5"
             style={{ borderColor: "var(--border)" }}
           >
-            <FormField label="UserIconname" icon={UserIcon}>
+            <FormField label={COPY.PROFILE.FIELD_USERNAME} icon={UserIcon}>
               <input
                 className={inputCls}
                 style={inputStyle}
@@ -145,7 +146,7 @@ export default function ProfilePage() {
               />
             </FormField>
 
-            <FormField label="Full name" icon={UserIcon}>
+            <FormField label={COPY.PROFILE.FIELD_FULL_NAME} icon={UserIcon}>
               <input
                 className={inputCls}
                 style={inputStyle}
@@ -163,7 +164,7 @@ export default function ProfilePage() {
               />
             </FormField>
 
-            <FormField label="PhoneIcon number" icon={PhoneIcon} hint="Used to contact you about accepted bounties.">
+            <FormField label={COPY.PROFILE.FIELD_PHONE} icon={PhoneIcon} hint="Used to contact you about accepted bounties.">
               <input
                 className={inputCls}
                 style={inputStyle}
@@ -188,14 +189,14 @@ export default function ProfilePage() {
             >
               <div>
                 <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-                  Payout account
+                  {COPY.PROFILE.PAYOUT_TITLE}
                 </h2>
                 <p className="mt-0.5 text-xs" style={{ color: "var(--text3)" }}>
-                  Required to receive payments via Squad Transfer.
+                  {COPY.PROFILE.PAYOUT_SUBTITLE}
                 </p>
               </div>
 
-              <FormField label="Bank code" icon={BuildingOffice2Icon} hint="e.g. 058 for GTBank, 044 for Access Bank">
+              <FormField label={COPY.PROFILE.FIELD_BANK_CODE} icon={BuildingOffice2Icon} hint="e.g. 058 for GTBank, 044 for Access Bank">
                 <input
                   className={inputCls}
                   style={inputStyle}
@@ -215,7 +216,7 @@ export default function ProfilePage() {
                 />
               </FormField>
 
-              <FormField label="Account number" icon={CreditCardIcon} hint="Must be exactly 10 digits.">
+              <FormField label={COPY.PROFILE.FIELD_ACCOUNT} icon={CreditCardIcon} hint="Must be exactly 10 digits.">
                 <input
                   className={inputCls}
                   style={inputStyle}
@@ -264,9 +265,9 @@ export default function ProfilePage() {
             >
               {saving ? (
                 <span className="flex items-center justify-center gap-2">
-                  <ArrowPathIcon className="h-4 w-4 animate-spin" /> Saving…
+                  <ArrowPathIcon className="h-4 w-4 animate-spin" /> {COPY.PROFILE.SAVING}
                 </span>
-              ) : "Save profile"}
+              ) : COPY.PROFILE.SAVE}
             </button>
           </div>
         )}

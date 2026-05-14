@@ -16,6 +16,7 @@ import {
   ArrowLeftIconIcon,
   InboxIconIcon,
 } from "@heroicons/react/24/outline";
+import { COPY } from "@/lib/copy";
 
 const STATUS_STYLES: Record<string, string> = {
   open:        "bg-emerald-50  text-emerald-700  border-emerald-200",
@@ -26,11 +27,11 @@ const STATUS_STYLES: Record<string, string> = {
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  open:        "Open",
-  in_progress: "In Progress",
-  paid:        "Paid",
-  completed:   "Completed",
-  cancelled:   "Cancelled",
+  open:        COPY.STATUS.open,
+  in_progress: COPY.STATUS.in_progress,
+  paid:        COPY.STATUS.paid,
+  completed:   COPY.STATUS.completed,
+  cancelled:   COPY.STATUS.cancelled,
 };
 
 const URGENCY_STYLES: Record<string, string> = {
@@ -73,7 +74,7 @@ export default function MyPostingsPage() {
       <div className="min-h-screen">
         <Navbar />
         <div className="mx-auto max-w-4xl px-4 py-12 text-center text-sm" style={{ color: "var(--text2)" }}>
-          {COPY.MY_POSTINGS.SIGN_IN_REQUIRED}
+          Sign in to view your postings.{/* COPY.MY_POSTINGS.SIGN_IN_REQUIRED — key missing from lib/copy.ts */}
         </div>
       </div>
     );
@@ -213,7 +214,7 @@ export default function MyPostingsPage() {
                       className="inline-flex items-center rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
                       style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
                     >
-                      {COPY.MY_POSTINGS.VIEW_DETAILS}
+                      View details{/* COPY.MY_POSTINGS.VIEW_DETAILS — key missing from lib/copy.ts */}
                     </Link>
                     {bounty.status === "open" && (
                       <Link

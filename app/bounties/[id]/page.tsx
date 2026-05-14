@@ -20,6 +20,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { formatDistanceToNow } from "date-fns";
 import NavigationMap from "@/components/map/NavigationMap";
+import { COPY } from "@/lib/copy";
 
 type BountyDetail = Bounty & { poster_phone?: string | null; provider_phone?: string | null };
 
@@ -35,7 +36,13 @@ const STATUS_STYLES: Record<string, string> = {
   cancelled:   "bg-neutral-100 text-neutral-500  border-neutral-200",
 };
 
-const STATUS_LABELS = COPY.STATUS;
+const STATUS_LABELS: Record<string, string> = {
+  open:        COPY.STATUS.open,
+  in_progress: COPY.STATUS.in_progress,
+  paid:        COPY.STATUS.paid,
+  completed:   COPY.STATUS.completed,
+  cancelled:   COPY.STATUS.cancelled,
+};
 
 const URGENCY_STYLES: Record<string, string> = {
   asap:      "bg-red-50   text-red-700   border-red-100",
@@ -106,7 +113,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
         <Navbar />
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <ArrowPathIcon className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
-          <p className="text-sm" style={{ color: "var(--text3)" }}>Loading bounty…</p>
+          <p className="text-sm" style={{ color: "var(--text3)" }}>{COPY.LOADING}</p>
         </div>
       </div>
     );
@@ -193,7 +200,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
               {/* Description */}
               <div className="mb-6">
                 <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide" style={{ color: "var(--text3)" }}>
-                  {COPY.JOB_DETAIL.DESCRIPTION_TITLE}
+                  {COPY.DESCRIPTION}
                 </h2>
                 <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: "var(--text)" }}>
                   {bounty.description || COPY.NO_DESCRIPTION}
@@ -226,7 +233,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                   style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
                 >
                   <div className="mb-1 flex items-center gap-1.5 text-xs" style={{ color: "var(--text3)" }}>
-                      <ClockIcon className="h-3.5 w-3.5" /> {COPY.URGENCY_LABEL}
+                    <ClockIcon className="h-3.5 w-3.5" /> {COPY.URGENCY_LABEL}
                   </div>
                   <span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold ${urgencyStyle}`}>
                     {bounty.urgency.charAt(0).toUpperCase() + bounty.urgency.slice(1)}
@@ -252,7 +259,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                   style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
                 >
                   <div className="mb-1 flex items-center gap-1.5 text-xs" style={{ color: "var(--text3)" }}>
-                      <BriefcaseIcon className="h-3.5 w-3.5" /> {COPY.HELPERS_NEEDED}
+                    <BriefcaseIcon className="h-3.5 w-3.5" /> {COPY.HELPERS_NEEDED}
                   </div>
                   <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
                     {COPY.HELPERS_NEEDED_COUNT(bounty.slots_available)}
@@ -347,7 +354,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                   className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
                   style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
                 >
-                      {COPY.JOB_DETAIL.MAKE_SAFE_PAYMENT}
+                  {COPY.JOB_DETAIL.MAKE_SAFE_PAYMENT}
                 </Link>
               )}
 
@@ -382,9 +389,9 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                   disabled={applyLoading}
                   onClick={handleApply}
                 >
-                    {applyLoading ? (
-                      <><Loader2 className="h-4 w-4 animate-spin" /> {COPY.JOB_DETAIL.APPLYING}</>
-                    ) : COPY.JOB_DETAIL.APPLY_BUTTON}
+                  {applyLoading ? (
+                    <><Loader2 className="h-4 w-4 animate-spin" /> {COPY.JOB_DETAIL.APPLYING}</>
+                  ) : COPY.JOB_DETAIL.APPLY_BUTTON}
                 </button>
               )}
 

@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from "react";
 import { MicrophoneIcon, ArrowPathIcon, ExclamationCircleIcon } from "@heroicons/react/24/outline";
+import { COPY } from "@/lib/copy";
 
 // ---------------------------------------------------------------------------
 // Safari compatibility — webkit prefix without using `any`
@@ -306,17 +307,17 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
   const showLanguageSelector = state === "idle" || state === "error";
 
   const micAriaLabel: Record<RecordingState, string> = {
-    idle:       "Tap to start speaking",
-    recording:  "Tap to stop recording",
-    processing: "Processing your voice, please wait",
-    error:      "Recording failed. Tap to try again",
+    idle:       COPY.VOICE.MIC_LABEL_IDLE,
+    recording:  COPY.VOICE.MIC_LABEL_RECORDING,
+    processing: COPY.VOICE.MIC_LABEL_PROCESSING,
+    error:      COPY.VOICE.MIC_LABEL_ERROR,
   };
 
   const statusText: Record<RecordingState, string> = {
-    idle:       "Tap mic to speak",
-    recording:  "Listening… tap to stop",
-    processing: "Understanding your message…",
-    error:      errorMessage || "Something went wrong. Tap to try again.",
+    idle:       COPY.VOICE.IDLE,
+    recording:  COPY.VOICE.RECORDING,
+    processing: COPY.VOICE.PROCESSING,
+    error:      errorMessage || COPY.VOICE.ERROR,
   };
 
   const buttonColour: Record<RecordingState, string> = {
@@ -424,7 +425,7 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
             />
           </div>
           <p className="text-xs text-muted-foreground">
-            Sends in {10 - silenceSeconds}s if silent
+            {COPY.VOICE.SILENCE_COUNTDOWN(10 - silenceSeconds)}
           </p>
         </div>
       )}

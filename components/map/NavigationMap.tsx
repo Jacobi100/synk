@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { Navigation, ExternalLink, Loader2, MapPin, AlertCircle } from "lucide-react";
+import { COPY } from "@/lib/copy";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -218,7 +219,7 @@ export default function NavigationMap({
         <div className="flex items-center gap-2">
           <Navigation className="h-4 w-4" style={{ color: "var(--violet)" }} />
           <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
-            Navigate to buyer
+            {COPY.NAV_MAP.TITLE}
           </span>
         </div>
         
@@ -232,7 +233,7 @@ export default function NavigationMap({
           }}
         >
           <ExternalLink className="h-3.5 w-3.5" />
-          Open in Maps
+          {COPY.NAV_MAP.OPEN_IN_MAPS}
         </a>
       </div>
 
@@ -267,7 +268,7 @@ export default function NavigationMap({
           }}
         >
           <AlertCircle className="h-3.5 w-3.5 shrink-0" />
-          Location access denied — showing destination only. Tap "Open in Maps" for turn-by-turn navigation.
+          {COPY.NAV_MAP.NO_LOCATION}
         </div>
       )}
 
@@ -280,7 +281,7 @@ export default function NavigationMap({
             style={{ backgroundColor: "var(--bg2)" }}
           >
             <Loader2 className="h-7 w-7 animate-spin" style={{ color: "var(--violet)" }} />
-            <p className="text-sm" style={{ color: "var(--text2)" }}>Loading map…</p>
+            <p className="text-sm" style={{ color: "var(--text2)" }}>{COPY.NAV_MAP.LOADING}</p>
           </div>
         )}
 
@@ -301,7 +302,7 @@ export default function NavigationMap({
               style={{ backgroundColor: "var(--violet)" }}
             >
               <ExternalLink className="h-4 w-4" />
-              Open in Google Maps instead
+              {COPY.NAV_MAP.ERROR_FALLBACK}
             </a>
           </div>
         )}

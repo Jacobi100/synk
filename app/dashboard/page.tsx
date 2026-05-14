@@ -7,6 +7,7 @@ import { COPY } from "@/lib/copy";
 import type { BountyFeedItem } from "@/lib/types/bounty";
 import Link from "next/link";
 import { ArrowPathIcon, PlusIconIcon, InboxIconIcon } from "@heroicons/react/24/outline";
+import { COPY } from "@/lib/copy";
 
 export default function DashboardPage() {
   const [items, setItems] = useState<BountyFeedItem[]>([]);
@@ -46,10 +47,10 @@ export default function DashboardPage() {
               className="text-3xl font-bold"
               style={{ color: "var(--text)", letterSpacing: "-0.03em" }}
             >
-                {COPY.DASHBOARD.AVAILABLE_JOBS}
+              {COPY.DASHBOARD.AVAILABLE_JOBS}
             </h1>
             <p className="mt-1 text-sm" style={{ color: "var(--text2)" }}>
-                {COPY.DASHBOARD.AVAILABLE_JOBS_SUB}
+              {COPY.DASHBOARD.AVAILABLE_JOBS_SUB}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
@@ -86,7 +87,7 @@ export default function DashboardPage() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
             <ArrowPathIcon className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
-            <p className="text-sm" style={{ color: "var(--text3)" }}>{COPY.DASHBOARD.LOADING}</p>
+            <p className="text-sm" style={{ color: "var(--text3)" }}>{COPY.LOADING}</p>
           </div>
         ) : items.length === 0 ? (
           <div

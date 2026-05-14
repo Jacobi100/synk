@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Bounty } from "@/lib/types/bounty";
 import Link from "next/link";
 import { ArrowPathIcon, ExclamationCircleIcon, ShieldCheckIconCheckIcon, CheckCircleIconIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
+import { COPY } from "@/lib/copy";
 
 interface EscrowPayload {
   virtual_account_number: string | null;
@@ -86,33 +87,33 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
           <Link href={`/bounties/${id}`} className="font-medium text-blue-600 hover:text-blue-700">
-            ← Back to bounty
+            {COPY.BACK_TO_JOB}
           </Link>
         </div>
 
-        <h1 className="mb-2 text-3xl font-bold text-gray-900">Escrow payment</h1>
+        <h1 className="mb-2 text-3xl font-bold text-gray-900">{COPY.PAYMENT.SAFE_PAYMENT_TITLE}</h1>
         <p className="mb-8 text-gray-600">
           Transfer the agreed amount to the Squad virtual account below. We will notify the provider when payment
-          clears.
+          clears.{/* COPY.PAYMENT — no key for this full sentence */}
         </p>
 
         <div className="rounded-lg border border-gray-200 bg-white p-8">
           <div className="mb-6 space-y-2 border-b border-gray-100 pb-6">
             <div className="flex justify-between text-sm">
-              <span className="text-gray-600">Bounty</span>
+              <span className="text-gray-600">{COPY.COMPLETE.SECTION_JOB}</span>
               <span className="font-medium text-gray-900">{bounty.title}</span>
             </div>
             {escrow && (
               <>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Escrow amount</span>
+                  <span className="text-gray-600">{COPY.COMPLETE.TOTAL_AMOUNT}</span>
                   <span className="font-semibold text-gray-900">
                     ₦{Number(escrow.amount).toLocaleString("en-NG")}
                   </span>
                 </div>
                 {escrow.platform_fee != null && (
                   <div className="flex justify-between text-xs text-gray-500">
-                    <span>Platform fee (5%)</span>
+                    <span>{COPY.COMPLETE.SERVICE_CHARGE}</span>
                     <span>₦{Number(escrow.platform_fee).toLocaleString("en-NG")}</span>
                   </div>
                 )}
@@ -122,7 +123,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
 
           {escrow?.virtual_account_number ? (
             <div className="mb-8 rounded-xl border-2 border-indigo-200 bg-indigo-50 p-6">
-              <p className="mb-1 text-sm font-medium text-indigo-900">Virtual account number</p>
+              <p className="mb-1 text-sm font-medium text-indigo-900">Virtual account number{/* COPY.PAYMENT.VIRTUAL_ACCOUNT_LABEL — key missing from lib/copy.ts */}</p>
               <div className="flex items-center gap-2">
                 <code className="text-xl font-bold tracking-wide text-indigo-950">
                   {escrow.virtual_account_number}
@@ -132,7 +133,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
                 </Button>
               </div>
               <p className="mt-3 text-xs text-indigo-800">
-                Use your bank app to transfer to this dedicated account. Status:{" "}
+                {COPY.PAYMENT.TRANSFER_INSTRUCTION} Status:{" "}
                 <strong>{escrow.status}</strong>
               </p>
             </div>
@@ -140,7 +141,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
             <div className="mb-8 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
               <ExclamationCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
               <p className="text-sm text-amber-900">
-                Escrow details are not available yet, or you are not the poster for this bounty.
+                {COPY.PAYMENT.NOT_AVAILABLE}
               </p>
             </div>
           )}
@@ -150,7 +151,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
               <ShieldCheckIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
               <div>
                 <h3 className="font-semibold text-gray-900">Squad escrow</h3>
-                <p className="text-sm text-gray-600">Funds are held until you mark the bounty complete.</p>
+                <p className="text-sm text-gray-600">{COPY.PAYMENT.HELD_NOTICE}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">

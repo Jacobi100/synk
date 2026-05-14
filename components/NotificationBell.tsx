@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { BellIcon, ArrowPathIcon } from "@heroicons/react/24/outline";
 import { useNotifications } from "@/hooks/useNotifications";
 import { Button } from "@/components/ui/button";
+import { COPY } from "@/lib/copy";
 
 export function NotificationBell() {
   const { notifications, unreadCount, markAllRead, loading } = useNotifications();
@@ -61,7 +62,7 @@ export function NotificationBell() {
             style={{ borderColor: "var(--border-ink)" }}
           >
             <span className="text-sm font-semibold" style={{ color: "var(--text-inv)" }}>
-              Notifications
+              {COPY.NOTIFICATIONS.TITLE}
             </span>
             {unreadCount > 0 && (
               <Button
@@ -71,7 +72,7 @@ export function NotificationBell() {
                 style={{ color: "var(--violet3)" }}
                 onClick={() => void markAllRead()}
               >
-                Mark all read
+                {COPY.NOTIFICATIONS.MARK_ALL_READ}
               </Button>
             )}
           </div>
@@ -128,7 +129,7 @@ export function NotificationBell() {
                 router.push("/dashboard");
               }}
             >
-              View feed →
+              {COPY.NOTIFICATIONS.VIEW_FEED}
             </button>
           </div>
         </div>

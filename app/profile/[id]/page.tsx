@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import type { TrustBadge, TrustSignal } from "@/lib/trust/types";
+import { COPY } from "@/lib/copy";
 
 // ---------------------------------------------------------------------------
 // Types
@@ -51,36 +52,36 @@ interface BadgeConfig {
 
 const BADGE_CONFIG: Record<TrustBadge, BadgeConfig> = {
   new: {
-    label:       "New Provider",
+    label:       COPY.PROVIDER_PROFILE.BADGE_NEW_LABEL,
     icon:        Sparkles,
     chipStyle:   { backgroundColor: "#f3f4f6", color: "#6b7280", border: "1px solid #e5e7eb" },
     cardStyle:   { background: "#f9fafb", borderColor: "#e5e7eb" },
     iconColor:   "#9ca3af",
-    description: "This provider is new to the platform. They have not completed enough jobs for a trust rating yet.",
+    description: COPY.PROVIDER_PROFILE.BADGE_NEW_DESC,
   },
   active: {
-    label:       "Active Provider",
+    label:       COPY.PROVIDER_PROFILE.BADGE_ACTIVE_LABEL,
     icon:        Star,
     chipStyle:   { backgroundColor: "#eff6ff", color: "#1d4ed8", border: "1px solid #bfdbfe" },
     cardStyle:   { background: "#eff6ff", borderColor: "#bfdbfe" },
     iconColor:   "#3b82f6",
-    description: "This provider has completed multiple jobs with a good completion rate.",
+    description: COPY.PROVIDER_PROFILE.BADGE_ACTIVE_DESC,
   },
   trusted: {
-    label:       "Trusted Provider",
+    label:       COPY.PROVIDER_PROFILE.BADGE_TRUSTED_LABEL,
     icon:        Shield,
     chipStyle:   { backgroundColor: "#f0fdf4", color: "#15803d", border: "1px solid #bbf7d0" },
     cardStyle:   { background: "#f0fdf4", borderColor: "#bbf7d0" },
     iconColor:   "#22c55e",
-    description: "Synk vouches for this provider. They have a strong track record with repeat buyers.",
+    description: COPY.PROVIDER_PROFILE.BADGE_TRUSTED_DESC,
   },
   community_trusted: {
-    label:       "Community Trusted",
+    label:       COPY.PROVIDER_PROFILE.BADGE_TOP_LABEL,
     icon:        Crown,
     chipStyle:   { backgroundColor: "#f5f3ff", color: "#6d28d9", border: "1px solid #ddd6fe" },
     cardStyle:   { background: "#f5f3ff", borderColor: "#ddd6fe" },
     iconColor:   "#7c3aed",
-    description: "Synk's highest trust tier. This provider has an exceptional history and a strong loyal buyer base.",
+    description: COPY.PROVIDER_PROFILE.BADGE_TOP_DESC,
   },
 };
 
@@ -94,7 +95,7 @@ function TrustScoreBar({ score, badge }: { score: number; badge: TrustBadge }) {
     <div>
       <div className="flex items-center justify-between mb-1.5">
         <span className="text-xs font-medium" style={{ color: "var(--text2)" }}>
-          Trust score
+          {COPY.PROVIDER_PROFILE.REPUTATION_SCORE}
         </span>
         <span className="text-sm font-bold" style={{ color: config.iconColor }}>
           {score}/100
@@ -212,7 +213,7 @@ export default function ProviderProfilePage({
         <Navbar />
         <div className="flex flex-col items-center justify-center py-24 gap-3">
           <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
-          <p className="text-sm" style={{ color: "var(--text2)" }}>Loading profile…</p>
+          <p className="text-sm" style={{ color: "var(--text2)" }}>{COPY.LOADING}</p>
         </div>
       </div>
     );
@@ -231,9 +232,9 @@ export default function ProviderProfilePage({
           >
             <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
             <div>
-              <h3 className="font-semibold" style={{ color: "#7f1d1d" }}>Profile not found</h3>
+              <h3 className="font-semibold" style={{ color: "#7f1d1d" }}>{COPY.PROVIDER_PROFILE.NOT_FOUND_TITLE}</h3>
               <p className="text-sm mt-0.5" style={{ color: "#991b1b" }}>
-                {fetchError ?? "This provider profile does not exist."}
+                {fetchError ?? COPY.PROVIDER_PROFILE.NOT_FOUND_SUB}
               </p>
             </div>
           </div>
@@ -257,7 +258,7 @@ export default function ProviderProfilePage({
           className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
           style={{ color: "var(--text2)" }}
         >
-          <ArrowLeft className="h-4 w-4" /> Back to feed
+          <ArrowLeft className="h-4 w-4" /> {COPY.PROVIDER_PROFILE.BACK}
         </Link>
 
         {/* Profile header */}
@@ -301,7 +302,7 @@ export default function ProviderProfilePage({
                   {badgeConfig.label}
                 </span>
                 <span className="text-xs" style={{ color: "var(--text3)" }}>
-                  Member {formatDistanceToNow(new Date(profile.memberSince), { addSuffix: true })}
+                  {COPY.PROVIDER_PROFILE.MEMBER_SINCE(formatDistanceToNow(new Date(profile.memberSince), { addSuffix: true }))}
                 </span>
               </div>
             </div>
@@ -326,9 +327,9 @@ export default function ProviderProfilePage({
 
         {/* Stats grid */}
         <div className="grid grid-cols-3 gap-3 mb-5">
-          <StatCard icon={Briefcase} label="Jobs completed"  value={profile.completedJobs} />
-          <StatCard icon={Users}     label="Unique buyers"   value={profile.totalUniqueBuyers} />
-          <StatCard icon={BarChart3} label="Trust score"     value={`${profile.trustScore}/100`} />
+          <StatCard icon={Briefcase} label={COPY.PROVIDER_PROFILE.JOBS_COMPLETED}   value={profile.completedJobs} />
+          <StatCard icon={Users}     label={COPY.PROVIDER_PROFILE.UNIQUE_CUSTOMERS} value={profile.totalUniqueBuyers} />
+          <StatCard icon={BarChart3} label={COPY.PROVIDER_PROFILE.REPUTATION_SCORE} value={`${profile.trustScore}/100`} />
         </div>
 
         {/* Trust score breakdown */}
@@ -345,7 +346,7 @@ export default function ProviderProfilePage({
               className="text-sm font-semibold uppercase tracking-wide mb-4"
               style={{ color: "var(--text3)" }}
             >
-              Trust score breakdown
+              {COPY.PROVIDER_PROFILE.REPUTATION_TITLE}
             </h2>
 
             <TrustScoreBar score={profile.trustScore} badge={profile.trustBadge} />
@@ -359,7 +360,7 @@ export default function ProviderProfilePage({
             {profile.trustComputedAt && (
               <p className="mt-4 text-xs" style={{ color: "var(--text3)" }}>
                 <Clock className="inline h-3 w-3 mr-1" />
-                Last updated {formatDistanceToNow(
+                {COPY.PROVIDER_PROFILE.LAST_UPDATED} {formatDistanceToNow(
                   new Date(profile.trustComputedAt),
                   { addSuffix: true }
                 )}
@@ -376,10 +377,10 @@ export default function ProviderProfilePage({
           >
             <Sparkles className="h-8 w-8" style={{ color: "var(--text3)" }} />
             <p className="text-sm font-medium" style={{ color: "var(--text)" }}>
-              No trust history yet
+              {COPY.PROVIDER_PROFILE.NO_HISTORY_TITLE}
             </p>
             <p className="text-xs" style={{ color: "var(--text3)" }}>
-              This provider's trust score will appear here after their first completed job.
+              {COPY.PROVIDER_PROFILE.NO_HISTORY_SUB}
             </p>
           </div>
         )}
