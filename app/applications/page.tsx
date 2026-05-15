@@ -42,16 +42,19 @@ function getTrustBadgeLabel(badge?: string | null) {
 const STATUS_BADGE: Record<string, { cls: string; label: string }> = {
   pending: {
     cls: "bg-amber-50 text-amber-700 border-amber-200",
-    label: "Pending",
+    label: COPY.APPLICATION_STATUS.pending,
   },
   accepted: {
     cls: "bg-emerald-50 text-emerald-700 border-emerald-200",
-    label: "Accepted",
+    label: COPY.APPLICATION_STATUS.accepted,
   },
-  rejected: { cls: "bg-red-50 text-red-700 border-red-200", label: "Rejected" },
+  rejected: {
+    cls: "bg-red-50 text-red-700 border-red-200",
+    label: COPY.APPLICATION_STATUS.rejected,
+  },
   withdrawn: {
     cls: "bg-neutral-100 text-neutral-500 border-neutral-200",
-    label: "Withdrawn",
+    label: COPY.APPLICATION_STATUS.withdrawn,
   },
 };
 
@@ -152,7 +155,7 @@ export default function MyApplicationsPage() {
         <Navbar />
         <div className="mx-auto max-w-4xl px-4 py-12 text-center">
           <p className="text-sm text-muted-foreground">
-            Sign in to view your applications.
+            {COPY.MY_APPLICATIONS.SIGN_IN_REQUIRED}
           </p>
         </div>
       </div>
@@ -169,7 +172,7 @@ export default function MyApplicationsPage() {
           href="/"
           className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
         >
-          <ArrowLeftIcon className="h-4 w-4" /> Back
+          <ArrowLeftIcon className="h-4 w-4" /> {COPY.BACK}
         </Link>
 
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -196,11 +199,11 @@ export default function MyApplicationsPage() {
               background: "var(--background)",
             }}
           >
-            {(["poster", "provider"] as const).map((r) => (
-              <button
-                key={r}
-                type="button"
-                onClick={() => setRole(r)}
+                {(["poster", "provider"] as const).map((r) => (
+                  <button
+                    key={r}
+                    type="button"
+                    onClick={() => setRole(r)}
                 className="rounded-[24px] px-4 py-1.5 text-sm font-medium transition-all"
                 style={{
                   background: role === r ? "var(--primary)" : "transparent",
@@ -209,10 +212,12 @@ export default function MyApplicationsPage() {
                       ? "var(--primary-foreground)"
                       : "var(--muted-foreground)",
                 }}
-              >
-                {r.charAt(0).toUpperCase() + r.slice(1)}
-              </button>
-            ))}
+                  >
+                    {r === "poster"
+                      ? COPY.MY_APPLICATIONS.ROLE_CUSTOMER
+                      : COPY.MY_APPLICATIONS.ROLE_HELPER}
+                  </button>
+                ))}
           </div>
         </div>
 
@@ -302,7 +307,7 @@ export default function MyApplicationsPage() {
                         <div className="flex-1">
                           <h3 className="text-base font-semibold text-foreground">
                             {app.bounty?.title ||
-                              `Bounty ${app.bounty_id.slice(0, 8)}…`}
+                              `Job ${app.bounty_id.slice(0, 8)}...`}
                           </h3>
                           <p className="mt-0.5 text-xs text-mute">
                             {COPY.APPLICATIONS.APPLIED_ON(
@@ -325,7 +330,7 @@ export default function MyApplicationsPage() {
                               {COPY.MY_APPLICATIONS.HELPER_LABEL}
                             </p>
                             <p className="text-muted-foreground">
-                              ID: {app.provider_id.slice(0, 8)}…
+                              ID: {app.provider_id.slice(0, 8)}...
                             </p>
                             {app.provider_profile.username && (
                               <p className="text-muted-foreground">
@@ -353,7 +358,7 @@ export default function MyApplicationsPage() {
                             {app.status === "accepted" &&
                             app.provider_profile?.phone_number ? (
                               <p className="font-semibold text-foreground">
-                                📞 {app.provider_profile.phone_number}
+                                {app.provider_profile.phone_number}
                               </p>
                             ) : app.status === "pending" ? (
                               <p className="italic text-xs text-mute">
@@ -375,7 +380,7 @@ export default function MyApplicationsPage() {
                           style={{ borderColor: "var(--border)" }}
                         >
                           <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                            Proposed price
+                            {COPY.MY_APPLICATIONS.THEIR_PRICE}
                           </p>
                           <p className="mt-1 text-lg font-semibold text-slate-900">
                             ₦{Number(app.proposed_price).toLocaleString()}
@@ -451,7 +456,7 @@ export default function MyApplicationsPage() {
                         <div>
                           <h3 className="text-base font-semibold text-foreground">
                             {app.bounty?.title ||
-                              `Bounty ${app.bounty_id.slice(0, 8)}…`}
+                              `Job ${app.bounty_id.slice(0, 8)}...`}
                           </h3>
                           <p className="mt-0.5 text-xs text-mute">
                             {COPY.APPLICATIONS.APPLIED_ON(

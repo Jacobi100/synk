@@ -15,7 +15,7 @@ export type SupportedLanguage =
   | "pcm-NG"  // Nigerian Pidgin
   | "en-NG";  // Nigerian English
 
-/** Human-readable label map — import this in VoiceInput.tsx to build the UI. */
+/** Human-readable label map - import this in VoiceInput.tsx to build the UI. */
 export const LANGUAGE_LABELS: Record<SupportedLanguage, string> = {
   "yo-NG":  "Yoruba",
   "ig-NG":  "Igbo",
@@ -35,12 +35,12 @@ export interface TranscribeAudioParams {
   audioBase64: string;
   /**
    * MIME type of the recorded audio.
-   * Defaults to "audio/webm" — the most common output from browser MediaRecorder.
+   * Defaults to "audio/webm" - the most common output from browser MediaRecorder.
    */
   mimeType?: AudioMimeType;
   /**
    * Language the user selected before speaking.
-   * When provided, injected into the prompt as an explicit hint for Gemini —
+   * When provided, injected into the prompt as an explicit hint for Gemini -
    * improves accuracy on code-switched and low-resource Nigerian languages.
    */
   language?: SupportedLanguage;
@@ -67,7 +67,7 @@ function buildPrompt(language?: SupportedLanguage): string {
 
   return `You are a transcription assistant specialised in Nigerian languages and dialects.
 
-The speaker may be using any of the following: Yoruba, Igbo, Hausa, Nigerian Pidgin English, or Nigerian English. Speakers frequently code-switch — mixing Pidgin with English or local language words mid-sentence. Transcribe naturally and do not force standard British or American English where Nigerian phrasing is clearer.
+The speaker may be using any of the following: Yoruba, Igbo, Hausa, Nigerian Pidgin English, or Nigerian English. Speakers frequently code-switch, mixing Pidgin with English or local language words mid-sentence. Transcribe naturally and do not force standard British or American English where Nigerian phrasing is clearer.
 
 ${languageHint}
 
@@ -88,7 +88,7 @@ Respond with ONLY a JSON object in this exact shape, no markdown, no preamble:
 
 /**
  * Sends base64-encoded audio to Gemini 2.5 Flash for transcription.
- * Gemini processes the audio natively — no separate STT service required.
+  * Gemini processes the audio natively. No separate STT service required.
  * Supports Yoruba, Igbo, Hausa, Nigerian Pidgin, and Nigerian English.
  *
  * @param params - `{ audioBase64, mimeType?, language? }`
@@ -122,7 +122,7 @@ export async function transcribeAudio(
         parts: [
           // 1. Language-aware system instruction as the first text part
           { text: buildPrompt(language) },
-          // 2. The audio itself as inline binary data — no STT service needed
+          // 2. The audio itself as inline binary data - no STT service needed
           {
             inlineData: {
               mimeType,
@@ -137,7 +137,7 @@ export async function transcribeAudio(
   const raw = result.response.text();
 
   // ---------------------------------------------------------------------------
-  // Parse & validate — Gemini is instructed to return JSON only, but we guard
+  // Parse & validate - Gemini is instructed to return JSON only, but we guard
   // ---------------------------------------------------------------------------
   let parsed: unknown;
   try {

@@ -174,7 +174,6 @@ export async function POST(request: NextRequest) {
     // Could not match — log and return 200 to avoid Squad retries
     console.warn("[squad-webhook] Could not match transaction for ref:", squadRef, "va:", va);
     return NextResponse.json({ ok: true, unmatched: true }, { status: 200 });
-
   } catch (error) {
     console.error("Squad webhook error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });

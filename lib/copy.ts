@@ -1,15 +1,15 @@
 // ---------------------------------------------------------------------------
-// lib/copy.ts — Every word a user sees on this app
+// lib/copy.ts - Every word a user sees on this app
 //
 // LANGUAGE PRINCIPLES:
 // ✓ Simple enough for a market woman in Surulere or an Igbo trader in Onitsha
 // ✓ Professional enough that users trust the platform with their money
-// ✓ Action-first — every label tells you exactly what happens when you tap it
-// ✓ No jargon — no "escrow", "bounty", "provider", "application", "payout"
-// ✓ Short — if it can be said in 4 words instead of 8, use 4
+// ✓ Action-first: every label tells you what happens when you tap it
+// ✓ No jargon: no "escrow", "bounty", "provider", "application", "payout"
+// ✓ Short: if it can be said in 4 words instead of 8, use 4
 //
 // ENGINEER RULES:
-// - Import { COPY } from "@/lib/copy" — never hardcode strings in components
+// - Import { COPY } from "@/lib/copy": never hardcode strings in components
 // - Never rename keys without updating imports across all files
 // - Never touch variable names, functions, or database columns
 // - One change here = changes everywhere
@@ -17,45 +17,45 @@
 
 export const COPY = {
 
-  // ── App meta ──────────────────────────────────────────────────────────────
-  APP_TITLE:       "Synk — Find Help Near You",
-  APP_DESCRIPTION: "Post a job and get help from skilled people nearby. Your money stays safe until the work is done.",
+  // -- App meta --------------------------------------------------------------
+  APP_TITLE:       "Synk: Find help near you",
+  APP_DESCRIPTION: "Post a job and get help from people nearby. We keep your money safe until the work is done.",
 
-  // ── Job/bounty status ─────────────────────────────────────────────────────
-  // Keep these short — they appear as chips/badges with limited space
+  // -- Job/bounty status -----------------------------------------------------
+  // Keep these short: they appear as chips/badges with limited space
   STATUS: {
     open:        "Open",
-    in_progress: "In Progress",
+    in_progress: "Working",
     paid:        "Money Safe",
     completed:   "Done",
     cancelled:   "Cancelled",
   },
 
-  // ── Offer/application status badges ──────────────────────────────────────
+  // -- Offer/application status badges --------------------------------------
   APPLICATION_STATUS: {
     pending:   "Waiting",
-    accepted:  "Accepted",
-    rejected:  "Not Chosen",
-    withdrawn: "Withdrawn",
+    accepted:  "Chosen",
+    rejected:  "Not chosen",
+    withdrawn: "Pulled back",
   },
 
-  // ── Urgency labels ────────────────────────────────────────────────────────
+  // -- Urgency labels --------------------------------------------------------
   URGENCY: {
-    asap:      "Right Now",
-    scheduled: "Planned",
-    flexible:  "No Rush",
+    asap:      "Now",
+    scheduled: "Later",
+    flexible:  "Any time",
   },
 
-  // ── Reusable actions ─────────────────────────────────────────────────────
+  // -- Reusable actions ------------------------------------------------------
   BACK:          "Back",
   BACK_TO_FEED:  "Back to Jobs",
-  BACK_TO_JOB:   "← Back to Job",
+  BACK_TO_JOB:   "Back to Job",
   TRY_AGAIN:     "Try Again",
-  LOADING:       "Loading…",
+  LOADING:       "Loading...",
   CANCEL:        "Cancel",
   DONE:          "Done",
 
-  // ── Reusable field labels ─────────────────────────────────────────────────
+  // -- Reusable field labels -------------------------------------------------
   LOCATION:         "Location",
   URGENCY_LABEL:    "How Soon",
   DEADLINE:         "Deadline",
@@ -78,14 +78,14 @@ export const COPY = {
     WELCOME:        (firstName?: string | null) =>
       `Welcome back${firstName ? `, ${firstName}` : ""}`,
     HEADLINE:       "Find help or offer help",
-    SUBHEADLINE:    "Post a job and get help from skilled people near you. Your money stays safe until the work is done.",
-    POST_A_JOB:     "Post a Job",
-    FIND_JOBS:      "Find Jobs",
-    ACTIVE_JOBS:    "Active Jobs",
-    IN_PROGRESS:    "In Progress",
-    COMPLETED:      "Completed",
-    ACCEPTED:       "Accepted",
-    TOTAL_EARNINGS: "Total Earned",
+    SUBHEADLINE:    "Post a job and get help from people near you. We keep your money safe until the work is done.",
+    POST_A_JOB:     "Post a job",
+    FIND_JOBS:      "Find jobs",
+    ACTIVE_JOBS:    "Open jobs",
+    IN_PROGRESS:    "Working",
+    COMPLETED:      "Done",
+    ACCEPTED:       "Paid",
+    TOTAL_EARNINGS: "Total earned",
     POST_JOB_DESC:  "Tell us what you need. People near you will offer to help.",
     FIND_JOBS_DESC: "See jobs near you and start earning.",
   },
@@ -95,14 +95,14 @@ export const COPY = {
   // -------------------------------------------------------------------------
 
   DASHBOARD: {
-    AVAILABLE_JOBS:     "Jobs in your Neighbourhood",
+    AVAILABLE_JOBS:     "Jobs near you",
     AVAILABLE_JOBS_SUB: "People nearby who need help.",
-    POST_JOB:           "Post a Job",
+    POST_JOB:           "Post a job",
     REFRESH:            "Refresh",
     NO_JOBS:            "No jobs near you yet",
     NO_JOBS_SUB:        "Be the first to post a job in your area.",
     POST_FIRST:         "Post the first job",
-    LOADING:            "Looking for jobs near you…",
+    LOADING:            "Looking for jobs near you...",
   },
 
   // -------------------------------------------------------------------------
@@ -111,14 +111,16 @@ export const COPY = {
 
   NAVBAR: {
     FEED:         "Jobs",
-    APPLICATIONS: "My Offers",
-    MY_POSTINGS:  "My Jobs",
-    POST:         "Post a Job",
-    PROFILE:      "My Profile",
+    APPLICATIONS: "Offers",
+    MY_POSTINGS:  "My jobs",
+    POST:         "Post a job",
+    PROFILE:      "My profile",
     HOW_IT_WORKS: "How it works",
     SIGN_IN:      "Sign in",
-    SIGN_UP:      "Join Synk",
-    MENU_LABEL:   "Open menu",
+    SIGN_UP:      "Sign up",
+    MENU_LABEL:   "Menu",
+    MENU_OPEN:    "Open menu",
+    MENU_CLOSE:   "Close menu",
   },
 
   // -------------------------------------------------------------------------
@@ -126,16 +128,18 @@ export const COPY = {
   // -------------------------------------------------------------------------
 
   MY_POSTINGS: {
-    TITLE:            "My Jobs",
-    SUBTITLE:         "All the jobs you have posted.",
-    NEW_JOB:          "Post a Job",
+    TITLE:            "My jobs",
+    SUBTITLE:         "All the jobs you posted.",
+    NEW_JOB:          "Post a job",
     EMPTY_TITLE:      "You have not posted any jobs yet",
     EMPTY_SUB:        "Post a job and people near you will offer to help.",
-    VIEW_DETAILS:     "See Details",
-    VIEW_HELPERS:     "See Offers",
+    VIEW_DETAILS:     "See details",
+    VIEW_HELPERS:     "See offers",
     PAYMENT:          "Pay",
-    CONFIRM_DONE:     "Mark Done",
-    SIGN_IN_REQUIRED: "Please sign in to see your jobs.",
+    CONFIRM_DONE:     "Mark done",
+    SIGN_IN_REQUIRED: "Sign in to see your jobs.",
+    ERROR_LOAD:        "Could not load your jobs. Try again.",
+    ASK_FOR_PRICE:     "Ask for price",
   },
 
   // -------------------------------------------------------------------------
@@ -143,17 +147,17 @@ export const COPY = {
   // -------------------------------------------------------------------------
 
   CREATE_JOB: {
-    TITLE:            "Post a Job",
-    SUBTITLE:         "Say what you need in your own words — speak or type.",
-    RECORD_AGAIN:     "Try Again",
-    POST_LISTING:     "Post Job",
+    TITLE:            "Post a job",
+    SUBTITLE:         "Say what you need. Speak or type.",
+    RECORD_AGAIN:     "Try again",
+    POST_LISTING:     "Post job",
     WHAT_WE_HEARD:    "Here is what we heard",
-    LOW_CONFIDENCE:   "⚠️ We were not sure about some details — please check before posting.",
-    PROCESSING:       "Setting up your job…",
-    POSTING:          "Posting your job…",
+    LOW_CONFIDENCE:   "We are not sure about some details. Please check before posting.",
+    PROCESSING:       "Setting up your job...",
+    POSTING:          "Posting your job...",
     SUCCESS:          "Your job has been posted!",
-    REDIRECTING:      "Taking you back…",
-    TRY_AGAIN:        "Try Again",
+    REDIRECTING:      "Taking you back...",
+    TRY_AGAIN:        "Try again",
     MIC_INSTRUCTION:  "Tap the mic and say what you need.",
     LANGUAGE_SUPPORT: "Yoruba · Igbo · Hausa · Pidgin · English",
     FIELD_TITLE:      "What do you need?",
@@ -169,23 +173,32 @@ export const COPY = {
   // -------------------------------------------------------------------------
 
   JOB_DETAIL: {
-    DESCRIPTION_TITLE:    "What They Need",
-    APPLY_BUTTON:         "Offer to Help",
-    APPLYING:             "Sending offer…",
-    APPLY_SUCCESS:        "✓ Offer sent!",
+    DESCRIPTION_TITLE:    "What they need",
+    APPLY_BUTTON:         "Offer to help",
+    APPLYING:             "Sending offer...",
+    APPLY_SUCCESS:        "Offer sent",
     APPLY_ERROR_GENERIC:  "Could not send your offer. Try again.",
     SIGN_IN_TO_APPLY:     "Sign in to offer help",
-    VIEW_HELPERS:         "See Offers",
-    MAKE_SAFE_PAYMENT:    "Pay Safely",
-    CONFIRM_AND_PAY:      "Confirm Done & Pay",
+    VIEW_HELPERS:         "See offers",
+    MAKE_SAFE_PAYMENT:    "Pay safely",
+    CONFIRM_AND_PAY:      "Mark done and pay",
     YOU_POSTED:           "You posted this job",
-    NOT_TAKING_HELPERS:   "No longer accepting offers",
-    NEGOTIATE_PRICE:      "Negotiate Price",
+    NOT_TAKING_HELPERS:   "Not taking offers now",
+    NEGOTIATE_PRICE:      "Talk about price",
+    NEGOTIATE_DECREASE:   "Decrease price",
+    NEGOTIATE_INCREASE:   "Increase price",
     SHARE:                "Share",
-    PAYMENT_INFO_TITLE:   "Your Money is Safe",
-    PAYMENT_INFO_BODY:    "Your money is held here until you confirm the job is done.",
-    LOADING:              "Loading…",
+    PAYMENT_INFO_TITLE:   "Your money is safe",
+    PAYMENT_INFO_BODY:    "We hold your money here until you say the job is done.",
+    LOADING:              "Loading...",
+    IMAGES_TITLE:         "Photos",
+    RADIUS_UP_TO:         (km: number) => `Up to ${km} km`,
+    POSTED:               (when: string) => `Posted ${when}`,
+    CONTACT_FOR_PRICE:    "Ask for price",
+    MARK_DONE:            "Mark done",
     ERROR_TITLE:          "Could not load this job",
+    ERROR_MESSAGE:        "Could not load this job. Try again.",
+    NOT_FOUND:            "Job not found.",
   },
 
   // -------------------------------------------------------------------------
@@ -193,22 +206,26 @@ export const COPY = {
   // -------------------------------------------------------------------------
 
   MY_APPLICATIONS: {
-    TITLE_RECEIVED:    "Offers to Help",
-    TITLE_SENT:        "Jobs I Applied For",
+    TITLE_RECEIVED:    "Offers to help",
+    TITLE_SENT:        "Jobs I offered for",
     SUBTITLE_RECEIVED: "People who want to help with your jobs.",
     SUBTITLE_SENT:     "Jobs you have offered to help with.",
     EMPTY_TITLE:       "No offers yet",
-    EMPTY_RECEIVED:    "When someone offers to help, they will appear here.",
+    EMPTY_RECEIVED:    "When someone offers to help, they will show here.",
     EMPTY_SENT:        "Find jobs near you and offer to help.",
-    BROWSE_JOBS:       "Find Jobs",
-    CALL_CUSTOMER:     "Call Customer",
-    CALL_HELPER:       "Call Helper",
-    VIEW_JOB:          "See Job",
+    BROWSE_JOBS:       "Find jobs",
+    CALL_CUSTOMER:     "Call customer",
+    CALL_HELPER:       "Call helper",
+    VIEW_JOB:          "See job",
     HELPER_LABEL:      "Helper",
-    PHONE_HIDDEN:      "Phone shown after you accept",
+    PHONE_HIDDEN:      "Phone shows after you accept",
     ACCEPT:            "Accept",
     DECLINE:           "Decline",
-    APPLIED_ON:        (date: string) => `Applied ${date}`,
+    SIGN_IN_REQUIRED:  "Sign in to see your offers.",
+    ROLE_CUSTOMER:     "Customer",
+    ROLE_HELPER:       "Helper",
+    THEIR_PRICE:       "Their price",
+    APPLIED_ON:        (date: string) => `Sent ${date}`,
   },
 
   // -------------------------------------------------------------------------
@@ -216,13 +233,17 @@ export const COPY = {
   // -------------------------------------------------------------------------
 
   APPLICATIONS: {
-    TITLE:       "People Who Offered to Help",
-    SUBTITLE:    "Review everyone who offered to help with this job.",
+    TITLE:       "People who offered to help",
+    SUBTITLE:    "Pick who will help with this job.",
     EMPTY:       "No offers yet.",
     ACCEPT:      "Accept",
     DECLINE:     "Decline",
     ERROR_TITLE: "Something went wrong",
-    APPLIED_ON:  (date: string) => `Applied ${date}`,
+    APPLIED_ON:  (date: string) => `Sent ${date}`,
+    THEIR_PRICE: "Their price",
+    ACCEPTING:   "Accepting...",
+    DECLINING:   "Declining...",
+    ERROR_LOAD:  "Could not load offers. Try again.",
   },
 
   // -------------------------------------------------------------------------
@@ -230,12 +251,33 @@ export const COPY = {
   // -------------------------------------------------------------------------
 
   PAYMENT: {
-    TITLE:                "Pay Into Safe Account",
+    TITLE:                "Pay into safe account",
     TRANSFER_INSTRUCTION: (status: string) =>
-      `Send money to this account using your bank app. Status: ${status}`,
-    NOT_AVAILABLE:        "Payment details not available yet, or this is not your job.",
-    HELD_NOTICE:          "Your money is held safely until you confirm the job is done.",
+      `Send money to this account in your bank app. Status: ${status}`,
+    NOT_AVAILABLE:        "Payment details are not ready yet, or this is not your job.",
+    HELD_NOTICE:          "We hold your money until you say the job is done.",
     DONE_BUTTON:          "Done",
+    INTRO:                "Send the agreed amount to the account below. We will tell the helper when it lands.",
+    LOAD_ERROR:           "Could not load payment details. Try again.",
+    NOT_FOUND:            "Job not found.",
+    ACCOUNT_NUMBER:       "Account number",
+    PAID_TITLE:           "Money received",
+    PAID_BODY:            "This job is paid. The helper has been told to start.",
+    PAY_BUTTON:           (amount: string) => `Pay ${amount}`,
+    PAYING:               "Processing...",
+    SIM_FAIL:             "Could not process payment. Try again.",
+    SIM_OK:               "Payment recorded.",
+    SAFETY_TITLE:         "Your money is safe",
+    UPDATE_TITLE:         "Quick update",
+    UPDATE_BODY:          "We tell the helper once your money lands.",
+  },
+
+  COMPLETE_REVIEW: {
+    TITLE:       "Rate your experience",
+    PLACEHOLDER: "Tell us more...",
+    SAVING:      "Saving...",
+    SUBMIT:      "Send feedback",
+    RECEIVED:    "Feedback received",
   },
 
   // -------------------------------------------------------------------------
@@ -243,41 +285,41 @@ export const COPY = {
   // -------------------------------------------------------------------------
 
   COMPLETE: {
-    PAGE_TITLE:    "Confirm Job Done & Pay",
-    PAGE_SUBTITLE: "Confirm the job is finished and release the helper's payment.",
+    PAGE_TITLE:    "Mark job done and pay",
+    PAGE_SUBTITLE: "Confirm the job is done and pay the helper.",
 
-    SUCCESS_TITLE: "Payment Sent!",
+    SUCCESS_TITLE: "Payment sent",
     SUCCESS_BODY:  (amount: string) =>
       `${amount} has been sent to the helper's bank account.`,
-    BACK_TO_FEED:  "Back to Jobs",
-    BACK_TO_JOB:   "Back to Job",
+    BACK_TO_FEED:  "Back to jobs",
+    BACK_TO_JOB:   "Back to job",
 
-    HOLD_TITLE:    "We Are Checking This Payment",
-    HOLD_BODY:     "We noticed something unusual and are reviewing it. No money has moved. We will notify you once it is cleared.",
+    HOLD_TITLE:    "We are checking this payment",
+    HOLD_BODY:     "We saw something unusual and are checking it. No money has moved. We will tell you when it is clear.",
     HOLD_CONTACT:  (id: string) =>
       `If you think this is a mistake, contact support. Reference: ${id}`,
 
-    BLOCK_TITLE:   "Payment Could Not Be Sent",
-    BLOCK_BODY:    "We could not complete this payment due to a security check. No money has moved.",
+    BLOCK_TITLE:   "Payment did not go through",
+    BLOCK_BODY:    "We could not complete this payment due to a safety check. No money has moved.",
     BLOCK_CONTACT: (id: string) => `Contact support. Reference: ${id}`,
 
     SECTION_JOB:       "Job",
-    SECTION_BREAKDOWN: "Payment Summary",
+    SECTION_BREAKDOWN: "Payment summary",
     TOTAL_AMOUNT:      "Total",
     SERVICE_CHARGE:    "Synk fee (5%)",
-    HELPER_RECEIVES:   "Helper receives",
+    HELPER_RECEIVES:   "Helper gets",
 
-    SAFETY_NOTICE:  "We run a quick safety check before sending any money.",
+    SAFETY_NOTICE:  "We do a quick safety check before we send any money.",
     CANNOT_PAY_YET: (status: string) =>
-      `Payment can only be sent after the customer pays. Current status: ${status}`,
+      `Payment can only be sent after the customer pays. Status: ${status}`,
 
     CANCEL:         "Cancel",
-    CONFIRM_BUTTON: "Confirm Done & Pay Helper",
-    PROCESSING:     "Sending payment…",
+    CONFIRM_BUTTON: "Mark done and pay helper",
+    PROCESSING:     "Sending payment...",
     ERROR_TITLE:    "Something went wrong",
     TRY_AGAIN:      "Try again",
     NOT_FOUND:      "Job not found.",
-    LOADING:        "Loading…",
+    LOADING:        "Loading...",
   },
 
   // -------------------------------------------------------------------------
@@ -285,21 +327,21 @@ export const COPY = {
   // -------------------------------------------------------------------------
 
   BOUNTY_FORM: {
-    FIELD_TITLE:          "Job title *",
-    PLACEHOLDER_TITLE:    "e.g. I need a plumber to fix my pipe",
+    FIELD_TITLE:          "Job title",
+    PLACEHOLDER_TITLE:    "e.g. Fix my tap",
     FIELD_DESCRIPTION:    "More details",
-    FIELD_CATEGORY:       "Category *",
+    FIELD_CATEGORY:       "Category",
     PLACEHOLDER_CATEGORY: "Select a category",
     FIELD_LOCATION:       "Location",
     PLACEHOLDER_LOCATION: "e.g. Yaba, Lagos",
     FIELD_GPS:            "Use my location",
-    FIELD_PRICE:          "Budget (₦) *",
+    FIELD_PRICE:          "Budget (₦)",
     PLACEHOLDER_MIN:      "Min",
     PLACEHOLDER_MAX:      "Max",
-    FIELD_NEGOTIABLE:     "Negotiable",
+    FIELD_NEGOTIABLE:     "Can talk price",
     FIELD_DEADLINE:       "Deadline",
-    FIELD_URGENCY:        "How soon? *",
-    FIELD_SLOTS:          "Helpers needed *",
+    FIELD_URGENCY:        "How soon?",
+    FIELD_SLOTS:          "Helpers needed",
     FIELD_IMAGES:         "Photos (optional)",
     IMAGES_HINT:          "Tap to add photos",
     PRICE_SUGGESTION:     (min: string, max: string) =>
@@ -318,7 +360,7 @@ export const COPY = {
       `${count} ${count === 1 ? "helper" : "helpers"} needed`,
     STATUS: {
       open:        "Open",
-      in_progress: "In Progress",
+      in_progress: "Working",
       paid:        "Money Safe",
       completed:   "Done",
       cancelled:   "Cancelled",
@@ -330,10 +372,10 @@ export const COPY = {
   // -------------------------------------------------------------------------
 
   PROFILE: {
-    TITLE:            "My Profile",
-    SUBTITLE:         "Add your bank account so you can receive payment when a job is done.",
+    TITLE:            "My profile",
+    SUBTITLE:         "Add your bank account so you can get paid after a job is done.",
     SAVE:             "Save",
-    SAVING:           "Saving…",
+    SAVING:           "Saving...",
     SUCCESS:          "Profile saved.",
     ERROR:            "Could not save. Please try again.",
     FIELD_USERNAME:   "Username",
@@ -341,14 +383,14 @@ export const COPY = {
     FIELD_PHONE:      "Phone number",
     PHONE_HINT:       "We will call you about your jobs",
     PAYOUT_TITLE:     "Bank account for payment",
-    PAYOUT_SUBTITLE:  "Required to receive money for completed jobs.",
+    PAYOUT_SUBTITLE:  "You need this to get paid.",
     FIELD_BANK_NAME:  "Bank",
     BANK_NAME_HINT:   "Select your bank",
     FIELD_ACCOUNT:    "Account number",
     ACCOUNT_HINT:     "Must be exactly 10 digits",
-    VERIFYING:        "Verifying account…",
+    VERIFYING:        "Checking account...",
     ACCOUNT_NAME:     "Account name",
-    SIGN_IN_REQUIRED: "Please sign in to manage your profile.",
+    SIGN_IN_REQUIRED: "Sign in to manage your profile.",
   },
 
   // -------------------------------------------------------------------------
@@ -356,28 +398,28 @@ export const COPY = {
   // -------------------------------------------------------------------------
 
   PROVIDER_PROFILE: {
-    BACK:            "Back to Jobs",
+    BACK:            "Back to jobs",
     NOT_FOUND_TITLE: "Profile not found",
     NOT_FOUND_SUB:   "This helper's profile does not exist.",
-    LOADING:         "Loading profile…",
+    LOADING:         "Loading profile...",
 
     BADGE_NEW_LABEL:     "New on Synk",
-    BADGE_NEW_DESC:      "This helper just joined Synk and is building their reputation.",
-    BADGE_ACTIVE_LABEL:  "Active Helper",
-    BADGE_ACTIVE_DESC:   "This helper has completed several jobs with good results.",
-    BADGE_TRUSTED_LABEL: "Trusted Helper",
-    BADGE_TRUSTED_DESC:  "Synk trusts this helper. Customers keep coming back to them.",
-    BADGE_TOP_LABEL:     "Top Helper",
-    BADGE_TOP_DESC:      "One of Synk's best. Outstanding record with many loyal customers.",
+    BADGE_NEW_DESC:      "This helper just joined Synk and is building trust.",
+    BADGE_ACTIVE_LABEL:  "Active helper",
+    BADGE_ACTIVE_DESC:   "This helper has done many jobs with good results.",
+    BADGE_TRUSTED_LABEL: "Trusted helper",
+    BADGE_TRUSTED_DESC:  "Synk trusts this helper. People come back to them.",
+    BADGE_TOP_LABEL:     "Top helper",
+    BADGE_TOP_DESC:      "One of Synk's best. Many happy customers.",
 
-    REPUTATION_TITLE: "Reputation",
+    REPUTATION_TITLE: "Trust",
     REPUTATION_SCORE: "Score",
-    JOBS_COMPLETED:   "Jobs Done",
+    JOBS_COMPLETED:   "Jobs done",
     UNIQUE_CUSTOMERS: "Customers",
     LAST_UPDATED:     "Updated",
 
-    NO_HISTORY_TITLE: "No reputation yet",
-    NO_HISTORY_SUB:   "Reputation appears after the first completed job.",
+    NO_HISTORY_TITLE: "No trust yet",
+    NO_HISTORY_SUB:   "Trust shows after the first completed job.",
 
     MEMBER_SINCE:     (time: string) => `Member ${time}`,
   },
@@ -403,6 +445,18 @@ export const COPY = {
     STEP_OF:           (current: number, total: number) =>
       `Step ${current} of ${total}`,
     ERROR:             "Something went wrong. Please try again.",
+    BANK_SELECT:       "Select your bank",
+    VERIFYING_ACCOUNT: "Checking account...",
+  },
+
+  RISK: {
+    LOW:        "Low risk",
+    MEDIUM:     "Medium risk",
+    HIGH:       "High risk",
+    RECOMMEND:  "Recommended",
+    CAUTION:    "Be careful",
+    NOT_RECOMM: "Not recommended",
+    SAFETY_SCORE: (score: number) => `Safety score: ${score}/100`,
   },
 
   // -------------------------------------------------------------------------
@@ -411,11 +465,11 @@ export const COPY = {
 
   VOICE: {
     IDLE:              "Tap to speak",
-    RECORDING:         "Listening… tap to stop",
-    PROCESSING:        "Working on it…",
+    RECORDING:         "Listening... tap to stop",
+    PROCESSING:        "Working on it...",
     ERROR:             "Something went wrong. Try again.",
     SILENCE_COUNTDOWN: (seconds: number) =>
-      `Sending in ${seconds}s…`,
+      `Sending in ${seconds}s...`,
     MIC_LABEL_IDLE:       "Tap to start speaking",
     MIC_LABEL_RECORDING:  "Tap to stop",
     MIC_LABEL_PROCESSING: "Please wait",
@@ -427,10 +481,10 @@ export const COPY = {
   // -------------------------------------------------------------------------
 
   NAV_MAP: {
-    TITLE:          "Get to the Customer",
+    TITLE:          "Get to the customer",
     OPEN_IN_MAPS:   "Open in Maps",
-    LOADING:        "Loading map…",
-    NO_LOCATION:    "Location not available. Tap \"Open in Maps\" for directions.",
+    LOADING:        "Loading map...",
+    NO_LOCATION:    "Location not available. Tap Open in Maps for directions.",
     ERROR_FALLBACK: "Open in Google Maps",
   },
 
@@ -441,7 +495,7 @@ export const COPY = {
   NOTIFICATIONS: {
     TITLE:         "Notifications",
     MARK_ALL_READ: "Mark all read",
-    VIEW_FEED:     "See jobs →",
+    VIEW_FEED:     "See jobs",
     EMPTY:         "No notifications yet",
   },
 
@@ -450,11 +504,11 @@ export const COPY = {
   // -------------------------------------------------------------------------
 
   WALLET: {
-    TITLE:         "My Wallet",
-    TOTAL_EARNED:  "Total Earned",
-    TOTAL_SPENT:   "Total Spent",
-    PENDING:       "Pending Payout",
-    HISTORY:       "Transaction History",
+    TITLE:         "My wallet",
+    TOTAL_EARNED:  "Total earned",
+    TOTAL_SPENT:   "Total spent",
+    PENDING:       "Pending pay",
+    HISTORY:       "Transactions",
     EMPTY:         "No transactions yet",
     EMPTY_SUB:     "Finish jobs to see your earnings here.",
     TYPE_EARNED:   "Earned",

@@ -75,7 +75,7 @@ interface ErrorResponse {
 async function reverseGeocode(lat: number, lng: number): Promise<string | null> {
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY;
   if (!apiKey) {
-    console.warn("[restructure] NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set — skipping geocoding.");
+    console.warn("[restructure] NEXT_PUBLIC_GOOGLE_MAPS_API_KEY is not set - skipping geocoding.");
     return null;
   }
 
@@ -112,7 +112,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<string | null> 
     if (neighbourhood)         return neighbourhood;
     if (city)                  return city;
 
-    // Last resort — first two parts of formatted address
+    // Last resort - first two parts of formatted address
     return data.results[0].formatted_address
       .split(",")
       .slice(0, 2)
@@ -132,7 +132,7 @@ async function reverseGeocode(lat: number, lng: number): Promise<string | null> 
 function buildSystemPrompt(): string {
   return `You are an AI assistant operating inside a Nigerian informal economy services marketplace. Your task is to convert a spoken or typed service description into a clean, structured listing ready for publication.
 
-The platform connects everyday Nigerians — market women, artisans, tradespeople, and skilled workers — with buyers nearby. Input arrives as transcribed speech from Yoruba, Igbo, Hausa, Nigerian Pidgin, or Nigerian English. It may be informal, fragmented, or incomplete. Interpret intent accurately and produce a professional listing from whatever information is available.
+The platform connects everyday Nigerians: market women, artisans, tradespeople, and skilled workers, with buyers nearby. Input arrives as transcribed speech from Yoruba, Igbo, Hausa, Nigerian Pidgin, or Nigerian English. It may be informal, fragmented, or incomplete. Interpret intent accurately and produce a professional listing from whatever information is available.
 
 CATEGORY RULES
 - Assign exactly one category from this fixed list: ${SERVICE_CATEGORIES_PROMPT_LIST}
@@ -144,14 +144,14 @@ TAG RULES
 - Tags must be lowercase strings with no special characters.
 - Tags must reflect specific skills, tools, service subtypes, or Nigerian market terminology relevant to this listing.
 - Be specific, not generic. Good: ["hair braiding", "ghana weaving", "home service"]. Poor: ["beauty", "service", "help"].
-- Tags will be used for search, recommendation, and marketplace intelligence — accuracy matters.
+- Tags will be used for search, recommendation, and marketplace intelligence: accuracy matters.
 
 PRICING RULES
 - All prices must be in Nigerian Naira (NGN).
 - Always return a priceRange with minPrice and maxPrice that reflects realistic informal economy rates for this type of service in Nigeria.
 - If the speaker explicitly stated a price, capture it in userProvidedPrice. Also return a priceRange around that figure.
 - If no price was mentioned, estimate a reasonable market range based on the service category and description.
-- Ranges must be realistic — not formal business rates, not aspirational figures.
+- Ranges must be realistic: not formal business rates, not aspirational figures.
 
 CONFIDENCE RULES
 - Return a confidence score from 0.0 to 1.0 representing how well you understood the input.
@@ -197,7 +197,7 @@ async function processListing(body: RequestBody): Promise<{
   const locationContext =
     body.lat !== undefined && body.lng !== undefined
       ? `The service provider's device reported coordinates: (${body.lat}, ${body.lng}). ` +
-        `Do not attempt to name the neighbourhood — location labelling is handled by a separate system. ` +
+        `Do not attempt to name the neighbourhood - location labelling is handled by a separate system. ` +
         `Use the coordinates only if they help contextualise the service description.`
       : `No location coordinates were provided with this request.`;
 

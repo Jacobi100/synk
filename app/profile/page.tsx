@@ -265,7 +265,7 @@ export default function ProfilePage() {
                       e.target.style.background = "var(--secondary)";
                     }}
                   >
-                    <option value="" disabled>Select your bank</option>
+                    <option value="" disabled>{COPY.ONBOARDING.BANK_SELECT}</option>
                     {bankList.map((bank) => (
                       <option key={bank.code} value={bank.code}>
                         {bank.name}

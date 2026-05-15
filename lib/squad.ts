@@ -279,7 +279,7 @@ export async function squadSimulatePayment(
   const isMock = virtualAccountNumber.startsWith("MOCKVA");
 
   if (isMock) {
-    // No Squad API to call — the caller should invoke the webhook handler directly
+    // No Squad API to call - the caller should invoke the webhook handler directly
     return {
       ok: true,
       isMock: true,
@@ -291,7 +291,7 @@ export async function squadSimulatePayment(
     };
   }
 
-  // Real VA — call Squad sandbox simulate endpoint
+  // Real VA - call Squad sandbox simulate endpoint
   const secret = squadSecret();
   if (!secret) {
     console.error("[squad] No secret key for simulate payment");

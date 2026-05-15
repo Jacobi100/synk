@@ -128,7 +128,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
       try {
         setLoading(true);
         const response = await fetch(`/api/bounties/${id}`);
-        if (!response.ok) throw new Error("Failed to fetch bounty");
+        if (!response.ok) throw new Error(COPY.JOB_DETAIL.ERROR_MESSAGE);
         const data = await response.json();
         setBounty(data);
         setNegotiatePrice(data.price_min ?? 0);
@@ -140,7 +140,9 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
           }
         }
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load bounty");
+        setError(
+          err instanceof Error ? err.message : COPY.JOB_DETAIL.ERROR_MESSAGE,
+        );
       } finally {
         setLoading(false);
       }
@@ -172,7 +174,9 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
       setApplySuccess(true);
       setTimeout(() => setApplySuccess(false), 5000);
     } catch (err) {
-      setApplyError(err instanceof Error ? err.message : "An error occurred");
+      setApplyError(
+        err instanceof Error ? err.message : COPY.JOB_DETAIL.APPLY_ERROR_GENERIC,
+      );
     } finally {
       setApplyLoading(false);
     }
@@ -212,27 +216,28 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
               style={{ color: "var(--negative)" }}
             />
             <div>
-              <h3
-                className="font-semibold"
-                style={{ color: "var(--negative)" }}
-              >
-                Error loading bounty
-              </h3>
-              <p
-                className="text-sm mt-0.5"
-                style={{ color: "var(--negative)" }}
-              >
-                {error || "Bounty not found"}
-              </p>
+                <h3
+                  className="font-semibold"
+                  style={{ color: "var(--negative)" }}
+                >
+                  {COPY.JOB_DETAIL.ERROR_TITLE}
+                </h3>
+                <p
+                  className="text-sm mt-0.5"
+                  style={{ color: "var(--negative)" }}
+                >
+                  {error || COPY.JOB_DETAIL.NOT_FOUND}
+                </p>
+              </div>
             </div>
           </div>
         </div>
-      </div>
-    );
+      );
   }
 
   const priceDisplay = () => {
-    if (!bounty.price_min && !bounty.price_max) return "Contact for price";
+    if (!bounty.price_min && !bounty.price_max)
+      return COPY.JOB_DETAIL.CONTACT_FOR_PRICE;
     if (bounty.price_min && bounty.price_max)
       return `${bounty.currency} ${bounty.price_min.toLocaleString()} – ${bounty.price_max.toLocaleString()}`;
     if (bounty.price_min)
@@ -289,19 +294,19 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
 
               <div className="glow-divider mb-5" />
 
-              <div className="mb-6">
-                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-mute">
-                  {COPY.DESCRIPTION}
-                </h2>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
-                  {bounty.description || COPY.NO_DESCRIPTION}
-                </p>
-              </div>
+                <div className="mb-6">
+                  <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-mute">
+                    {COPY.DESCRIPTION}
+                  </h2>
+                  <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
+                    {bounty.description || COPY.NO_DESCRIPTION}
+                  </p>
+                </div>
 
               {bounty.images && bounty.images.length > 0 && (
                 <div className="mb-6">
                   <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-mute">
-                    Images
+                    {COPY.JOB_DETAIL.IMAGES_TITLE}
                   </h2>
                   <div className="grid gap-3 sm:grid-cols-2">
                     {bounty.images.map((image, idx) => (
@@ -337,7 +342,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                     </p>
                     {bounty.radius_km > 1 && (
                       <p className="mt-0.5 text-xs text-muted-foreground">
-                        Up to {bounty.radius_km} km
+                        {COPY.JOB_DETAIL.RADIUS_UP_TO(bounty.radius_km)}
                       </p>
                     )}
                   </div>
@@ -444,13 +449,14 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                 </div>
               )}
 
-              <div className="mt-5 text-xs text-mute">
-                Posted{" "}
-                {formatDistanceToNow(new Date(bounty.created_at), {
-                  addSuffix: true,
-                })}
+                <div className="mt-5 text-xs text-mute">
+                {COPY.JOB_DETAIL.POSTED(
+                  formatDistanceToNow(new Date(bounty.created_at), {
+                    addSuffix: true,
+                  }),
+                )}
+                </div>
               </div>
-            </div>
 
             {isAcceptedProvider && (
               <NavigationMap
@@ -524,7 +530,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                           borderColor: "var(--border)",
                           color: "var(--foreground)",
                         }}
-                        aria-label="Decrease price"
+                        aria-label={COPY.JOB_DETAIL.NEGOTIATE_DECREASE}
                       >
                         <MinusIcon className="size-4" />
                       </button>
@@ -549,7 +555,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                           borderColor: "var(--border)",
                           color: "var(--foreground)",
                         }}
-                        aria-label="Increase price"
+                        aria-label={COPY.JOB_DETAIL.NEGOTIATE_INCREASE}
                       >
                         <PlusIcon className="size-4" />
                       </button>
@@ -586,7 +592,8 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                   className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5"
                   style={{ background: "var(--positive)", color: "#fff" }}
                 >
-                  <CheckCircleIcon className="h-4 w-4" /> Mark as Complete
+                  <CheckCircleIcon className="h-4 w-4" />
+                  {COPY.JOB_DETAIL.MARK_DONE}
                 </Link>
               )}
 

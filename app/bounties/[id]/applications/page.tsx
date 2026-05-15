@@ -68,13 +68,13 @@ export default function BountyApplicationsPage({
         const response = await fetch(`/api/bounties/${id}/applications`);
         if (!response.ok) {
           const data = await response.json();
-          throw new Error(data.error || "Failed to fetch applications");
+          throw new Error(data.error || COPY.APPLICATIONS.ERROR_LOAD);
         }
         const data = (await response.json()) as AppRow[];
         setApplications(data);
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "Failed to load applications",
+          err instanceof Error ? err.message : COPY.APPLICATIONS.ERROR_LOAD,
         );
       } finally {
         setLoading(false);
@@ -96,7 +96,7 @@ export default function BountyApplicationsPage({
       );
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to accept application");
+        throw new Error(data.error || COPY.APPLICATIONS.ERROR_LOAD);
       }
       setApplications((prev) =>
         prev.map((app) =>
@@ -105,7 +105,9 @@ export default function BountyApplicationsPage({
       );
       router.push(`/bounties/${id}/payment`);
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "An error occurred");
+      setActionError(
+        err instanceof Error ? err.message : COPY.APPLICATIONS.ERROR_TITLE,
+      );
     } finally {
       setActionLoading(null);
     }
@@ -124,7 +126,7 @@ export default function BountyApplicationsPage({
       );
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to reject application");
+        throw new Error(data.error || COPY.APPLICATIONS.ERROR_LOAD);
       }
       setApplications((prev) =>
         prev.map((app) =>
@@ -132,7 +134,9 @@ export default function BountyApplicationsPage({
         ),
       );
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "An error occurred");
+      setActionError(
+        err instanceof Error ? err.message : COPY.APPLICATIONS.ERROR_TITLE,
+      );
     } finally {
       setActionLoading(null);
     }
@@ -154,14 +158,14 @@ export default function BountyApplicationsPage({
   const providerLabel = (app: AppRow) =>
     app.provider_profile?.full_name?.trim() ||
     app.provider_profile?.username?.trim() ||
-    `Provider ${app.provider_id.slice(0, 8)}…`;
+    `Helper ${app.provider_id.slice(0, 8)}...`;
 
   if (!user) {
     return (
       <div className="min-h-screen bg-secondary">
         <Navbar />
         <div className="px-4 py-8">
-          <p className="text-gray-600">Please sign in to view applications.</p>
+          <p className="text-gray-600">{COPY.MY_APPLICATIONS.SIGN_IN_REQUIRED}</p>
         </div>
       </div>
     );
@@ -253,7 +257,7 @@ export default function BountyApplicationsPage({
                    {/* Proposed Price */}
                   <div className="rounded-[24px] border border-slate-100 bg-slate-50/50 p-5">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
-                      Proposed Amount
+                      {COPY.APPLICATIONS.THEIR_PRICE || "Proposed Amount"}
                     </p>
                     <p className="text-2xl font-black text-slate-900">
                       ₦{Number(app.proposed_price || app.amount).toLocaleString()}
@@ -314,12 +318,17 @@ export default function BountyApplicationsPage({
                         <p className="text-[11px] font-bold uppercase tracking-tight"
                           style={{ color: app.risk.riskLevel === "low" ? "var(--positive-deep)" : app.risk.riskLevel === "medium" ? "#b45309" : "#b91c1c" }}
                         >
-                          {app.risk.recommendation === "accept" ? "✓ System Recommended" : app.risk.recommendation === "caution" ? "⚠ Verification Recommended" : "✗ Not Recommended"}
+                          {app.risk.recommendation === "accept" 
+                            ? (COPY.RISK?.RECOMMEND || "✓ System Recommended") 
+                            : app.risk.recommendation === "caution" 
+                              ? (COPY.RISK?.CAUTION || "⚠ Verification Recommended") 
+                              : (COPY.RISK?.NOT_RECOMM || "✗ Not Recommended")}
                         </p>
                       </div>
                     </div>
                   )}
                 </div>
+
                 {app.status === "pending" && (
                   <div className="flex items-center gap-3">
                     <Button
@@ -330,7 +339,7 @@ export default function BountyApplicationsPage({
                       {actionLoading === app.id ? (
                         <>
                           <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                          Accepting…
+                          {COPY.APPLICATIONS.ACCEPTING}
                         </>
                       ) : (
                         <>
@@ -347,7 +356,7 @@ export default function BountyApplicationsPage({
                       {actionLoading === app.id ? (
                         <>
                           <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                          Rejecting…
+                          {COPY.APPLICATIONS.DECLINING}
                         </>
                       ) : (
                         <>

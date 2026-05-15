@@ -1,5 +1,5 @@
 // ---------------------------------------------------------------------------
-// Risk System — Shared Type Contracts
+// Risk System - Shared Type Contracts
 //
 // All types, interfaces, and constants shared across rules.ts, scorer.ts,
 // and the fraud route live here. No logic. No imports. Pure contract.
@@ -25,7 +25,7 @@ export const GEMINI_UPPER_BOUND = RISK_THRESHOLD_BLOCK;
 //
 // The atomic output of a single deterministic rule.
 // Each signal carries a stable ruleId that persists into future ML training
-// datasets — this is the labeled signal the supervised model will learn from
+// datasets - this is the labeled signal the supervised model will learn from
 // as transaction history grows.
 // ---------------------------------------------------------------------------
 
@@ -59,7 +59,7 @@ export interface RiskSignal {
 // Rule input shape
 //
 // The normalised transaction context passed to every rule function.
-// Rules must not accept the raw HTTP request body directly — this contract
+// Rules must not accept the raw HTTP request body directly - this contract
 // decouples the rule layer from the transport layer.
 // ---------------------------------------------------------------------------
 
@@ -95,7 +95,7 @@ export interface GeminiRiskAssessment {
 }
 
 // ---------------------------------------------------------------------------
-// Final fraud assessment — the route's response shape
+// Final fraud assessment - the route's response shape
 // ---------------------------------------------------------------------------
 
 export type Recommendation = "approve" | "hold" | "block";

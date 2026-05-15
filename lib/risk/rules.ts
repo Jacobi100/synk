@@ -2,13 +2,13 @@ import type { RuleFunction, RiskSignal, TransactionContext } from "./types";
 import type { ServiceCategory } from "@/lib/categories";
 
 // ---------------------------------------------------------------------------
-// Risk Rules — Deterministic Signal Generators
+// Risk Rules - Deterministic Signal Generators
 //
 // Each exported rule is a pure function: TransactionContext → RiskSignal | null.
 // null means the rule did not fire for this transaction.
 //
 // Rules are stateless, side-effect-free, and independently testable.
-// ruleId values are stable identifiers — do not rename them once transactions
+// ruleId values are stable identifiers - do not rename them once transactions
 // are being stored, as they form the label schema for future ML training data.
 //
 // Score weights are calibrated for the Nigerian informal economy context:
@@ -28,7 +28,7 @@ export const checkSpeedCritical: RuleFunction = (
 
   return {
     ruleId:   "SPEED_CRITICAL",
-    label:    "Service marked complete in under 2 minutes — physically implausible.",
+    label:    "Service marked complete in under 2 minutes - physically implausible.",
     score:    40,
     severity: "critical",
     metadata: { timeElapsedMinutes: ctx.timeElapsedMinutes },
@@ -68,7 +68,7 @@ export const checkRoundAmountLarge: RuleFunction = (
 
   return {
     ruleId:   "ROUND_AMOUNT_LARGE",
-    label:    "Round-number transaction amount above ₦30,000 — common in test or collusion patterns.",
+    label:    "Round-number transaction amount above ₦30,000 - common in test or collusion patterns.",
     score:    10,
     severity: "low",
     metadata: { amount: ctx.amount },
@@ -78,7 +78,7 @@ export const checkRoundAmountLarge: RuleFunction = (
 // ---------------------------------------------------------------------------
 // Rule: HIGH_VALUE_FIRST_TRANSACTION
 // A high-value payment between two users with no prior transaction history
-// is a significant risk signal — normal trust builds gradually.
+// is a significant risk signal - normal trust builds gradually.
 // ---------------------------------------------------------------------------
 
 export const checkHighValueFirstTransaction: RuleFunction = (
@@ -122,7 +122,7 @@ export const checkHighValueAbsolute: RuleFunction = (
 // ---------------------------------------------------------------------------
 // Rule: REPEAT_EXCESSIVE
 // More than 10 transactions between the same user pair is a strong collusion
-// signal — normal users rarely transact this frequently in a single session.
+// signal - normal users rarely transact this frequently in a single session.
 // ---------------------------------------------------------------------------
 
 export const checkRepeatExcessive: RuleFunction = (
@@ -172,7 +172,7 @@ export const checkLowAmountSuspicious: RuleFunction = (
 
   return {
     ruleId:   "LOW_AMOUNT_SUSPICIOUS",
-    label:    "Transaction amount is below ₦200 — too low for any real service.",
+    label:    "Transaction amount is below ₦200 - too low for any real service.",
     score:    10,
     severity: "low",
     metadata: { amount: ctx.amount },
@@ -182,7 +182,7 @@ export const checkLowAmountSuspicious: RuleFunction = (
 
 // ---------------------------------------------------------------------------
 // Rule: SELF_DEALING
-// Buyer and provider are the same user. This is always fraud — a user cannot
+// Buyer and provider are the same user. This is always fraud - a user cannot
 // legitimately pay themselves for a service. Fires with maximum score so the
 // transaction is blocked immediately without entering the Gemini band.
 // ---------------------------------------------------------------------------
@@ -194,7 +194,7 @@ export const checkSelfDealing: RuleFunction = (
 
   return {
     ruleId:   "SELF_DEALING",
-    label:    "Buyer and provider are the same user — self-dealing detected.",
+    label:    "Buyer and provider are the same user - self-dealing detected.",
     score:    100,
     severity: "critical",
     metadata: { userId: ctx.buyerId },
@@ -242,14 +242,14 @@ export const checkPriceCategoryMismatch: RuleFunction = (
 // ---------------------------------------------------------------------------
 // Rule registry
 //
-// All rules in execution order. The scorer iterates this array — add new
+// All rules in execution order. The scorer iterates this array - add new
 // rules here and they are automatically included in scoring without touching
 // scorer.ts. Order does not affect scoring but does affect signal ordering
 // in the output and alert records.
 // ---------------------------------------------------------------------------
 
 export const ALL_RULES: RuleFunction[] = [
-  checkSelfDealing,          // always first — self-dealing short-circuits everything
+  checkSelfDealing,          // always first - self-dealing short-circuits everything
   checkSpeedCritical,
   checkSpeedSuspicious,
   checkRoundAmountLarge,

@@ -333,7 +333,7 @@ export default function ProviderProfilePage({
           </div>
         )}
 
-        {/* New provider — no signals yet */}
+        {/* New provider - no signals yet */}
         {profile.trustSignals.length === 0 && (
           <div className="rounded-[24px] border border-border bg-secondary p-6 mb-5 flex flex-col items-center gap-3 text-center">
             <Sparkles className="h-8 w-8 text-mute" />

@@ -69,14 +69,14 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
         const contentType = br.headers.get("content-type") || "";
         const errorText = contentType.includes("application/json")
           ? (await br.json()).error
-          : "Failed to fetch bounty";
-        throw new Error(errorText || "Failed to fetch bounty");
+          : COPY.PAYMENT.LOAD_ERROR;
+        throw new Error(errorText || COPY.PAYMENT.LOAD_ERROR);
       }
       setBounty(await br.json());
       if (er.ok) setEscrow(await er.json());
       else setEscrow(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load");
+      setError(err instanceof Error ? err.message : COPY.PAYMENT.LOAD_ERROR);
     } finally {
       setLoading(false);
     }
@@ -254,8 +254,8 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
       <div className="min-h-screen" style={{ background: "var(--background)" }}>
         <Navbar />
         <div className="mx-auto max-w-2xl px-4 py-8">
-          <div className="rounded-[24px] border p-6" style={{ borderColor: "#fecaca", background: "#fef2f2" }}>
-            <p style={{ color: "#b91c1c" }}>{error || "Bounty not found"}</p>
+          <div className="rounded-[24px] border border-red-200 bg-red-50 p-6">
+            <p className="text-red-800">{error || COPY.PAYMENT.NOT_FOUND}</p>
           </div>
         </div>
       </div>
@@ -285,8 +285,8 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
         >
           {COPY.PAYMENT.TITLE}
         </h1>
-        <p className="mb-8 text-sm" style={{ color: "var(--muted-foreground)" }}>
-          Pay into escrow. Funds are held safely until you confirm the job is done.
+        <p className="mb-8 text-gray-600">
+          {COPY.PAYMENT.INTRO}
         </p>
 
         <div
@@ -341,11 +341,11 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
             >
               <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0" style={{ color: "var(--positive)" }} />
               <div>
-                <p className="font-semibold text-sm" style={{ color: "var(--positive-deep)" }}>
-                  Payment confirmed ✓
+                <p className="font-semibold text-green-900">
+                  {COPY.PAYMENT.PAID_TITLE}
                 </p>
-                <p className="text-xs mt-0.5" style={{ color: "var(--positive-deep)" }}>
-                  Funds are in escrow. The provider has been notified to proceed.
+                <p className="text-sm text-green-800">
+                  {COPY.PAYMENT.PAID_BODY}
                 </p>
               </div>
             </div>
@@ -358,7 +358,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
               style={{ borderColor: "color-mix(in srgb, var(--primary) 30%, transparent)", background: "var(--primary-pale)" }}
             >
               <p className="text-xs font-semibold mb-1" style={{ color: "var(--positive-deep)" }}>
-                Virtual Account Number
+                {COPY.PAYMENT.ACCOUNT_NUMBER}
               </p>
               <div className="flex items-center gap-2">
                 <code className="text-xl font-bold tracking-wider" style={{ color: "var(--foreground)" }}>
@@ -466,7 +466,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
             >
               <Link href={`/bounties/${id}/complete`}>
                 <CheckCircleIcon className="mr-2 h-5 w-5" />
-                Confirm Done &amp; Release Payment
+                {COPY.JOB_DETAIL.CONFIRM_AND_PAY || "Confirm Done & Release Payment"}
               </Link>
             </Button>
           )}
@@ -475,22 +475,30 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
           <div className="flex flex-col gap-3 pt-2" style={{ borderTop: "1px solid var(--border)" }}>
             <div className="flex items-start gap-3">
               <ShieldCheckIcon className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "var(--positive)" }} />
-              <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-                <strong style={{ color: "var(--foreground)" }}>Funds held in escrow.</strong>{" "}
-                {COPY.PAYMENT.HELD_NOTICE}
-              </p>
+              <div>
+                <h3 className="font-semibold text-sm" style={{ color: "var(--foreground)" }}>
+                  {COPY.PAYMENT.SAFETY_TITLE || "Escrow Protected"}
+                </h3>
+                <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                  {COPY.PAYMENT.HELD_NOTICE}
+                </p>
+              </div>
             </div>
             <div className="flex items-start gap-3">
               <LockClosedIcon className="mt-0.5 h-4 w-4 shrink-0" style={{ color: "var(--positive)" }} />
-              <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
-                <strong style={{ color: "var(--foreground)" }}>256-bit SSL.</strong>{" "}
-                Payments processed securely by Squad (powered by GTBank).
-              </p>
+              <div>
+                <h3 className="font-semibold text-sm" style={{ color: "var(--foreground)" }}>
+                  Secure Checkout
+                </h3>
+                <p className="text-xs" style={{ color: "var(--muted-foreground)" }}>
+                  256-bit SSL. Payments processed securely by Squad (powered by GTBank).
+                </p>
+              </div>
             </div>
           </div>
 
           <Button variant="outline" asChild className="w-full rounded-[24px]">
-            <Link href={`/bounties/${id}`}>Back to Job</Link>
+            <Link href={`/bounties/${id}`}>{COPY.BACK_TO_JOB}</Link>
           </Button>
         </div>
       </div>

@@ -78,7 +78,7 @@ export async function acceptBountyApplication(clerkUserId: string, bountyId: str
 
   if (!vaRef) {
     vaRef = `MOCKVA${bountyId.replace(/-/g, "").slice(0, 10)}`;
-    console.warn("Squad VA unavailable — using mock account number for development");
+    console.warn("Squad VA unavailable - using mock account number for development");
   }
 
   const updatedBounty = await updateBounty(bountyId, clerkUserId, {
@@ -102,8 +102,8 @@ export async function acceptBountyApplication(clerkUserId: string, bountyId: str
   await createNotification({
     user_id: application.provider_id,
     type: "application_accepted",
-    title: "Application accepted",
-    body: "Your application was accepted. Pay the poster’s virtual account to begin once they fund escrow.",
+    title: "Offer accepted",
+    body: "Your offer was accepted. Open the job to see payment details.",
     related_bounty_id: bountyId,
   });
 

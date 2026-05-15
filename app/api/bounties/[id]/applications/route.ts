@@ -46,13 +46,13 @@ export async function GET(
     // Get all applications for this bounty, including provider profile details
     const applications = await getApplicationsByBountyIdWithProvider(bountyId);
 
-    // Enrich with risk assessment — wrapped in try-catch so the endpoint
+    // Enrich with risk assessment - wrapped in try-catch so the endpoint
     // still returns applications even if risk scoring fails.
     const applicationsWithRisk = await Promise.all(applications.map(async (app) => {
       if (!app.provider_profile) return { ...app, risk: null };
 
       try {
-        // Get active jobs count for provider — try both table names
+        // Get active jobs count for provider - try both table names
         let activeJobs = 0;
         const { count, error } = await supabaseAdmin
           .from("applications")

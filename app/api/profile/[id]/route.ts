@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 import type { TrustBadge, TrustSignal } from "@/lib/trust/types";
 
 // ---------------------------------------------------------------------------
-// Public provider profile — only safe fields exposed
+// Public provider profile - only safe fields exposed
 // Never exposes: email, phone, account_number, bank_code, clerk_id
 // ---------------------------------------------------------------------------
 

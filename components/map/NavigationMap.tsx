@@ -37,7 +37,7 @@ function loadGoogleMapsScript(apiKey: string): Promise<void> {
       resolve(); return;
     }
 
-    // Script already injected — poll until the global is ready
+    // Script already injected - poll until the global is ready
     if (document.getElementById("gmaps-script")) {
       const poll = setInterval(() => {
         if ((window as Window & { google?: { maps?: unknown } }).google?.maps) {
@@ -60,7 +60,7 @@ function loadGoogleMapsScript(apiKey: string): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
-// Wraps geolocation in a Promise — resolves null on denial or timeout
+// Wraps geolocation in a Promise - resolves null on denial or timeout
 // ---------------------------------------------------------------------------
 
 function resolveCurrentPosition(): Promise<{ lat: number; lng: number } | null> {
@@ -132,7 +132,7 @@ export default function NavigationMap({
           ],
         });
 
-        // Destination marker — always shown
+        // Destination marker - always shown
         new g.maps.Marker({
           position: destination,
           map,
@@ -224,7 +224,7 @@ export default function NavigationMap({
         </a>
       </div>
 
-      {/* Route summary — rendered only after directions load */}
+      {/* Route summary - rendered only after directions load */}
       {routeInfo && (
         <div className="flex items-center gap-4 px-5 py-2.5 border-b border-border bg-[var(--primary-pale)] text-sm">
           <span className="font-semibold text-primary">
