@@ -16,10 +16,27 @@ import {
 } from "@heroicons/react/24/outline";
 import { COPY } from "@/lib/copy";
 
+type PosterApplicantProfile = ProviderProfile & {
+  trust_badge?: string | null;
+  trust_score?: number | null;
+};
+
 interface ApplicationWithDetails extends BountyApplication {
   bounty?: Bounty;
-  provider_profile?: ProviderProfile | null;
+  provider_profile?: PosterApplicantProfile | null;
   poster_phone?: string | null;
+}
+
+const TRUST_BADGE_LABELS: Record<string, string> = {
+  new: COPY.PROVIDER_PROFILE.BADGE_NEW_LABEL,
+  active: COPY.PROVIDER_PROFILE.BADGE_ACTIVE_LABEL,
+  trusted: COPY.PROVIDER_PROFILE.BADGE_TRUSTED_LABEL,
+  community_trusted: COPY.PROVIDER_PROFILE.BADGE_TOP_LABEL,
+};
+
+function getTrustBadgeLabel(badge?: string | null) {
+  if (!badge) return COPY.PROVIDER_PROFILE.BADGE_NEW_LABEL;
+  return TRUST_BADGE_LABELS[badge] ?? COPY.PROVIDER_PROFILE.BADGE_NEW_LABEL;
 }
 
 const STATUS_BADGE: Record<string, { cls: string; label: string }> = {
@@ -313,6 +330,24 @@ export default function MyApplicationsPage() {
                             {app.provider_profile.username && (
                               <p className="text-muted-foreground">
                                 @{app.provider_profile.username}
+                              </p>
+                            )}
+                            {(app.provider_profile?.trust_badge ||
+                              typeof app.provider_profile?.trust_score ===
+                                "number") && (
+                              <p className="mt-2 text-xs text-muted-foreground">
+                                <span className="inline-flex rounded-full border border-gray-200 bg-gray-50 px-2 py-1 font-semibold">
+                                  {getTrustBadgeLabel(
+                                    app.provider_profile?.trust_badge,
+                                  )}
+                                </span>
+                                {typeof app.provider_profile?.trust_score ===
+                                  "number" && (
+                                  <span className="ml-2 text-muted-foreground">
+                                    {COPY.PROVIDER_PROFILE.REPUTATION_SCORE}:{" "}
+                                    {app.provider_profile.trust_score}/100
+                                  </span>
+                                )}
                               </p>
                             )}
                             {app.status === "accepted" &&

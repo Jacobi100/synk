@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
@@ -17,8 +17,13 @@ import {
 } from "@heroicons/react/24/outline";
 import { COPY } from "@/lib/copy";
 
+type ApplicantProviderProfile = ProviderProfile & {
+  trust_badge?: string | null;
+  trust_score?: number | null;
+};
+
 type AppRow = BountyApplication & {
-  provider_profile?: ProviderProfile | null;
+  provider_profile?: ApplicantProviderProfile | null;
   risk?: {
     riskScore: number;
     riskLevel: "low" | "medium" | "high";
@@ -27,8 +32,20 @@ type AppRow = BountyApplication & {
   } | null;
 };
 
+const TRUST_BADGE_LABELS: Record<string, string> = {
+  new: COPY.PROVIDER_PROFILE.BADGE_NEW_LABEL,
+  active: COPY.PROVIDER_PROFILE.BADGE_ACTIVE_LABEL,
+  trusted: COPY.PROVIDER_PROFILE.BADGE_TRUSTED_LABEL,
+  community_trusted: COPY.PROVIDER_PROFILE.BADGE_TOP_LABEL,
+};
+
+function getTrustBadgeLabel(badge?: string | null) {
+  if (!badge) return COPY.PROVIDER_PROFILE.BADGE_NEW_LABEL;
+  return TRUST_BADGE_LABELS[badge] ?? COPY.PROVIDER_PROFILE.BADGE_NEW_LABEL;
+}
+
 interface ApplicationsPageProps {
-  params: Promise<{ id: string }>;
+  params: { id: string };
 }
 
 export default function BountyApplicationsPage({
@@ -207,6 +224,18 @@ export default function BountyApplicationsPage({
                           new Date(app.created_at).toLocaleDateString(),
                         )}
                       </p>
+                      {(app.provider_profile?.trust_badge || typeof app.provider_profile?.trust_score === "number") && (
+                        <p className="mt-2 text-xs text-gray-500">
+                          <span className="inline-flex rounded-full border border-gray-200 bg-gray-50 px-2 py-1 font-semibold">
+                            {getTrustBadgeLabel(app.provider_profile?.trust_badge)}
+                          </span>
+                          {typeof app.provider_profile?.trust_score === "number" && (
+                            <span className="ml-2 text-gray-500">
+                              {COPY.PROVIDER_PROFILE.REPUTATION_SCORE}: {app.provider_profile.trust_score}/100
+                            </span>
+                          )}
+                        </p>
+                      )}
                     </div>
                   </div>
                   <span
