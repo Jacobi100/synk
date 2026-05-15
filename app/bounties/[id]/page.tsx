@@ -80,7 +80,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
   };
 
   const handleNegotiateIncrease = () => {
-    setNegotiatePrice((prev) => Math.min(bounty?.price_max ?? Infinity, prev + STEP));
+    setNegotiatePrice((prev) => prev + STEP);
   };
 
   const handleNegotiateInput = (e: ChangeEvent<HTMLInputElement>) => {
@@ -91,7 +91,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
     }
     const num = parseInt(raw, 10);
     if (!isNaN(num)) {
-      setNegotiatePrice(Math.min(bounty?.price_max ?? Infinity, Math.max(bounty?.price_min ?? 0, num)));
+      setNegotiatePrice(Math.max(bounty?.price_min ?? 0, num));
     }
   };
 
@@ -424,7 +424,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
               <p className="text-xs font-medium uppercase tracking-wide text-primary">
                 {COPY.BUDGET}
               </p>
-              <h3 className="mt-1 text-2xl font-bold text-foreground">
+              <h3 className="mt-1 text-2xl font-bold text-foreground break-words">
                 {priceDisplay()}
               </h3>
               {bounty.price_negotiable && (
@@ -493,8 +493,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                       </div>
                       <button
                         onClick={handleNegotiateIncrease}
-                        disabled={negotiatePrice >= (bounty?.price_max ?? Infinity)}
-                        className="flex size-10 shrink-0 items-center justify-center rounded-full border bg-background text-base transition-all active:scale-[0.97] disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="flex size-10 shrink-0 items-center justify-center rounded-full border bg-background text-base transition-all active:scale-[0.97]"
                         style={{
                           borderColor: "var(--border)",
                           color: "var(--foreground)",
