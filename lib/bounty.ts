@@ -260,6 +260,7 @@ export async function checkApplicationExists(bountyId: string, providerId: strin
 export async function createApplication(
   bountyId: string,
   providerId: string,
+  proposedPrice?: number,
 ): Promise<BountyApplication | null> {
   const t = await applicationsTable();
   const { data, error } = await db
@@ -268,6 +269,7 @@ export async function createApplication(
       bounty_id: bountyId,
       provider_id: providerId,
       status: "pending",
+      proposed_price: proposedPrice ?? null,
     })
     .select()
     .single();

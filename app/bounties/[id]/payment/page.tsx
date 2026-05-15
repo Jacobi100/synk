@@ -6,7 +6,13 @@ import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Bounty } from "@/lib/types/bounty";
 import Link from "next/link";
-import { ArrowPathIcon, ExclamationCircleIcon, ShieldCheckIcon, CheckCircleIcon, DocumentDuplicateIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowPathIcon,
+  ExclamationCircleIcon,
+  ShieldCheckIcon,
+  CheckCircleIcon,
+  DocumentDuplicateIcon,
+} from "@heroicons/react/24/outline";
 import { COPY } from "@/lib/copy";
 
 interface EscrowPayload {
@@ -32,7 +38,10 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
 
   // Simulate payment state
   const [simulating, setSimulating] = useState(false);
-  const [simResult, setSimResult] = useState<{ ok: boolean; message: string } | null>(null);
+  const [simResult, setSimResult] = useState<{
+    ok: boolean;
+    message: string;
+  } | null>(null);
 
   const loadData = useCallback(async () => {
     try {
@@ -41,7 +50,13 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
         fetch(`/api/bounties/${id}`),
         fetch(`/api/bounties/${id}/escrow`),
       ]);
-      if (!br.ok) throw new Error("Failed to fetch bounty");
+      if (!br.ok) {
+        const contentType = br.headers.get("content-type") || "";
+        const errorText = contentType.includes("application/json")
+          ? (await br.json()).error
+          : "Failed to fetch bounty";
+        throw new Error(errorText || "Failed to fetch bounty");
+      }
       setBounty(await br.json());
       if (er.ok) setEscrow(await er.json());
       else setEscrow(null);
@@ -90,7 +105,10 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
     }
   };
 
-  const isPaid = escrow?.status === "paid" || escrow?.status === "released" || escrow?.bounty_status === "paid";
+  const isPaid =
+    escrow?.status === "paid" ||
+    escrow?.status === "released" ||
+    escrow?.bounty_status === "paid";
 
   if (loading) {
     return (
@@ -121,15 +139,20 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
       <Navbar />
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
-          <Link href={`/bounties/${id}`} className="font-medium text-blue-600 hover:text-blue-700">
+          <Link
+            href={`/bounties/${id}`}
+            className="font-medium text-blue-600 hover:text-blue-700"
+          >
             {COPY.BACK_TO_JOB}
           </Link>
         </div>
 
-        <h1 className="mb-2 text-3xl font-bold text-gray-900">{COPY.PAYMENT.TITLE}</h1>
+        <h1 className="mb-2 text-3xl font-bold text-gray-900">
+          {COPY.PAYMENT.TITLE}
+        </h1>
         <p className="mb-8 text-gray-600">
-          Transfer the agreed amount to the Squad virtual account below. We will notify the provider when payment
-          clears.
+          Transfer the agreed amount to the Squad virtual account below. We will
+          notify the provider when payment clears.
         </p>
 
         <div className="rounded-[24px] border border-gray-200 bg-background p-8">
@@ -141,7 +164,9 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
             {escrow && (
               <>
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">{COPY.COMPLETE.TOTAL_AMOUNT}</span>
+                  <span className="text-gray-600">
+                    {COPY.COMPLETE.TOTAL_AMOUNT}
+                  </span>
                   <span className="font-semibold text-gray-900">
                     ₦{Number(escrow.amount).toLocaleString("en-NG")}
                   </span>
@@ -149,7 +174,9 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
                 {escrow.platform_fee != null && (
                   <div className="flex justify-between text-xs text-gray-500">
                     <span>{COPY.COMPLETE.SERVICE_CHARGE}</span>
-                    <span>₦{Number(escrow.platform_fee).toLocaleString("en-NG")}</span>
+                    <span>
+                      ₦{Number(escrow.platform_fee).toLocaleString("en-NG")}
+                    </span>
                   </div>
                 )}
               </>
@@ -161,9 +188,12 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
             <div className="mb-6 flex items-start gap-3 rounded-lg border border-green-200 bg-green-50 p-4">
               <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
               <div>
-                <p className="font-semibold text-green-900">Payment confirmed</p>
+                <p className="font-semibold text-green-900">
+                  Payment confirmed
+                </p>
                 <p className="text-sm text-green-800">
-                  This bounty has been funded. The provider has been notified to proceed.
+                  This bounty has been funded. The provider has been notified to
+                  proceed.
                 </p>
               </div>
             </div>
@@ -171,12 +201,20 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
 
           {escrow?.virtual_account_number ? (
             <div className="mb-8 rounded-[24px] border-2 border-indigo-200 bg-indigo-50 p-6">
-              <p className="mb-1 text-sm font-medium text-indigo-900">Virtual account number</p>
+              <p className="mb-1 text-sm font-medium text-indigo-900">
+                Virtual account number
+              </p>
               <div className="flex items-center gap-2">
                 <code className="text-xl font-bold tracking-wide text-indigo-950">
                   {escrow.virtual_account_number}
                 </code>
-                <Button type="button" variant="outline" size="sm" onClick={copyVa} className="shrink-0">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={copyVa}
+                  className="shrink-0"
+                >
                   <DocumentDuplicateIcon className="h-4 w-4" />
                 </Button>
               </div>
@@ -224,9 +262,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
                     Processing payment…
                   </>
                 ) : (
-                  <>
-                    Pay ₦{Number(escrow.amount).toLocaleString("en-NG")}
-                  </>
+                  <>Pay ₦{Number(escrow.amount).toLocaleString("en-NG")}</>
                 )}
               </Button>
             </div>
@@ -235,7 +271,11 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
           {/* Already paid — go to completion */}
           {isPaid && (
             <div className="mb-8">
-              <Button asChild className="w-full py-6 text-base font-semibold text-white rounded-xl" style={{ background: "var(--success-color)" }}>
+              <Button
+                asChild
+                className="w-full py-6 text-base font-semibold text-white rounded-xl"
+                style={{ background: "var(--success-color)" }}
+              >
                 <Link href={`/bounties/${id}/complete`}>
                   <CheckCircleIcon className="mr-2 h-5 w-5" />
                   Confirm Done & Pay Helper
@@ -248,16 +288,23 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
             <div className="flex items-start gap-3">
               <ShieldCheckIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
               <div>
-                <h3 className="font-semibold text-gray-900">Your money is safe</h3>
-                <p className="text-sm text-gray-600">{COPY.PAYMENT.HELD_NOTICE}</p>
+                <h3 className="font-semibold text-gray-900">
+                  Your money is safe
+                </h3>
+                <p className="text-sm text-gray-600">
+                  {COPY.PAYMENT.HELD_NOTICE}
+                </p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
               <div>
-                <h3 className="font-semibold text-gray-900">Instant confirmation</h3>
+                <h3 className="font-semibold text-gray-900">
+                  Instant confirmation
+                </h3>
                 <p className="text-sm text-gray-600">
-                  The helper will be notified immediately once your payment is received.
+                  The helper will be notified immediately once your payment is
+                  received.
                 </p>
               </div>
             </div>

@@ -1,7 +1,6 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextRequest, NextResponse } from "next/server";
-import { getBountyById } from "@/lib/bounty";
-import { supabase } from "@/lib/supabase/client";
+import { getBountyById, getProfileUUID } from "@/lib/bounty";
 
 export async function GET(
   request: NextRequest,
@@ -24,19 +23,13 @@ export async function GET(
       );
     }
 
-    // Get the current user's profile UUID
-    const { data: profile, error } = await supabase
-      .from("profiles")
-      .select("id")
-      .eq("clerk_id", userId)
-      .single();
-
-    if (error || !profile) {
+    // Use server-side supabaseAdmin via getProfileUUID (not the anon client)
+    const profileUUID = await getProfileUUID(userId);
+    if (!profileUUID) {
       return NextResponse.json({ isOwner: false });
     }
 
-    // Check if the user is the poster
-    const isOwner = bounty.poster_id === profile.id;
+    const isOwner = bounty.poster_id === profileUUID;
 
     return NextResponse.json({ isOwner });
   } catch (error) {

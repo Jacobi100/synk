@@ -31,16 +31,15 @@ export type MarketplaceType = (typeof MARKETPLACE_TYPES)[number];
 // ---------------------------------------------------------------------------
 
 export const SERVICE_CATEGORIES = [
-  "Home Repairs & Technical Services",
-  "Delivery & Transport",
-  "Market & Manual Help",
-  "Recycling & Waste Pickup",
   "Cleaning & Laundry",
-  "Beauty & Personal Care",
-  "Food & Catering",
-  "Tutoring & Learning",
-  "Errands & Personal Assistance",
-  "Other Services",
+  "House Maintenance & Repairs",
+  "Yard Work & Landscaping",
+  "Shopping & Errands",
+  "House Sitting & Pet Care",
+  "Local Marketing & Distribution",
+  "Delivery & Running Around",
+  "Domestic Help & Chores",
+  "Other Tasks",
 ] as const;
 
 export type ServiceCategory = (typeof SERVICE_CATEGORIES)[number];
@@ -101,4 +100,4 @@ export type ListingTag = string;
 // ---------------------------------------------------------------------------
 
 export const SERVICE_CATEGORIES_PROMPT_LIST = SERVICE_CATEGORIES.join(", ");
-export const GOODS_CATEGORIES_PROMPT_LIST   = GOODS_CATEGORIES.join(", ");
+export const GOODS_CATEGORIES_PROMPT_LIST = GOODS_CATEGORIES.join(", ");

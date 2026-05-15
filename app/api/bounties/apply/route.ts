@@ -10,7 +10,6 @@ import {
 import { createNotification } from "@/lib/notifications";
 import { squadSendSms } from "@/lib/squad";
 import { normalizeNigerianPhone } from "@/lib/phone";
-import { haversineDistanceMeters } from "@/lib/geo";
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,6 +34,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "This bounty is no longer open for applications" }, { status: 400 });
     }
 
+    const proposedPriceInput = body.proposed_price ?? body.proposedPrice;
+    const proposedPrice = bounty.price_negotiable
+      ? Number(proposedPriceInput ?? bounty.price_min ?? 0)
+      : Number(bounty.price_min ?? 0);
+    const validProposedPrice = Number.isFinite(proposedPrice) && proposedPrice > 0
+      ? proposedPrice
+      : Number(bounty.price_min ?? 0);
+
     const providerUUID = providerProfile.id;
     if (bounty.poster_id === providerUUID) {
       return NextResponse.json({ error: "You cannot apply to your own bounty" }, { status: 400 });
@@ -44,7 +51,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "You have already applied to this bounty" }, { status: 400 });
     }
 
-    const application = await createApplication(bountyId, providerUUID);
+    const application = await createApplication(bountyId, providerUUID, validProposedPrice);
     if (!application) {
       if (await checkApplicationExists(bountyId, providerUUID)) {
         return NextResponse.json({ error: "You have already applied to this bounty" }, { status: 400 });
