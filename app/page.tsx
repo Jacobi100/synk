@@ -80,77 +80,14 @@ export default function Home() {
 
       {/* Hero */}
       <div className="overflow-x-hidden bg-secondary">
-        {/* Desktop: text + map */}
-        <div className="hidden lg:mx-auto lg:flex lg:max-w-7xl lg:items-center lg:gap-8 lg:px-8 lg:py-20">
-          <div className="max-w-2xl lg:w-1/2 lg:shrink-0">
-          {user && (
-            <div className="relative mb-3 inline-block">
-              <GlowingBadge variant="info" dot={false} className="rounded-lg" style={{ marginBottom: 5 }}>
-                {COPY.HOME.WELCOME(user?.firstName)}
-              </GlowingBadge>
-              <span className="absolute -bottom-0.5 left-3 h-2.5 w-2.5 bg-[#5E3AFF] rotate-45 rounded-sm" />
-            </div>
-          )}
-          <h1 className="text-5xl font-black leading-[0.85] tracking-tighter text-foreground md:text-7xl">
-            {COPY.HOME.HEADLINE}
-          </h1>
-          <p className="mt-6 mb-10 text-lg leading-relaxed text-muted-foreground max-w-xl">
-              {COPY.HOME.SUBHEADLINE}
-            </p>
-
-            <div className="flex flex-wrap gap-3">
-              <Button size="lg" asChild>
-                <Link href="/bounties/create">
-                  <PlusIcon className="h-4 w-4" />
-                  {COPY.HOME.POST_A_JOB}
-                </Link>
-              </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link href="/dashboard">
-                  <MagnifyingGlassIcon className="h-4 w-4" />
-                  {COPY.HOME.FIND_JOBS}
-                  <ArrowRightIcon className="h-3.5 w-3.5" />
-                </Link>
-              </Button>
-            </div>
-          </div>
-
-          <div className="relative overflow-hidden rounded-[24px] bg-background lg:flex-1">
-            <NearbyJobsMap compact />
-          </div>
+        {/* Desktop: full-width map */}
+        <div className="hidden lg:block">
+          <NearbyJobsMap compact flush />
         </div>
 
-        {/* Mobile/tablet: hero text (no map) */}
-        <div className="lg:hidden px-4 sm:px-6 py-12">
-          {user && (
-            <div className="relative mb-3 inline-block">
-              <GlowingBadge variant="info" dot={false} className="rounded-lg" style={{ marginBottom: 5 }}>
-                {COPY.HOME.WELCOME(user?.firstName)}
-              </GlowingBadge>
-              <span className="absolute -bottom-0.5 left-3 h-2.5 w-2.5 bg-[#5E3AFF] rotate-45 rounded-sm" />
-            </div>
-          )}
-          <h1 className="text-5xl font-black leading-[0.85] tracking-tighter text-foreground md:text-7xl">
-            {COPY.HOME.HEADLINE}
-          </h1>
-          <p className="mt-6 mb-10 text-lg leading-relaxed text-muted-foreground max-w-xl">
-            {COPY.HOME.SUBHEADLINE}
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <Button size="lg" asChild>
-              <Link href="/bounties/create">
-                <PlusIcon className="h-4 w-4" />
-                {COPY.HOME.POST_A_JOB}
-              </Link>
-            </Button>
-            <Button variant="outline" size="lg" asChild>
-              <Link href="/dashboard">
-                <MagnifyingGlassIcon className="h-4 w-4" />
-                {COPY.HOME.FIND_JOBS}
-                <ArrowRightIcon className="h-3.5 w-3.5" />
-              </Link>
-            </Button>
-          </div>
+        {/* Mobile/tablet: full-width map */}
+        <div className="lg:hidden">
+          <NearbyJobsMap compact flush />
         </div>
       </div>
 
@@ -214,40 +151,7 @@ export default function Home() {
         </div>
       </div>
 
-      {/* Action cards */}
-      <div className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <div className="rounded-[24px] bg-background p-8">
-            <PlusIcon className="mb-4 h-10 w-10 opacity-80 text-primary" />
-            <h2 className="mb-2 text-xl font-bold text-foreground">
-              {COPY.HOME.POST_A_JOB}
-            </h2>
-            <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
-              {COPY.HOME.POST_JOB_DESC}
-            </p>
-            <Button asChild>
-              <Link href="/bounties/create">
-                {COPY.HOME.POST_A_JOB} <ArrowRightIcon className="h-3.5 w-3.5" />
-              </Link>
-            </Button>
-          </div>
 
-          <div className="rounded-[24px] bg-background p-8">
-            <MagnifyingGlassIcon className="mb-4 h-10 w-10 opacity-80 text-primary" />
-            <h2 className="mb-2 text-xl font-bold text-foreground">
-              {COPY.HOME.FIND_JOBS}
-            </h2>
-            <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
-              {COPY.HOME.FIND_JOBS_DESC}
-            </p>
-            <Button variant="outline" asChild>
-              <Link href="/dashboard">
-                {COPY.HOME.FIND_JOBS} <ArrowRightIcon className="h-3.5 w-3.5" />
-              </Link>
-            </Button>
-          </div>
-        </div>
-      </div>
     </div>
   );
 }

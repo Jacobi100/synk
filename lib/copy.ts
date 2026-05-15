@@ -95,7 +95,7 @@ export const COPY = {
   // -------------------------------------------------------------------------
 
   DASHBOARD: {
-    AVAILABLE_JOBS:     "Jobs Near You",
+    AVAILABLE_JOBS:     "Jobs in your Neighbourhood",
     AVAILABLE_JOBS_SUB: "People nearby who need help.",
     POST_JOB:           "Post a Job",
     REFRESH:            "Refresh",
@@ -443,6 +443,24 @@ export const COPY = {
     MARK_ALL_READ: "Mark all read",
     VIEW_FEED:     "See jobs →",
     EMPTY:         "No notifications yet",
+  },
+
+  // -------------------------------------------------------------------------
+  // Wallet
+  // -------------------------------------------------------------------------
+
+  WALLET: {
+    TITLE:         "My Wallet",
+    TOTAL_EARNED:  "Total Earned",
+    TOTAL_SPENT:   "Total Spent",
+    PENDING:       "Pending Payout",
+    HISTORY:       "Transaction History",
+    EMPTY:         "No transactions yet",
+    EMPTY_SUB:     "Finish jobs to see your earnings here.",
+    TYPE_EARNED:   "Earned",
+    TYPE_SPENT:    "Spent",
+    STATUS_PAID:   "Paid",
+    STATUS_PENDING: "Pending",
   },
 
 } as const;

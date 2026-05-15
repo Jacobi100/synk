@@ -141,7 +141,7 @@ export default function MyApplicationsPage() {
           </div>
 
           <div
-            className="inline-flex rounded-[24px] border p-0.5"
+            className="inline-flex w-fit rounded-[24px] border p-0.5"
             style={{ borderColor: "var(--border)", background: "var(--background)" }}
           >
             {(["poster", "provider"] as const).map((r) => (

@@ -223,3 +223,18 @@
     border-radius: 6px;
   }
 }
+
+[data-clerk-element="userButtonPopoverCard"] {
+  width: auto !important;
+  min-width: 280px !important;
+  max-width: calc(100vw - 2rem) !important;
+}
+
+@media (max-width: 640px) {
+  [data-clerk-element="userButtonPopoverCard"] {
+    position: fixed !important;
+    inset: auto 1rem 1rem !important;
+    transform: none !important;
+    border-radius: var(--radius-2xl) !important;
+  }
+}
