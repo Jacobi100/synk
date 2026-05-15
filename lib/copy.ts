@@ -270,6 +270,8 @@ export const COPY = {
     SAFETY_TITLE:         "Your money is safe",
     UPDATE_TITLE:         "Quick update",
     UPDATE_BODY:          "We tell the helper once your money lands.",
+    PROVIDER_PAID_TITLE:  "Money is safe",
+    PROVIDER_PAID_BODY:   "The customer has deposited the funds into escrow. You can now safely start the work.",
   },
 
   COMPLETE_REVIEW: {
