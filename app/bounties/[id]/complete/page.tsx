@@ -69,10 +69,9 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
     setFraudOutcome(null);
 
     try {
-      const res  = await fetch("/api/bounties/complete", {
+      const res  = await fetch(`/api/bounties/${id}/mark-complete`, {
         method:  "POST",
         headers: { "Content-Type": "application/json" },
-        body:    JSON.stringify({ bountyId: id }),
       });
 
       const data = await res.json() as { error?: string; ok?: boolean };

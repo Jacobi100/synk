@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/button";
 import type { BountyApplication, ProviderProfile } from "@/lib/types/bounty";
 
 import Link from "next/link";
-import { ArrowPathIcon, ArrowLeftIcon, CheckCircleIcon, ExclamationCircleIcon, UserIcon, PhoneIcon, CreditCardIcon, BuildingOffice2Icon, XCircleIcon } from "@heroicons/react/24/outline";
+import { ArrowPathIcon, CheckCircleIcon, ExclamationCircleIcon, UserIcon, XCircleIcon } from "@heroicons/react/24/outline";
 import { COPY } from "@/lib/copy";
 
 
@@ -176,7 +176,7 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                 </div>
 
                 {app.risk && (
-                  <div className={`mb-6 rounded-[24px] border p-4 ${
+                  <div className={`mb-4 rounded-[24px] border p-4 ${
                     app.risk.riskLevel === 'low' ? 'bg-emerald-50/50 border-emerald-100' :
                     app.risk.riskLevel === 'medium' ? 'bg-amber-50/50 border-amber-100' :
                     'bg-rose-50/50 border-rose-100'
@@ -193,10 +193,18 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                           app.risk.riskLevel === 'medium' ? 'text-amber-700' :
                           'text-rose-700'
                         }`}>
-                          {app.risk.riskLevel} Risk Assessment
+                          {app.risk.riskLevel} Risk
                         </span>
                       </div>
-                      <span className="text-[10px] font-mono text-gray-400">SCORE: {100 - app.risk.riskScore}/100</span>
+                      <span className={`rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                        app.risk.recommendation === 'accept' ? 'bg-emerald-100 text-emerald-800' :
+                        app.risk.recommendation === 'caution' ? 'bg-amber-100 text-amber-800' :
+                        'bg-rose-100 text-rose-800'
+                      }`}>
+                        {app.risk.recommendation === 'accept' ? '✓ Recommended' :
+                         app.risk.recommendation === 'caution' ? '⚠ Proceed with Caution' :
+                         '✗ Not Recommended'}
+                      </span>
                     </div>
                     <ul className="space-y-1.5">
                       {app.risk.factors.map((f, i) => (
@@ -206,10 +214,13 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                         </li>
                       ))}
                     </ul>
+                    <div className="mt-2 pt-2 border-t border-gray-100">
+                      <span className="text-[10px] font-mono text-gray-400">Safety Score: {100 - app.risk.riskScore}/100</span>
+                    </div>
                   </div>
                 )}
                 {app.status === "pending" && (
-                  <div className="flex gap-3">
+                  <div className="flex items-center gap-3">
                     <Button
                       onClick={() => void handleAccept(app.id)}
                       disabled={actionLoading === app.id}
@@ -218,7 +229,7 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                       {actionLoading === app.id ? (
                         <>
                           <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                                Accepting…
+                          Accepting…
                         </>
                       ) : (
                         <>

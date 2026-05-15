@@ -6,7 +6,6 @@ import {
   getProfileUUID,
 } from '@/lib/bounty';
 import { assessOfferRisk } from '@/lib/risk/offer-scorer';
-import { calculateTrustProfile } from '@/lib/trust/calculator';
 import { supabaseAdmin } from '@/lib/supabase/server';
 
 export async function GET(
@@ -47,38 +46,56 @@ export async function GET(
     // Get all applications for this bounty, including provider profile details
     const applications = await getApplicationsByBountyIdWithProvider(bountyId);
 
-    // Enrich with risk assessment
+    // Enrich with risk assessment — wrapped in try-catch so the endpoint
+    // still returns applications even if risk scoring fails.
     const applicationsWithRisk = await Promise.all(applications.map(async (app) => {
       if (!app.provider_profile) return { ...app, risk: null };
 
-      // Get active jobs count for provider
-      const { count: activeJobs } = await supabaseAdmin
-        .from("applications")
-        .select("id", { count: "exact", head: true })
-        .eq("provider_id", app.provider_id)
-        .eq("status", "accepted");
-      
-      // Note: we'd ideally also filter by bounty.status = 'in_progress' here 
-      // but let's keep it simple for now as requested.
+      try {
+        // Get active jobs count for provider — try both table names
+        let activeJobs = 0;
+        const { count, error } = await supabaseAdmin
+          .from("applications")
+          .select("id", { count: "exact", head: true })
+          .eq("provider_id", app.provider_id)
+          .eq("status", "accepted");
 
-      const profile = app.provider_profile as any;
-      const trustProfile = {
-        providerId: app.provider_id,
-        badge: profile.trust_badge || "new",
-        trustScore: profile.trust_score || 0,
-        signals: profile.trust_signals || [],
-        computedAt: profile.trust_computed_at || "",
-      };
+        if (!error && count !== null) {
+          activeJobs = count;
+        } else {
+          // Fallback to legacy table name
+          const legacy = await supabaseAdmin
+            .from("bounty_applications")
+            .select("id", { count: "exact", head: true })
+            .eq("provider_id", app.provider_id)
+            .eq("status", "accepted");
+          if (!legacy.error && legacy.count !== null) {
+            activeJobs = legacy.count;
+          }
+        }
 
-      const risk = assessOfferRisk({
-        bountyId,
-        bountyCategory: bounty.category,
-        providerId: app.provider_id,
-        trustProfile,
-        activeJobsCount: activeJobs || 0,
-      });
+        const profile = app.provider_profile as Record<string, unknown>;
+        const trustProfile = {
+          providerId: app.provider_id,
+          badge: (profile.trust_badge as string) || "new",
+          trustScore: (profile.trust_score as number) || 0,
+          signals: (profile.trust_signals as string[]) || [],
+          computedAt: (profile.trust_computed_at as string) || "",
+        };
 
-      return { ...app, risk };
+        const risk = assessOfferRisk({
+          bountyId,
+          bountyCategory: bounty.category,
+          providerId: app.provider_id,
+          trustProfile,
+          activeJobsCount: activeJobs,
+        });
+
+        return { ...app, risk };
+      } catch (err) {
+        console.error("Risk assessment failed for application:", app.id, err);
+        return { ...app, risk: null };
+      }
     }));
 
     return NextResponse.json(applicationsWithRisk);
@@ -90,3 +107,4 @@ export async function GET(
     );
   }
 }
+
