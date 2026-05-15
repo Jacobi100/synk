@@ -177,6 +177,15 @@
     to   { opacity: 1; }
   }
 
+  @keyframes shimmer-border {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .animate-shimmer-border {
+    animation: shimmer-border 3s linear infinite;
+  }
+
   .animate-step-in {
     animation: stepIn 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
   }

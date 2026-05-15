@@ -55,6 +55,7 @@ export async function GET() {
     });
 
     return NextResponse.json({
+      profileId,
       totalEarned,
       totalSpent,
       pending,

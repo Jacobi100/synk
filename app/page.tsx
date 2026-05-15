@@ -75,7 +75,7 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen overflow-x-hidden">
       <Navbar />
 
       {/* Hero */}
@@ -116,42 +116,29 @@ export default function Home() {
               </div>
             ))}
           </div>
-          <div className="relative mt-8 overflow-hidden rounded-[24px] bg-black lg:mt-0 lg:w-72 lg:shrink-0">
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-10"
-              style={{ background: "radial-gradient(circle, #ffffff 0%, transparent 70%)" }}
-            />
-            <div
-              aria-hidden
-              className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full opacity-[0.04]"
-              style={{ background: "radial-gradient(circle, #ffffff 0%, transparent 70%)" }}
-            />
-            <div className="relative flex flex-col justify-between p-5 min-h-[12rem] sm:min-h-[10rem]">
-              <div className="flex items-start justify-between">
-                <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">
-                  {COPY.HOME.TOTAL_EARNINGS}
-                </p>
-                <WalletIcon className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div className="mt-auto">
-                {loading ? (
-                  <ShimmerSkeleton className="h-8 w-28" />
-                ) : (
-                  <div className="flex items-baseline gap-1">
-                    <span className="text-lg font-semibold text-muted-foreground">₦</span>
-                    <span className="text-3xl font-bold tracking-tight text-white">
-                      <AnimateCount>{stats.totalEarnings}</AnimateCount>
-                    </span>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
+
         </div>
       </div>
 
 
+      {/* Mobile floating action bar */}
+      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/80 backdrop-blur-lg md:hidden">
+        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
+          <Button size="lg" asChild className="flex-1">
+            <Link href="/bounties/create">
+              <PlusIcon className="h-4 w-4" />
+              {COPY.HOME.POST_A_JOB}
+            </Link>
+          </Button>
+          <Button variant="outline" size="lg" asChild className="flex-1">
+            <Link href="/dashboard">
+              <MagnifyingGlassIcon className="h-4 w-4" />
+              {COPY.HOME.FIND_JOBS}
+              <ArrowRightIcon className="h-3.5 w-3.5" />
+            </Link>
+          </Button>
+        </div>
+      </div>
     </div>
   );
 }

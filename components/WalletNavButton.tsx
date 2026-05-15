@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { WalletIcon } from "@heroicons/react/24/outline";
 import { AnimateCount } from "@/components/unlumen-ui/animate-count";
 
 export function WalletNavButton() {
