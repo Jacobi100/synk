@@ -76,7 +76,8 @@ export default function ProfilePage() {
       try {
         const res = await fetch("/api/banks");
         const data = await res.json();
-        setBankList(data.banks ?? []);
+        const banks = data.banks ?? [];
+        setBankList(banks);
       } catch { /* silent */ }
     })();
   }, []);
@@ -247,41 +248,6 @@ export default function ProfilePage() {
                 </p>
               </div>
 
-              <FormField label={COPY.PROFILE.FIELD_BANK_NAME} icon={BuildingOffice2Icon} hint={COPY.PROFILE.BANK_NAME_HINT}>
-                <div className="relative">
-                  <select
-                    className={inputCls + " appearance-none"}
-                    style={inputStyle}
-                    value={bankCode}
-                    onChange={(e) => setBankCode(e.target.value)}
-                    onFocus={(e) => {
-                      e.target.style.borderColor = "var(--primary)";
-                      e.target.style.boxShadow = "0 0 0 3px var(--ring)";
-                      e.target.style.background = "var(--background)";
-                    }}
-                    onBlur={(e) => {
-                      e.target.style.borderColor = "var(--border)";
-                      e.target.style.boxShadow = "none";
-                      e.target.style.background = "var(--secondary)";
-                    }}
-                  >
-                    <option value="" disabled>{COPY.ONBOARDING.BANK_SELECT}</option>
-                    {bankList.map((bank) => (
-                      <option key={bank.code} value={bank.code}>
-                        {bank.name}
-                      </option>
-                    ))}
-                  </select>
-                  <svg
-                    className="pointer-events-none absolute right-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2"
-                    style={{ color: "var(--mute)" }}
-                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </FormField>
-
               <FormField label={COPY.PROFILE.FIELD_ACCOUNT} icon={CreditCardIcon} hint="Must be exactly 10 digits.">
                 <input
                   className={inputCls}
@@ -319,6 +285,41 @@ export default function ProfilePage() {
                     <span className="text-xs" style={{ color: "var(--negative)" }}>{accountError}</span>
                   </div>
                 )}
+              </FormField>
+
+              <FormField label={COPY.PROFILE.FIELD_BANK_NAME} icon={BuildingOffice2Icon} hint={COPY.PROFILE.BANK_NAME_HINT}>
+                <div className="relative">
+                  <select
+                    className={inputCls + " appearance-none"}
+                    style={inputStyle}
+                    value={bankCode}
+                    onChange={(e) => setBankCode(e.target.value)}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "var(--primary)";
+                      e.target.style.boxShadow = "0 0 0 3px var(--ring)";
+                      e.target.style.background = "var(--background)";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "var(--border)";
+                      e.target.style.boxShadow = "none";
+                      e.target.style.background = "var(--secondary)";
+                    }}
+                  >
+                    <option value="" disabled>{COPY.ONBOARDING.BANK_SELECT}</option>
+                    {bankList.map((bank) => (
+                      <option key={bank.code} value={bank.code}>
+                        {bank.name}
+                      </option>
+                    ))}
+                  </select>
+                  <svg
+                    className="pointer-events-none absolute right-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2"
+                    style={{ color: "var(--mute)" }}
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
               </FormField>
             </div>
 

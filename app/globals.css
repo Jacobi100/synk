@@ -245,6 +245,14 @@
   max-width: calc(100vw - 2rem) !important;
 }
 
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 @media (max-width: 640px) {
   [data-clerk-element="userButtonPopoverCard"] {
     position: fixed !important;

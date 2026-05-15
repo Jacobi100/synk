@@ -20,6 +20,7 @@
     "clsx": "^2.1.1",
     "date-fns": "^4.1.0",
     "framer-motion": "^12.38.0",
+    "hashvatar": "^0.1.2",
     "lucide-react": "^1.14.0",
     "maplibre-gl": "^5.24.0",
     "motion": "^12.38.0",
