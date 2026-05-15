@@ -89,7 +89,7 @@ export async function GET(
           providerId: app.provider_id,
           trustProfile,
           activeJobsCount: (profile.active_jobs_count as number) || 0,
-          proposedPrice: Number(app.amount),
+          proposedPrice: Number(app.proposed_price || 0),
           bountyPriceMin: Number(bounty.price_min),
           bountyPriceMax: Number(bounty.price_max),
         });

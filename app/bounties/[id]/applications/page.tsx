@@ -260,7 +260,7 @@ export default function BountyApplicationsPage({
                       {COPY.APPLICATIONS.THEIR_PRICE || "Proposed Amount"}
                     </p>
                     <p className="text-2xl font-black text-slate-900">
-                      ₦{Number(app.proposed_price || app.amount).toLocaleString()}
+                      ₦{Number(app.proposed_price || 0).toLocaleString()}
                     </p>
                   </div>
 
@@ -308,7 +308,7 @@ export default function BountyApplicationsPage({
                       <div className="space-y-2">
                         {app.risk.factors.map((f, i) => (
                           <div key={i} className="flex items-center gap-2">
-                            <CheckCircleIcon className="h-3 w-3 shrink-0" style={{ color: app.risk.riskLevel === "low" ? "var(--positive)" : "var(--mute)" }} />
+                            <CheckCircleIcon className="h-3 w-3 shrink-0" style={{ color: app.risk?.riskLevel === "low" ? "var(--positive)" : "var(--mute)" }} />
                             <span className="text-xs font-medium text-slate-700 leading-tight">{f}</span>
                           </div>
                         ))}

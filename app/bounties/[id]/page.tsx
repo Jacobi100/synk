@@ -30,6 +30,7 @@ type BountyDetail = Bounty & {
   transaction?: {
     id: string;
     status: string;
+    provider_id?: string | null;
     assistance_requested_at?: string | null;
     assistance_requested_by?: string | null;
   } | null;
@@ -266,6 +267,31 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
         >
           <ArrowLeftIcon className="h-4 w-4" /> {COPY.BACK_TO_FEED}
         </Link>
+
+        {/* PROMPT: Escrow Funded Banner for Provider */}
+        {isAcceptedProvider && bounty.status === "paid" && (
+          <motion.div 
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mb-6 rounded-[24px] border p-5 flex items-start gap-4 shadow-sm"
+            style={{ 
+              backgroundColor: "color-mix(in srgb, var(--positive) 8%, white)", 
+              borderColor: "color-mix(in srgb, var(--positive) 20%, transparent)" 
+            }}
+          >
+            <div className="rounded-full p-2" style={{ backgroundColor: "color-mix(in srgb, var(--positive) 15%, transparent)" }}>
+              <CheckCircleIcon className="h-6 w-6" style={{ color: "var(--positive)" }} />
+            </div>
+            <div>
+              <h3 className="font-bold text-base" style={{ color: "var(--positive-deep)" }}>
+                {COPY.PAYMENT.PROVIDER_PAID_TITLE}
+              </h3>
+              <p className="text-sm mt-1 leading-relaxed" style={{ color: "var(--positive-deep)", opacity: 0.9 }}>
+                {COPY.PAYMENT.PROVIDER_PAID_BODY}
+              </p>
+            </div>
+          </motion.div>
+        )}
 
         <div className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-5">

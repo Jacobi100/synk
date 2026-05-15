@@ -13,6 +13,7 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 import { createNotification } from "@/lib/notifications";
 import { squadSendSms } from "@/lib/squad";
 import { normalizeNigerianPhone } from "@/lib/phone";
+import { COPY } from "@/lib/copy";
 
 /**
  * POST /api/bounties/[id]/verify-payment
@@ -121,15 +122,15 @@ export async function POST(
     await createNotification({
       user_id: tx.provider_id,
       type: "payment_confirmed",
-      title: "Payment confirmed",
-      body: "Payment confirmed. Proceed with the service.",
+      title: COPY.PAYMENT.PROVIDER_PAID_TITLE,
+      body: COPY.PAYMENT.PROVIDER_PAID_BODY,
       related_bounty_id: bountyId,
     });
 
     const provider = await getProfileById(tx.provider_id);
     const phone = normalizeNigerianPhone(provider?.phone_number);
     if (phone) {
-      await squadSendSms(phone, "Payment confirmed. Proceed with the service.");
+      await squadSendSms(phone, COPY.PAYMENT.PROVIDER_PAID_BODY);
     }
 
     return NextResponse.json({
