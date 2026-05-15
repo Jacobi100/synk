@@ -33,7 +33,7 @@ function AvatarPlaceholder({ name }: { name?: string | null }) {
   return (
     <div className="relative mx-auto mb-4 w-fit">
       <div
-        className="flex h-20 w-20 items-center justify-center rounded-full text-2xl font-bold text-white shadow-lg"
+        className="flex h-20 w-20 items-center justify-center rounded-full text-2xl font-bold text-blue-500 shadow-lg"
         style={{
           background: "linear-gradient(135deg, var(--primary), var(--primary-deep))",
         }}

@@ -36,7 +36,7 @@ export async function acceptBountyApplication(clerkUserId: string, bountyId: str
     return { error: "This application has already been reviewed", status: 400 as const };
   }
 
-  const amount = Number(bounty.price_max ?? bounty.price_min ?? 0);
+  const amount = Number(application.proposed_price ?? bounty.price_max ?? bounty.price_min ?? 0);
   if (!amount || amount <= 0) {
     return { error: "Set a price on the bounty before accepting a provider", status: 400 as const };
   }
@@ -81,7 +81,11 @@ export async function acceptBountyApplication(clerkUserId: string, bountyId: str
     console.warn("Squad VA unavailable — using mock account number for development");
   }
 
-  const updatedBounty = await updateBounty(bountyId, clerkUserId, { status: "in_progress" });
+  const updatedBounty = await updateBounty(bountyId, clerkUserId, {
+    status: "in_progress",
+    price_min: amount,
+    price_max: amount,
+  });
   if (!updatedBounty) return { error: "Failed to update bounty", status: 500 as const };
 
   const tx = await createTransactionRow({
