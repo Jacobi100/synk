@@ -18,6 +18,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { Logo } from "@/components/Logo";
 import { Hashvatar } from "hashvatar/react";
+import { padBankCode } from "@/lib/nuban";
 
 const STEPS = [COPY.ONBOARDING.STEP_ACCOUNT, COPY.ONBOARDING.STEP_PROFILE, COPY.ONBOARDING.STEP_DONE];
 
@@ -90,7 +91,7 @@ export default function OnboardingPage() {
   const bankSelectRef = useRef<HTMLDivElement>(null);
 
   const inputBase =
-    "w-full rounded-[24px] border bg-secondary px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-mute focus:bg-background focus:shadow-[0_0_0_2px_var(--ring)]";
+    "w-full rounded-[24px] border bg-secondary px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-muted-foreground focus:bg-background focus:shadow-[0_0_0_2px_var(--ring)]";
   const inputStyle: React.CSSProperties = {
     borderColor: "var(--border)",
     color: "var(--foreground)",
@@ -253,7 +254,7 @@ export default function OnboardingPage() {
             </div>
 
             <div
-              className="rounded-[24px] border bg-white p-6 space-y-5 overflow-visible"
+              className="rounded-[24px] border bg-background p-6 space-y-5 overflow-visible"
               style={{ borderColor: "var(--border)" }}
             >
               <div className="text-center">
@@ -371,9 +372,9 @@ export default function OnboardingPage() {
                           className={`${inputBase} flex w-full items-center justify-between pr-10 cursor-pointer focus:shadow-[0_0_0_2px_var(--ring)]`}
                           style={inputStyle}
                         >
-                          <span style={{ color: selectedBankCode ? "var(--foreground)" : "var(--mute)" }}>
+                          <span style={{ color: selectedBankCode ? "var(--foreground)" : "var(--muted-foreground)" }}>
                             {selectedBankCode
-                              ? bankList.find((b) => b.code === selectedBankCode)?.name
+                              ? bankList.find((b) => padBankCode(b.code) === selectedBankCode)?.name
                               : COPY.ONBOARDING.BANK_SELECT}
                           </span>
                           <ChevronDownIcon
@@ -382,7 +383,7 @@ export default function OnboardingPage() {
                         </button>
                         {bankSelectOpen && (
                           <div
-                            className={`absolute left-0 right-0 z-50 rounded-[24px] border bg-white shadow-lg py-1 max-h-60 overflow-y-auto hide-scrollbar ${
+                            className={`absolute left-0 right-0 z-50 rounded-[24px] border bg-background shadow-lg py-1 max-h-60 overflow-y-auto hide-scrollbar ${
                               dropUp
                                 ? "bottom-full mb-1"
                                 : "top-full mt-1"
@@ -394,12 +395,12 @@ export default function OnboardingPage() {
                                 key={bank.code}
                                 type="button"
                                 onClick={() => {
-                                  setSelectedBankCode(bank.code);
+                                  setSelectedBankCode(padBankCode(bank.code));
                                   setBankSelectOpen(false);
                                 }}
                                 className={`w-full px-3.5 py-2.5 text-left text-sm transition-colors hover:bg-secondary ${
-                                  bank.code === selectedBankCode
-                                    ? "bg-primary/10 text-foreground font-semibold"
+                                  padBankCode(bank.code) === selectedBankCode
+                                    ? "bg-primary/10 text-primary font-semibold"
                                     : "text-foreground"
                                 }`}
                               >

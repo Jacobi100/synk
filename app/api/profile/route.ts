@@ -2,6 +2,7 @@ import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { getProfileUUID } from "@/lib/bounty";
+import { padBankCode } from "@/lib/nuban";
 
 export async function GET() {
   try {
@@ -15,6 +16,7 @@ export async function GET() {
       .single();
 
     if (error || !data) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+    if (data.bank_code) data.bank_code = padBankCode(data.bank_code);
     return NextResponse.json(data);
   } catch (e) {
     console.error("profile GET:", e);
@@ -36,7 +38,7 @@ export async function PATCH(request: Request) {
     if (body.full_name !== undefined) patch.full_name = body.full_name;
     if (body.phone_number !== undefined) patch.phone_number = body.phone_number;
     if (body.account_number !== undefined) patch.account_number = body.account_number;
-    if (body.bank_code !== undefined) patch.bank_code = body.bank_code;
+    if (body.bank_code !== undefined) patch.bank_code = padBankCode(body.bank_code);
 
     const { data, error } = await supabaseAdmin
       .from("profiles")

@@ -54,12 +54,21 @@ export default function BountyApplicationsPage({
 }: ApplicationsPageProps) {
   const { id } = use(params);
   const router = useRouter();
-  const { user, isLoaded } = useUser();
+  const { user } = useUser();
   const [applications, setApplications] = useState<AppRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [actionError, setActionError] = useState<string | null>(null);
+
+  const parseErrorBody = async (response: Response) => {
+    try {
+      return await response.json();
+    } catch {
+      const text = await response.text();
+      return { error: text || "Unknown error" };
+    }
+  };
 
   useEffect(() => {
     const fetchApplications = async () => {
@@ -67,7 +76,7 @@ export default function BountyApplicationsPage({
         setLoading(true);
         const response = await fetch(`/api/bounties/${id}/applications`);
         if (!response.ok) {
-          const data = await response.json();
+          const data = await parseErrorBody(response);
           throw new Error(data.error || COPY.APPLICATIONS.ERROR_LOAD);
         }
         const data = (await response.json()) as AppRow[];
@@ -95,7 +104,7 @@ export default function BountyApplicationsPage({
         },
       );
       if (!response.ok) {
-        const data = await response.json();
+        const data = await parseErrorBody(response);
         throw new Error(data.error || COPY.APPLICATIONS.ERROR_LOAD);
       }
       setApplications((prev) =>
@@ -125,7 +134,7 @@ export default function BountyApplicationsPage({
         },
       );
       if (!response.ok) {
-        const data = await response.json();
+        const data = await parseErrorBody(response);
         throw new Error(data.error || COPY.APPLICATIONS.ERROR_LOAD);
       }
       setApplications((prev) =>
@@ -165,7 +174,9 @@ export default function BountyApplicationsPage({
       <div className="min-h-screen bg-secondary">
         <Navbar />
         <div className="px-4 py-8">
-          <p className="text-gray-600">{COPY.MY_APPLICATIONS.SIGN_IN_REQUIRED}</p>
+          <p className="text-gray-600">
+            {COPY.MY_APPLICATIONS.SIGN_IN_REQUIRED}
+          </p>
         </div>
       </div>
     );
@@ -184,7 +195,9 @@ export default function BountyApplicationsPage({
         <h1 className="mt-6 mb-1 text-3xl font-bold text-gray-900 tracking-tight">
           {COPY.APPLICATIONS.TITLE}
         </h1>
-        <p className="mb-8 text-sm text-slate-500">{COPY.APPLICATIONS.SUBTITLE}</p>
+        <p className="mb-8 text-sm text-slate-500">
+          {COPY.APPLICATIONS.SUBTITLE}
+        </p>
 
         {actionError && (
           <div className="mb-6 rounded-[24px] border border-rose-200 bg-rose-50 p-4">
@@ -209,7 +222,9 @@ export default function BountyApplicationsPage({
           </div>
         ) : applications.length === 0 ? (
           <div className="rounded-[32px] border-2 border-dashed border-slate-200 bg-background/50 p-16 text-center">
-            <p className="text-slate-400 font-medium">{COPY.APPLICATIONS.EMPTY}</p>
+            <p className="text-slate-400 font-medium">
+              {COPY.APPLICATIONS.EMPTY}
+            </p>
           </div>
         ) : (
           <div className="space-y-6">
@@ -221,7 +236,7 @@ export default function BountyApplicationsPage({
                 <div className="mb-6 flex items-start justify-between">
                   <div className="flex items-center gap-4">
                     <div className="relative h-14 w-14 overflow-hidden rounded-full border-2 border-white bg-slate-100 shadow-sm">
-                       <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-primary to-primary-deep text-white">
+                      <div className="flex h-full w-full items-center justify-center bg-linear-to-br from-primary to-primary-deep text-white">
                         <UserIcon className="h-7 w-7" />
                       </div>
                     </div>
@@ -231,13 +246,18 @@ export default function BountyApplicationsPage({
                       </h3>
                       <div className="mt-1 flex items-center gap-2">
                         <span className="text-xs font-medium text-slate-400">
-                          Applied {new Date(app.created_at).toLocaleDateString()}
+                          Applied{" "}
+                          {new Date(app.created_at).toLocaleDateString()}
                         </span>
-                        {(app.provider_profile?.trust_badge || typeof app.provider_profile?.trust_score === "number") && (
+                        {(app.provider_profile?.trust_badge ||
+                          typeof app.provider_profile?.trust_score ===
+                            "number") && (
                           <>
                             <span className="h-1 w-1 rounded-full bg-slate-200" />
                             <span className="inline-flex items-center rounded-full bg-slate-50 border px-2 py-0.5 text-[10px] font-bold text-slate-600 uppercase tracking-tight">
-                              {getTrustBadgeLabel(app.provider_profile?.trust_badge)}
+                              {getTrustBadgeLabel(
+                                app.provider_profile?.trust_badge,
+                              )}
                             </span>
                           </>
                         )}
@@ -254,7 +274,7 @@ export default function BountyApplicationsPage({
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                   {/* Proposed Price */}
+                  {/* Proposed Price */}
                   <div className="rounded-[24px] border border-slate-100 bg-slate-50/50 p-5">
                     <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
                       {COPY.APPLICATIONS.THEIR_PRICE || "Proposed Amount"}
@@ -266,15 +286,34 @@ export default function BountyApplicationsPage({
 
                   {/* AI Intelligence Layer */}
                   {app.risk && (
-                    <div className="relative overflow-hidden rounded-[24px] border p-5 transition-all shadow-xs"
+                    <div
+                      className="relative overflow-hidden rounded-[24px] border p-5 transition-all shadow-xs"
                       style={{
-                        borderColor: app.risk.riskLevel === "low" ? "#bbf7d0" : app.risk.riskLevel === "medium" ? "#fef3c7" : "#fecaca",
-                        background: app.risk.riskLevel === "low" ? "#f0fdf4" : app.risk.riskLevel === "medium" ? "#fffbeb" : "#fef2f2",
+                        borderColor:
+                          app.risk.riskLevel === "low"
+                            ? "#bbf7d0"
+                            : app.risk.riskLevel === "medium"
+                              ? "#fef3c7"
+                              : "#fecaca",
+                        background:
+                          app.risk.riskLevel === "low"
+                            ? "#f0fdf4"
+                            : app.risk.riskLevel === "medium"
+                              ? "#fffbeb"
+                              : "#fef2f2",
                       }}
                     >
                       {/* AI Glow Badge */}
-                      <div className="absolute top-0 right-0 px-3 py-1 text-[9px] font-black tracking-tighter uppercase text-white"
-                        style={{ background: app.risk.riskLevel === "low" ? "var(--positive)" : app.risk.riskLevel === "medium" ? "var(--info)" : "var(--negative)" }}
+                      <div
+                        className="absolute top-0 right-0 px-3 py-1 text-[9px] font-black tracking-tighter uppercase text-white"
+                        style={{
+                          background:
+                            app.risk.riskLevel === "low"
+                              ? "var(--positive)"
+                              : app.risk.riskLevel === "medium"
+                                ? "var(--info)"
+                                : "var(--negative)",
+                        }}
                       >
                         AI INSIGHT
                       </div>
@@ -288,18 +327,35 @@ export default function BountyApplicationsPage({
                       {/* Confidence Meter */}
                       <div className="mb-4">
                         <div className="flex justify-between items-end mb-1.5">
-                           <span className="text-xs font-bold text-slate-700">Confidence Score</span>
-                           <span className="text-xs font-black" style={{ color: app.risk.riskLevel === "low" ? "var(--positive-deep)" : app.risk.riskLevel === "medium" ? "#b45309" : "#b91c1c" }}>
-                             {app.risk.aiConfidence}%
-                           </span>
+                          <span className="text-xs font-bold text-slate-700">
+                            Confidence Score
+                          </span>
+                          <span
+                            className="text-xs font-black"
+                            style={{
+                              color:
+                                app.risk.riskLevel === "low"
+                                  ? "var(--positive-deep)"
+                                  : app.risk.riskLevel === "medium"
+                                    ? "#b45309"
+                                    : "#b91c1c",
+                            }}
+                          >
+                            {app.risk.aiConfidence}%
+                          </span>
                         </div>
                         <div className="h-2 w-full rounded-full bg-slate-200 overflow-hidden shadow-inner">
                           <div
                             className="h-full rounded-full transition-all duration-1000 ease-out"
                             style={{
                               width: `${app.risk.aiConfidence}%`,
-                              background: app.risk.riskLevel === "low" ? "var(--positive)" : app.risk.riskLevel === "medium" ? "var(--info)" : "var(--negative)",
-                              boxShadow: `0 0 12px ${app.risk.riskLevel === "low" ? "rgba(34,197,94,0.4)" : app.risk.riskLevel === "medium" ? "rgba(245,158,11,0.4)" : "rgba(239,68,68,0.4)"}`
+                              background:
+                                app.risk.riskLevel === "low"
+                                  ? "var(--positive)"
+                                  : app.risk.riskLevel === "medium"
+                                    ? "var(--info)"
+                                    : "var(--negative)",
+                              boxShadow: `0 0 12px ${app.risk.riskLevel === "low" ? "rgba(34,197,94,0.4)" : app.risk.riskLevel === "medium" ? "rgba(245,158,11,0.4)" : "rgba(239,68,68,0.4)"}`,
                             }}
                           />
                         </div>
@@ -308,21 +364,40 @@ export default function BountyApplicationsPage({
                       <div className="space-y-2">
                         {app.risk.factors.map((f, i) => (
                           <div key={i} className="flex items-center gap-2">
-                            <CheckCircleIcon className="h-3 w-3 shrink-0" style={{ color: app.risk?.riskLevel === "low" ? "var(--positive)" : "var(--mute)" }} />
-                            <span className="text-xs font-medium text-slate-700 leading-tight">{f}</span>
+                            <CheckCircleIcon
+                              className="h-3 w-3 shrink-0"
+                              style={{
+                                color:
+                                  app.risk?.riskLevel === "low"
+                                    ? "var(--positive)"
+                                    : "var(--mute)",
+                              }}
+                            />
+                            <span className="text-xs font-medium text-slate-700 leading-tight">
+                              {f}
+                            </span>
                           </div>
                         ))}
                       </div>
 
                       <div className="mt-4 pt-3 border-t border-slate-200/50">
-                        <p className="text-[11px] font-bold uppercase tracking-tight"
-                          style={{ color: app.risk.riskLevel === "low" ? "var(--positive-deep)" : app.risk.riskLevel === "medium" ? "#b45309" : "#b91c1c" }}
+                        <p
+                          className="text-[11px] font-bold uppercase tracking-tight"
+                          style={{
+                            color:
+                              app.risk.riskLevel === "low"
+                                ? "var(--positive-deep)"
+                                : app.risk.riskLevel === "medium"
+                                  ? "#b45309"
+                                  : "#b91c1c",
+                          }}
                         >
-                          {app.risk.recommendation === "accept" 
-                            ? (COPY.RISK?.RECOMMEND || "✓ System Recommended") 
-                            : app.risk.recommendation === "caution" 
-                              ? (COPY.RISK?.CAUTION || "⚠ Verification Recommended") 
-                              : (COPY.RISK?.NOT_RECOMM || "✗ Not Recommended")}
+                          {app.risk.recommendation === "accept"
+                            ? COPY.RISK?.RECOMMEND || "✓ System Recommended"
+                            : app.risk.recommendation === "caution"
+                              ? COPY.RISK?.CAUTION ||
+                                "⚠ Verification Recommended"
+                              : COPY.RISK?.NOT_RECOMM || "✗ Not Recommended"}
                         </p>
                       </div>
                     </div>

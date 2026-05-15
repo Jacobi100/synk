@@ -1,6 +1,7 @@
 import { supabaseAdmin } from "@/lib/supabase/server";
 import { auth, currentUser } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { padBankCode } from "@/lib/nuban";
 
 export async function POST(req: Request) {
   const { userId } = await auth();
@@ -19,7 +20,7 @@ export async function POST(req: Request) {
         username: body.username,
         phone_number: body.phone_number,
         date_of_birth: body.date_of_birth,
-        bank_code: body.bank_code || null,
+        bank_code: body.bank_code ? padBankCode(body.bank_code) : null,
         account_number: body.account_number || null,
         onboarding_complete: true,
       },

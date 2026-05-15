@@ -100,7 +100,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
   const STEP = 100;
 
   const handleOpenNegotiate = () => {
-    setNegotiatePrice(bounty?.price_min ?? 0);
+    setNegotiatePrice(bounty?.price_max ?? bounty?.price_min ?? 0);
     setNegotiateOpen(true);
   };
 
@@ -115,7 +115,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
   const handleNegotiateInput = (e: ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value.replace(/[^0-9]/g, "");
     if (raw === "") {
-      setNegotiatePrice(bounty?.price_min ?? 0);
+      setNegotiatePrice(bounty?.price_max ?? bounty?.price_min ?? 0);
       return;
     }
     const num = parseInt(raw, 10);
@@ -132,7 +132,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
         if (!response.ok) throw new Error(COPY.JOB_DETAIL.ERROR_MESSAGE);
         const data = await response.json();
         setBounty(data);
-        setNegotiatePrice(data.price_min ?? 0);
+        setNegotiatePrice(data.price_max ?? data.price_min ?? 0);
         if (user) {
           const check = await fetch(`/api/bounties/${id}/check-ownership`);
           if (check.ok) {
