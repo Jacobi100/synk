@@ -11,6 +11,7 @@ import {
 import { squadCreateVirtualAccount, squadSendSms } from "@/lib/squad";
 import { normalizeNigerianPhone } from "@/lib/phone";
 import { createNotification } from "@/lib/notifications";
+import { padBankCode } from "@/lib/nuban";
 
 function splitName(full: string | null | undefined): { first: string; last: string } {
   if (!full?.trim()) return { first: "Synk", last: "Customer" };
@@ -58,7 +59,7 @@ export async function acceptBountyApplication(clerkUserId: string, bountyId: str
 
   const beneficiary =
     process.env.SQUAD_MERCHANT_ACCOUNT ?? process.env.SQUAD_SETTLEMENT_ACCOUNT ?? "";
-  const bankCode = process.env.SQUAD_MERCHANT_BANK_CODE ?? "058";
+  const bankCode = padBankCode(process.env.SQUAD_MERCHANT_BANK_CODE ?? "058");
   const bvn = process.env.SQUAD_ESCROW_BVN ?? process.env.SQUAD_VA_BVN ?? "00000000000";
 
   let vaRef: string | null = null;

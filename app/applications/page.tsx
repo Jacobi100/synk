@@ -25,6 +25,13 @@ interface ApplicationWithDetails extends BountyApplication {
   bounty?: Bounty;
   provider_profile?: PosterApplicantProfile | null;
   poster_phone?: string | null;
+  risk?: {
+    riskScore: number;
+    riskLevel: "low" | "medium" | "high";
+    factors: string[];
+    recommendation: "accept" | "caution" | "reject";
+    aiConfidence: number;
+  } | null;
 }
 
 const TRUST_BADGE_LABELS: Record<string, string> = {
@@ -38,6 +45,15 @@ function getTrustBadgeLabel(badge?: string | null) {
   if (!badge) return COPY.PROVIDER_PROFILE.BADGE_NEW_LABEL;
   return TRUST_BADGE_LABELS[badge] ?? COPY.PROVIDER_PROFILE.BADGE_NEW_LABEL;
 }
+
+const parseErrorBody = async (response: Response) => {
+  try {
+    return await response.json();
+  } catch {
+    const text = await response.text();
+    return { error: text || "Unknown error" };
+  }
+};
 
 const STATUS_BADGE: Record<string, { cls: string; label: string }> = {
   pending: {
@@ -104,7 +120,7 @@ export default function MyApplicationsPage() {
         },
       );
       if (!res.ok) {
-        const d = await res.json();
+        const d = await parseErrorBody(res);
         throw new Error(d.error || "Failed");
       }
       setApplications((prev) =>
@@ -136,7 +152,7 @@ export default function MyApplicationsPage() {
         },
       );
       if (!res.ok) {
-        const d = await res.json();
+        const d = await parseErrorBody(res);
         throw new Error(d.error || "Failed");
       }
       setApplications((prev) =>
@@ -199,11 +215,11 @@ export default function MyApplicationsPage() {
               background: "var(--background)",
             }}
           >
-                {(["poster", "provider"] as const).map((r) => (
-                  <button
-                    key={r}
-                    type="button"
-                    onClick={() => setRole(r)}
+            {(["poster", "provider"] as const).map((r) => (
+              <button
+                key={r}
+                type="button"
+                onClick={() => setRole(r)}
                 className="rounded-[24px] px-4 py-1.5 text-sm font-medium transition-all"
                 style={{
                   background: role === r ? "var(--primary)" : "transparent",
@@ -212,12 +228,12 @@ export default function MyApplicationsPage() {
                       ? "var(--primary-foreground)"
                       : "var(--muted-foreground)",
                 }}
-                  >
-                    {r === "poster"
-                      ? COPY.MY_APPLICATIONS.ROLE_CUSTOMER
-                      : COPY.MY_APPLICATIONS.ROLE_HELPER}
-                  </button>
-                ))}
+              >
+                {r === "poster"
+                  ? COPY.MY_APPLICATIONS.ROLE_CUSTOMER
+                  : COPY.MY_APPLICATIONS.ROLE_HELPER}
+              </button>
+            ))}
           </div>
         </div>
 
@@ -374,19 +390,140 @@ export default function MyApplicationsPage() {
                         </span>
                       </div>
 
-                      {app.proposed_price != null && (
-                        <div
-                          className="mb-4 rounded-[20px] border bg-slate-50 p-4"
-                          style={{ borderColor: "var(--border)" }}
-                        >
-                          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                            {COPY.MY_APPLICATIONS.THEIR_PRICE}
-                          </p>
-                          <p className="mt-1 text-lg font-semibold text-slate-900">
-                            ₦{Number(app.proposed_price).toLocaleString()}
-                          </p>
-                        </div>
-                      )}
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-5">
+                        {/* Proposed Price */}
+                        {app.proposed_price != null && (
+                          <div
+                            className="rounded-[24px] border bg-slate-50/50 p-4"
+                            style={{ borderColor: "var(--border)" }}
+                          >
+                            <p className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-1">
+                              {COPY.MY_APPLICATIONS.THEIR_PRICE}
+                            </p>
+                            <p className="text-xl font-black text-slate-900">
+                              ₦{Number(app.proposed_price).toLocaleString()}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* AI Intelligence Layer */}
+                        {app.risk && (
+                          <div
+                            className="relative overflow-hidden rounded-[24px] border p-4 transition-all shadow-xs"
+                            style={{
+                              borderColor:
+                                app.risk.riskLevel === "low"
+                                  ? "#bbf7d0"
+                                  : app.risk.riskLevel === "medium"
+                                    ? "#fef3c7"
+                                    : "#fecaca",
+                              background:
+                                app.risk.riskLevel === "low"
+                                  ? "#f0fdf4"
+                                  : app.risk.riskLevel === "medium"
+                                    ? "#fffbeb"
+                                    : "#fef2f2",
+                            }}
+                          >
+                            {/* AI Glow Badge */}
+                            <div
+                              className="absolute top-0 right-0 px-3 py-1 text-[8px] font-black tracking-tighter uppercase text-white"
+                              style={{
+                                background:
+                                  app.risk.riskLevel === "low"
+                                    ? "var(--positive)"
+                                    : app.risk.riskLevel === "medium"
+                                      ? "var(--info)"
+                                      : "var(--negative)",
+                              }}
+                            >
+                              AI INSIGHT
+                            </div>
+
+                            <div className="flex items-center justify-between mb-2">
+                              <span className="text-[9px] font-bold uppercase tracking-widest text-slate-500">
+                                AI Analysis
+                              </span>
+                            </div>
+
+                            {/* Confidence Meter */}
+                            <div className="mb-3">
+                              <div className="flex justify-between items-end mb-1">
+                                <span className="text-[10px] font-bold text-slate-700">
+                                  Confidence
+                                </span>
+                                <span
+                                  className="text-[10px] font-black"
+                                  style={{
+                                    color:
+                                      app.risk.riskLevel === "low"
+                                        ? "var(--positive-deep)"
+                                        : app.risk.riskLevel === "medium"
+                                          ? "#b45309"
+                                          : "#b91c1c",
+                                  }}
+                                >
+                                  {app.risk.aiConfidence}%
+                                </span>
+                              </div>
+                              <div className="h-1.5 w-full rounded-full bg-slate-200 overflow-hidden shadow-inner">
+                                <div
+                                  className="h-full rounded-full transition-all duration-1000 ease-out"
+                                  style={{
+                                    width: `${app.risk.aiConfidence}%`,
+                                    background:
+                                      app.risk.riskLevel === "low"
+                                        ? "var(--positive)"
+                                        : app.risk.riskLevel === "medium"
+                                          ? "var(--info)"
+                                          : "var(--negative)",
+                                    boxShadow: `0 0 12px ${app.risk.riskLevel === "low" ? "rgba(34,197,94,0.4)" : app.risk.riskLevel === "medium" ? "rgba(245,158,11,0.4)" : "rgba(239,68,68,0.4)"}`,
+                                  }}
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-1">
+                              {app.risk.factors.slice(0, 2).map((f, i) => (
+                                <div key={i} className="flex items-center gap-1.5">
+                                  <CheckCircleIcon
+                                    className="h-2.5 w-2.5 shrink-0"
+                                    style={{
+                                      color:
+                                        app.risk?.riskLevel === "low"
+                                          ? "var(--positive)"
+                                          : "var(--mute)",
+                                    }}
+                                  />
+                                  <span className="text-[10px] font-medium text-slate-700 leading-tight">
+                                    {f}
+                                  </span>
+                                </div>
+                              ))}
+                            </div>
+
+                            <div className="mt-2.5 pt-2 border-t border-slate-200/50">
+                              <p
+                                className="text-[10px] font-bold uppercase tracking-tight"
+                                style={{
+                                  color:
+                                    app.risk.riskLevel === "low"
+                                      ? "var(--positive-deep)"
+                                      : app.risk.riskLevel === "medium"
+                                        ? "#b45309"
+                                        : "#b91c1c",
+                                }}
+                              >
+                                {app.risk.recommendation === "accept"
+                                  ? "✓ System Recommended"
+                                  : app.risk.recommendation === "caution"
+                                    ? "⚠ Verification Recommended"
+                                    : "✗ Not Recommended"}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
 
                       {app.status === "pending" && (
                         <div className="flex gap-2.5">

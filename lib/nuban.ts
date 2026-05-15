@@ -1,10 +1,8 @@
 const BANK_CODE_WEIGHTS = [3, 7, 3, 3, 7, 3];
 const SERIAL_WEIGHTS = [3, 7, 3, 3, 7, 3, 3, 7, 3];
 
-function padBankCode(code: string): string {
-  if (code.length === 3) return `000${code}`;
-  if (code.length === 5) return `9${code}`;
-  return code;
+export function padBankCode(code: string): string {
+  return code.padStart(6, "0");
 }
 
 function computeCheckDigit(bankCode: string, serialNumber: string): number {

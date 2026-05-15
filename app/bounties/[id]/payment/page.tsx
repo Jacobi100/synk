@@ -317,7 +317,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
               </div>
               {escrow.platform_fee != null && (
                 <div className="flex justify-between text-xs" style={{ color: "var(--muted-foreground)" }}>
-                  <span>{COPY.COMPLETE.SERVICE_CHARGE} (5%)</span>
+                  <span>{COPY.COMPLETE.SERVICE_CHARGE}</span>
                   <span>− {fmtNGN(escrow.platform_fee)}</span>
                 </div>
               )}
@@ -383,7 +383,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
           )}
 
           {/* ── Sandbox test card notice ── */}
-          {!isPaid && (
+          {/* {!isPaid && (
             <div
               className="rounded-[16px] border p-4"
               style={{ borderColor: "#fed7aa", background: "#fffbeb" }}
@@ -398,7 +398,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
                 Use any future expiry, any CVV, any OTP. No real money moves.
               </p>
             </div>
-          )}
+          )} */}
 
           {/* ── Result banner ── */}
           {payResult && (

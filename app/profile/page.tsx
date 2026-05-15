@@ -6,6 +6,7 @@ import { Navbar } from "@/components/Navbar";
 import { COPY } from "@/lib/copy";
 import Link from "next/link";
 import { ArrowPathIcon, ArrowLeftIcon, CheckCircleIcon, ExclamationCircleIcon, UserIcon, PhoneIcon, CreditCardIcon, BuildingOffice2Icon } from "@heroicons/react/24/outline";
+import { padBankCode } from "@/lib/nuban";
 
 
 function FormField({
@@ -32,7 +33,7 @@ function FormField({
 }
 
 const inputCls =
-  "w-full rounded-[24px] border px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-mute";
+  "w-full rounded-[24px] border px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-muted-foreground";
 const inputStyle = {
   background: "var(--secondary)",
   borderColor: "var(--border)",
@@ -126,7 +127,7 @@ export default function ProfilePage() {
         full_name: fullName,
         phone_number: phone,
         account_number: accountNumber,
-        bank_code: bankCode,
+        bank_code: padBankCode(bankCode),
       }),
     });
     setSaving(false);
@@ -293,7 +294,7 @@ export default function ProfilePage() {
                     className={inputCls + " appearance-none"}
                     style={inputStyle}
                     value={bankCode}
-                    onChange={(e) => setBankCode(e.target.value)}
+                    onChange={(e) => setBankCode(padBankCode(e.target.value))}
                     onFocus={(e) => {
                       e.target.style.borderColor = "var(--primary)";
                       e.target.style.boxShadow = "0 0 0 3px var(--ring)";
@@ -307,7 +308,7 @@ export default function ProfilePage() {
                   >
                     <option value="" disabled>{COPY.ONBOARDING.BANK_SELECT}</option>
                     {bankList.map((bank) => (
-                      <option key={bank.code} value={bank.code}>
+                      <option key={bank.code} value={padBankCode(bank.code)}>
                         {bank.name}
                       </option>
                     ))}

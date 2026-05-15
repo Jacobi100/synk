@@ -35,11 +35,8 @@ export async function POST(request: NextRequest) {
     }
 
     const proposedPriceInput = body.proposed_price ?? body.proposedPrice;
-    // If the bounty is negotiable, default to the minimum (providers can bid down).
-    // If not negotiable, default to the maximum (poster set a fixed price ceiling).
-    const proposedPrice = bounty.price_negotiable
-      ? Number(proposedPriceInput ?? bounty.price_min ?? bounty.price_max ?? 0)
-      : Number(proposedPriceInput ?? bounty.price_max ?? bounty.price_min ?? 0);
+    // Default to the maximum (poster set a fixed price ceiling or range).
+    const proposedPrice = Number(proposedPriceInput ?? bounty.price_max ?? bounty.price_min ?? 0);
     const validProposedPrice = Number.isFinite(proposedPrice) && proposedPrice > 0
       ? proposedPrice
       : Number(bounty.price_max ?? bounty.price_min ?? 0);
