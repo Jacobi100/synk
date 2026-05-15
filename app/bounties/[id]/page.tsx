@@ -80,7 +80,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
   };
 
   const handleNegotiateIncrease = () => {
-    setNegotiatePrice((prev) => prev + STEP);
+    setNegotiatePrice((prev) => Math.min(bounty?.price_max ?? Infinity, prev + STEP));
   };
 
   const handleNegotiateInput = (e: ChangeEvent<HTMLInputElement>) => {
@@ -91,7 +91,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
     }
     const num = parseInt(raw, 10);
     if (!isNaN(num)) {
-      setNegotiatePrice(Math.max(bounty?.price_min ?? 0, num));
+      setNegotiatePrice(Math.min(bounty?.price_max ?? Infinity, Math.max(bounty?.price_min ?? 0, num)));
     }
   };
 
@@ -493,7 +493,8 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                       </div>
                       <button
                         onClick={handleNegotiateIncrease}
-                        className="flex size-10 shrink-0 items-center justify-center rounded-full border bg-background text-base transition-all active:scale-[0.97]"
+                        disabled={negotiatePrice >= (bounty?.price_max ?? Infinity)}
+                        className="flex size-10 shrink-0 items-center justify-center rounded-full border bg-background text-base transition-all active:scale-[0.97] disabled:opacity-30 disabled:cursor-not-allowed"
                         style={{
                           borderColor: "var(--border)",
                           color: "var(--foreground)",
