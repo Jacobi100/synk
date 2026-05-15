@@ -49,6 +49,10 @@ export default function ProfilePage() {
   const [accountNumber, setAccountNumber] = useState("");
   const [bankCode, setBankCode] = useState("");
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
+  const [bankList, setBankList] = useState<{ name: string; code: string }[]>([]);
+  const [accountName, setAccountName] = useState<string | null>(null);
+  const [verifyingAccount, setVerifyingAccount] = useState(false);
+  const [accountError, setAccountError] = useState("");
 
   useEffect(() => {
     if (!isLoaded || !user) return;
@@ -66,6 +70,49 @@ export default function ProfilePage() {
       setLoading(false);
     })();
   }, [isLoaded, user]);
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/banks");
+        const data = await res.json();
+        setBankList(data.banks ?? []);
+      } catch { /* silent */ }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!bankCode || accountNumber.length !== 10) {
+      setAccountName(null);
+      setAccountError("");
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setVerifyingAccount(true);
+      setAccountError("");
+      try {
+        const res = await fetch("/api/verify-account", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bank_code: bankCode, account_number: accountNumber }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setAccountName(data.account_name);
+          setAccountError("");
+        } else {
+          setAccountName(null);
+          setAccountError("Could not resolve account name. Check the bank and account number.");
+        }
+      } catch {
+        setAccountName(null);
+        setAccountError("Could not verify account. Please try again.");
+      } finally {
+        setVerifyingAccount(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [bankCode, accountNumber]);
 
   const save = async () => {
     setSaving(true);
@@ -200,24 +247,39 @@ export default function ProfilePage() {
                 </p>
               </div>
 
-              <FormField label={COPY.PROFILE.FIELD_BANK_CODE} icon={BuildingOffice2Icon} hint="e.g. 058 for GTBank, 044 for Access Bank">
-                <input
-                  className={inputCls}
-                  style={inputStyle}
-                  value={bankCode}
-                  placeholder="058"
-                  onChange={(e) => setBankCode(e.target.value)}
-                  onFocus={(e) => {
-                    e.target.style.borderColor = "var(--primary)";
-                    e.target.style.boxShadow = "0 0 0 3px var(--ring)";
-                    e.target.style.background = "var(--background)";
-                  }}
-                  onBlur={(e) => {
-                    e.target.style.borderColor = "var(--border)";
-                    e.target.style.boxShadow = "none";
-                    e.target.style.background = "var(--secondary)";
-                  }}
-                />
+              <FormField label={COPY.PROFILE.FIELD_BANK_NAME} icon={BuildingOffice2Icon} hint={COPY.PROFILE.BANK_NAME_HINT}>
+                <div className="relative">
+                  <select
+                    className={inputCls + " appearance-none"}
+                    style={inputStyle}
+                    value={bankCode}
+                    onChange={(e) => setBankCode(e.target.value)}
+                    onFocus={(e) => {
+                      e.target.style.borderColor = "var(--primary)";
+                      e.target.style.boxShadow = "0 0 0 3px var(--ring)";
+                      e.target.style.background = "var(--background)";
+                    }}
+                    onBlur={(e) => {
+                      e.target.style.borderColor = "var(--border)";
+                      e.target.style.boxShadow = "none";
+                      e.target.style.background = "var(--secondary)";
+                    }}
+                  >
+                    <option value="" disabled>Select your bank</option>
+                    {bankList.map((bank) => (
+                      <option key={bank.code} value={bank.code}>
+                        {bank.name}
+                      </option>
+                    ))}
+                  </select>
+                  <svg
+                    className="pointer-events-none absolute right-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2"
+                    style={{ color: "var(--mute)" }}
+                    fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
               </FormField>
 
               <FormField label={COPY.PROFILE.FIELD_ACCOUNT} icon={CreditCardIcon} hint="Must be exactly 10 digits.">
@@ -227,7 +289,7 @@ export default function ProfilePage() {
                   value={accountNumber}
                   placeholder="0123456789"
                   maxLength={10}
-                  onChange={(e) => setAccountNumber(e.target.value)}
+                  onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ""))}
                   onFocus={(e) => {
                     e.target.style.borderColor = "var(--primary)";
                     e.target.style.boxShadow = "0 0 0 3px var(--ring)";
@@ -239,6 +301,24 @@ export default function ProfilePage() {
                     e.target.style.background = "var(--secondary)";
                   }}
                 />
+                {verifyingAccount && (
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" style={{ color: "var(--mute)" }} />
+                    <span className="text-xs" style={{ color: "var(--mute)" }}>{COPY.PROFILE.VERIFYING}</span>
+                  </div>
+                )}
+                {accountName && (
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <CheckCircleIcon className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--positive)" }} />
+                    <span className="text-xs" style={{ color: "var(--positive)" }}>{accountName}</span>
+                  </div>
+                )}
+                {accountError && (
+                  <div className="flex items-center gap-1.5 mt-1">
+                    <ExclamationCircleIcon className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--negative)" }} />
+                    <span className="text-xs" style={{ color: "var(--negative)" }}>{accountError}</span>
+                  </div>
+                )}
               </FormField>
             </div>
 

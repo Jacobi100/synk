@@ -84,6 +84,7 @@ export const COPY = {
     ACTIVE_JOBS:    "Active Jobs",
     IN_PROGRESS:    "In Progress",
     COMPLETED:      "Completed",
+    ACCEPTED:       "Accepted",
     TOTAL_EARNINGS: "Total Earned",
     POST_JOB_DESC:  "Tell us what you need. People near you will offer to help.",
     FIND_JOBS_DESC: "See jobs near you and start earning.",
@@ -94,7 +95,7 @@ export const COPY = {
   // -------------------------------------------------------------------------
 
   DASHBOARD: {
-    AVAILABLE_JOBS:     "Jobs Near You",
+    AVAILABLE_JOBS:     "Jobs in your Neighbourhood",
     AVAILABLE_JOBS_SUB: "People nearby who need help.",
     POST_JOB:           "Post a Job",
     REFRESH:            "Refresh",
@@ -341,10 +342,12 @@ export const COPY = {
     PHONE_HINT:       "We will call you about your jobs",
     PAYOUT_TITLE:     "Bank account for payment",
     PAYOUT_SUBTITLE:  "Required to receive money for completed jobs.",
-    FIELD_BANK_CODE:  "Bank code",
-    BANK_CODE_HINT:   "e.g. 058 for GTBank, 044 for Access Bank",
+    FIELD_BANK_NAME:  "Bank",
+    BANK_NAME_HINT:   "Select your bank",
     FIELD_ACCOUNT:    "Account number",
     ACCOUNT_HINT:     "Must be exactly 10 digits",
+    VERIFYING:        "Verifying account…",
+    ACCOUNT_NAME:     "Account name",
     SIGN_IN_REQUIRED: "Please sign in to manage your profile.",
   },
 
@@ -440,6 +443,24 @@ export const COPY = {
     MARK_ALL_READ: "Mark all read",
     VIEW_FEED:     "See jobs →",
     EMPTY:         "No notifications yet",
+  },
+
+  // -------------------------------------------------------------------------
+  // Wallet
+  // -------------------------------------------------------------------------
+
+  WALLET: {
+    TITLE:         "My Wallet",
+    TOTAL_EARNED:  "Total Earned",
+    TOTAL_SPENT:   "Total Spent",
+    PENDING:       "Pending Payout",
+    HISTORY:       "Transaction History",
+    EMPTY:         "No transactions yet",
+    EMPTY_SUB:     "Finish jobs to see your earnings here.",
+    TYPE_EARNED:   "Earned",
+    TYPE_SPENT:    "Spent",
+    STATUS_PAID:   "Paid",
+    STATUS_PENDING: "Pending",
   },
 
 } as const;
