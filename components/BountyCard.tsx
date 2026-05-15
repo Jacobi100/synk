@@ -81,6 +81,16 @@ export function BountyCard({ bounty }: BountyCardProps) {
           }}
         />
 
+        {bounty.images && bounty.images.length > 0 && (
+          <div className="relative mb-4 h-32 w-full overflow-hidden rounded-[16px] bg-secondary">
+            <img
+              src={bounty.images[0]}
+              alt={bounty.title}
+              className="h-full w-full object-cover"
+            />
+          </div>
+        )}
+
         <div className="mb-3 flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
             <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug text-foreground transition-colors">

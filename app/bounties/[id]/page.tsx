@@ -270,6 +270,28 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                 </p>
               </div>
 
+              {bounty.images && bounty.images.length > 0 && (
+                <div className="mb-6">
+                  <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-mute">
+                    Images
+                  </h2>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    {bounty.images.map((image, idx) => (
+                      <div
+                        key={idx}
+                        className="relative h-48 w-full overflow-hidden rounded-[16px] bg-secondary"
+                      >
+                        <img
+                          src={image}
+                          alt={`${bounty.title} - Image ${idx + 1}`}
+                          className="h-full w-full object-cover"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <div className="grid gap-4 sm:grid-cols-2">
                 {bounty.location_name && (
                   <div
@@ -494,6 +516,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                       <button
                         onClick={handleNegotiateIncrease}
                         className="flex size-10 shrink-0 items-center justify-center rounded-full border bg-background text-base transition-all active:scale-[0.97]"
+
                         style={{
                           borderColor: "var(--border)",
                           color: "var(--foreground)",
