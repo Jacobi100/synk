@@ -18,13 +18,13 @@ export default function SignInPage() {
           <span className="text-2xl font-semibold tracking-tight text-white">Synk</span>
         </div>
         <div className="relative z-10 max-w-md">
-          <h1 className="text-5xl font-black leading-[0.85] tracking-tighter text-white md:text-6xl">
-            Find jobs.
-            <br />
-            Find helpers.
-            <br />
-            Get it done.
-          </h1>
+           <h1 className="text-5xl font-black leading-[1.15] tracking-tighter text-white md:text-6xl">
+             Find jobs.
+             <br />
+             Find helpers.
+             <br />
+             Get it done.
+           </h1>
           <p className="mt-8 text-base leading-relaxed text-white/70 md:text-lg">
             Post a job and meet people near you.
           </p>

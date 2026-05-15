@@ -1,7 +1,7 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { COPY } from "@/lib/copy";
 import {
@@ -10,43 +10,21 @@ import {
   CalendarDaysIcon,
   ArrowRightIcon,
   ArrowPathIcon,
-  BoltIcon,
   BuildingOffice2Icon,
   CreditCardIcon,
   CheckCircleIcon,
   ExclamationCircleIcon,
+  ChevronDownIcon,
 } from "@heroicons/react/24/outline";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { BlobCard } from "@/components/unlumen-ui/blob-card";
-import { ClippedCircle } from "@/components/unlumen-ui/clipped-circle";
-import { GlowingBadge } from "@/components/unlumen-ui/glowing-badge";
-import { AnimateCount } from "@/components/unlumen-ui/animate-count";
-import {
-  FloatingTooltip,
-} from "@/components/unlumen-ui/floating-tooltip";
+import { Logo } from "@/components/Logo";
+import { Hashvatar } from "hashvatar/react";
 
 const STEPS = [COPY.ONBOARDING.STEP_ACCOUNT, COPY.ONBOARDING.STEP_PROFILE, COPY.ONBOARDING.STEP_DONE];
 
-function AvatarPlaceholder({ name }: { name?: string | null }) {
-  const initials = name
-    ? name.split(" ").map((n) => n[0]).join("").toUpperCase().slice(0, 2)
-    : "?";
+function AvatarPlaceholder({ userId, name }: { userId?: string | null; name?: string | null }) {
   return (
-    <div className="relative mx-auto mb-4 w-fit">
-      <div
-        className="flex h-20 w-20 items-center justify-center rounded-full text-2xl font-bold text-blue-500 shadow-lg"
-        style={{
-          background: "linear-gradient(135deg, var(--primary), var(--primary-deep))",
-        }}
-      >
-        {initials}
-      </div>
-      <div className="absolute -bottom-1 -right-1">
-        <GlowingBadge variant="success" dot={true}>
-          online
-        </GlowingBadge>
-      </div>
+    <div className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-[var(--positive)]">
+      <Hashvatar hash={userId ?? name ?? "default"} size={76} mode="dither" />
     </div>
   );
 }
@@ -57,19 +35,15 @@ function StepIndicator({ current }: { current: number }) {
       {STEPS.map((label, i) => (
         <div key={label} className="flex items-center gap-3">
           <div className="flex flex-col items-center gap-1">
-            {i < current ? (
-              <GlowingBadge variant="success" dot={false}>
-                ✓
-              </GlowingBadge>
-            ) : i === current ? (
-              <GlowingBadge variant="info" dot={true}>
-                <AnimateCount>{i + 1}</AnimateCount>
-              </GlowingBadge>
-            ) : (
-              <GlowingBadge variant="neutral" dot={false}>
-                {i + 1}
-              </GlowingBadge>
-            )}
+            <div
+              className="flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold transition-all"
+              style={{
+                background: i <= current ? "var(--primary)" : "var(--secondary)",
+                color: i <= current ? "var(--primary-foreground)" : "var(--mute)",
+              }}
+            >
+              {i < current ? "✓" : i + 1}
+            </div>
             <span
               className="text-[10px] font-semibold"
               style={{ color: i <= current ? "var(--primary)" : "var(--mute)" }}
@@ -99,9 +73,6 @@ const SYMBOLS = [
   { sym: "√", style: { top: "68%",  left:  "10%", fontSize: 12, opacity: 0.2 } },
 ];
 
-const CARD_LIGHT = ["#5E3AFF", "#7B61FF", "#8B72FF", "#A898FF"];
-const CARD_DARK = ["#2D1B8A", "#3E28B3", "#1F1270", "#5E3AFF"];
-const CARD_GLOW = ["#5E3AFF", "#7B61FF", "#8B72FF", "#A898FF", "#5E3AFF"];
 
 export default function OnboardingPage() {
   const { user, isLoaded } = useUser();
@@ -114,6 +85,16 @@ export default function OnboardingPage() {
   const [accountName, setAccountName] = useState<string | null>(null);
   const [verifyingAccount, setVerifyingAccount] = useState(false);
   const [accountError, setAccountError] = useState("");
+  const [bankSelectOpen, setBankSelectOpen] = useState(false);
+  const [dropUp, setDropUp] = useState(false);
+  const bankSelectRef = useRef<HTMLDivElement>(null);
+
+  const inputBase =
+    "w-full rounded-[24px] border bg-secondary px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-mute focus:bg-background focus:shadow-[0_0_0_2px_var(--ring)]";
+  const inputStyle: React.CSSProperties = {
+    borderColor: "var(--border)",
+    color: "var(--foreground)",
+  };
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -147,7 +128,8 @@ export default function OnboardingPage() {
       try {
         const res = await fetch("/api/banks");
         const data = await res.json();
-        setBankList(data.banks ?? []);
+        const banks = data.banks ?? [];
+        setBankList(banks);
       } catch { /* silent */ }
     })();
   }, []);
@@ -185,6 +167,15 @@ export default function OnboardingPage() {
     return () => clearTimeout(timer);
   }, [selectedBankCode, accountNumber]);
 
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (bankSelectRef.current && !bankSelectRef.current.contains(e.target as Node))
+        setBankSelectOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
   if (!isLoaded) {
     return (
       <div className="flex min-h-[100dvh] items-center justify-center bg-[#0e0f0c]">
@@ -196,16 +187,11 @@ export default function OnboardingPage() {
   const displayName = user?.fullName || user?.firstName || user?.emailAddresses?.[0]?.emailAddress;
 
   return (
-    <FloatingTooltip.Provider>
       <div className="flex min-h-[100dvh] font-sans">
         <div
           className="relative hidden flex-col justify-between overflow-hidden p-12 md:flex md:w-[45%]"
-          style={{ background: "linear-gradient(180deg, #0e0f0c 0%, #4a7a30 56%, #0e0f0c 96%)" }}
+          style={{ background: "linear-gradient(-45deg, #000000 0%, #5E3AFF 56%, #11073D 96%)" }}
         >
-          <ClippedCircle
-            circleClassName="bg-white/10"
-            circleSize={600}
-          />
           <div
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(255,255,255,0.2)_0%,transparent_60%)]"
@@ -231,12 +217,7 @@ export default function OnboardingPage() {
           </div>
 
           <div className="relative z-10 flex items-center gap-2.5">
-            <div
-              className="flex h-8 w-8 items-center justify-center rounded-[24px]"
-              style={{ background: "rgba(255,255,255,0.15)" }}
-            >
-              <BoltIcon className="h-5 w-5 text-white" />
-            </div>
+            <Logo showText={false} white />
             <span className="text-2xl font-semibold tracking-tight text-white">
               {COPY.ONBOARDING.BRAND}
             </span>
@@ -259,200 +240,101 @@ export default function OnboardingPage() {
         </div>
 
         <div
-          className="flex flex-1 items-center justify-center p-6 md:p-8 bg-[#0e0f0c]"
+          className="flex flex-1 items-center justify-center p-6 md:p-8 bg-secondary overflow-visible"
         >
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-md overflow-visible">
             <div className="mb-8 flex justify-center md:hidden">
-              <div
-                className="flex items-center gap-2.5 rounded-[24px] px-4 py-2.5"
-                style={{
-                  background: "rgba(255,255,255,0.06)",
-                  border: "1px solid rgba(255,255,255,0.1)",
-                }}
-              >
-                <BoltIcon className="h-5 w-5 text-white" />
-                <span className="text-[15px] font-bold tracking-tight text-white">
+              <div className="flex items-center gap-2.5">
+                <Logo showText={false} />
+                <span className="text-xl font-bold tracking-tight text-foreground">
                   {COPY.ONBOARDING.BRAND}
                 </span>
               </div>
             </div>
 
-            <BlobCard
-              lightColors={CARD_LIGHT}
-              darkColors={CARD_DARK}
-              glowColors={CARD_GLOW}
-              headerHeight={200}
-              header={
-                <div className="pt-6 text-center">
-                  <AvatarPlaceholder name={displayName} />
-                  <h1
-                    className="mb-1 text-2xl font-bold text-white"
-                    style={{ letterSpacing: "-0.02em" }}
-                  >
-                    {COPY.ONBOARDING.TITLE}
-                  </h1>
-                  <p className="text-sm text-white/70">
-                    {COPY.ONBOARDING.STEP_OF(1, STEPS.length)}
-                  </p>
-                </div>
-              }
+            <div
+              className="rounded-[24px] border bg-white p-6 space-y-5 overflow-visible"
+              style={{ borderColor: "var(--border)" }}
             >
-              <div className="px-8 pb-8 pt-6">
-                <StepIndicator current={1} />
+              <div className="text-center">
+                <AvatarPlaceholder userId={user?.id} name={displayName} />
+                <h1
+                  className="mb-1 text-2xl font-bold text-foreground"
+                  style={{ letterSpacing: "-0.02em" }}
+                >
+                  {COPY.ONBOARDING.TITLE}
+                </h1>
+              </div>
 
-                <form onSubmit={handleSubmit} className="space-y-4">
-                  <div className="space-y-1.5">
-                    <Label htmlFor="username" style={{ color: "var(--foreground)" }}>
+              <StepIndicator current={1} />
+
+              <form onSubmit={handleSubmit} className="space-y-4 overflow-visible">
+                  <div>
+                    <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-foreground" htmlFor="username">
+                      <AtSymbolIcon className="h-3.5 w-3.5 text-muted-foreground" />
                       {COPY.PROFILE.FIELD_USERNAME}
-                    </Label>
-                    <FloatingTooltip.Trigger
-                      content="Pick a unique handle"
-                      description="This will be your public profile URL"
-                    >
-                      <div className="relative">
-                        <AtSymbolIcon
-                          className="absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2"
-                          style={{ color: "var(--mute)" }}
-                        />
-                        <Input
-                          id="username" name="username" type="text"
-                          placeholder="yourhandle"
-                          required autoComplete="username"
-                          className="pl-9"
-                        />
-                      </div>
-                    </FloatingTooltip.Trigger>
+                    </label>
+                    <input
+                      id="username" name="username" type="text"
+                      placeholder="yourhandle"
+                      required autoComplete="username"
+                      className={inputBase}
+                      style={inputStyle}
+                    />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="phone_number" style={{ color: "var(--foreground)" }}>
+                  <div>
+                    <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-foreground" htmlFor="phone_number">
+                      <PhoneIcon className="h-3.5 w-3.5 text-muted-foreground" />
                       {COPY.PROFILE.FIELD_PHONE}
-                    </Label>
-                    <FloatingTooltip.Trigger
-                      content="Nigerian number preferred"
-                      description={COPY.ONBOARDING.PHONE_HINT}
-                    >
-                      <div className="relative">
-                        <PhoneIcon
-                          className="absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2"
-                          style={{ color: "var(--mute)" }}
-                        />
-                        <Input
-                          id="phone_number" name="phone_number" type="tel"
-                          placeholder={COPY.ONBOARDING.PHONE_PLACEHOLDER}
-                          required autoComplete="tel"
-                          className="pl-9"
-                        />
-                      </div>
-                    </FloatingTooltip.Trigger>
+                    </label>
+                    <input
+                      id="phone_number" name="phone_number" type="tel"
+                      placeholder={COPY.ONBOARDING.PHONE_PLACEHOLDER}
+                      required autoComplete="tel"
+                      className={inputBase}
+                      style={inputStyle}
+                    />
                   </div>
 
-                  <div className="space-y-1.5">
-                    <Label htmlFor="date_of_birth" style={{ color: "var(--foreground)" }}>
+                  <div>
+                    <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-foreground" htmlFor="date_of_birth">
+                      <CalendarDaysIcon className="h-3.5 w-3.5 text-muted-foreground" />
                       {COPY.ONBOARDING.FIELD_DOB}
-                    </Label>
-                    <FloatingTooltip.Trigger
-                      content="Must be 18+"
-                      description={COPY.ONBOARDING.DOB_HINT}
-                    >
-                      <div className="relative">
-                        <CalendarDaysIcon
-                          className="absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2"
-                          style={{ color: "var(--mute)" }}
-                        />
-                        <Input
-                          id="date_of_birth" name="date_of_birth" type="date"
-                          required
-                          className="pl-9"
-                        />
-                      </div>
-                    </FloatingTooltip.Trigger>
+                    </label>
+                    <input
+                      id="date_of_birth" name="date_of_birth" type="date"
+                      required
+                      className={inputBase}
+                      style={inputStyle}
+                    />
                   </div>
 
                   {/* Bank details section */}
-                  <div
-                    className="rounded-lg p-4 space-y-3"
-                    style={{
-                      background: "rgba(255,255,255,0.04)",
-                      border: "1px solid rgba(255,255,255,0.08)",
-                    }}
-                  >
-                    <p className="text-xs font-semibold" style={{ color: "var(--text2)" }}>
+                  <div>
+                    <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                       Bank Account (for receiving payments)
                     </p>
 
-                    {/* Bank Name */}
-                    <div className="space-y-1.5">
-                      <Label htmlFor="bank_code" style={{ color: "var(--text)" }}>
-                        {COPY.PROFILE.FIELD_BANK_NAME}
-                      </Label>
-                      <FloatingTooltip.Trigger
-                        content={COPY.PROFILE.BANK_NAME_HINT}
-                        description="We use this to send payments to your account"
-                      >
-                        <div className="relative">
-                          <BuildingOffice2Icon
-                            className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2"
-                            style={{ color: "var(--text3)" }}
-                          />
-                          <select
-                            id="bank_code"
-                            name="bank_code"
-                            value={selectedBankCode}
-                            onChange={(e) => setSelectedBankCode(e.target.value)}
-                            className="w-full rounded-[24px] border px-3.5 py-2.5 pl-9 text-sm outline-none transition-all appearance-none"
-                            style={{
-                              background: "var(--secondary)",
-                              borderColor: "var(--border)",
-                              color: selectedBankCode ? "var(--foreground)" : "var(--mute)",
-                            }}
-                          >
-                            <option value="" disabled>{COPY.ONBOARDING.BANK_SELECT}</option>
-                            {bankList.map((bank) => (
-                              <option key={bank.code} value={bank.code}>
-                                {bank.name}
-                              </option>
-                            ))}
-                          </select>
-                          <svg
-                            className="pointer-events-none absolute right-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2"
-                            style={{ color: "var(--text3)" }}
-                            fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                          >
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
-                          </svg>
-                        </div>
-                      </FloatingTooltip.Trigger>
-                    </div>
-
-                    {/* Account Number */}
-                    <div className="space-y-1.5">
-                      <Label htmlFor="account_number" style={{ color: "var(--text)" }}>
+                    {/* Account Number — first, then bank selection */}
+                    <div>
+                      <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-foreground" htmlFor="account_number">
+                        <CreditCardIcon className="h-3.5 w-3.5 text-muted-foreground" />
                         Account Number
-                      </Label>
-                      <FloatingTooltip.Trigger
-                        content="10-digit NUBAN number"
-                        description="This is where you'll receive payments for completed jobs"
-                      >
-                        <div className="relative">
-                          <CreditCardIcon
-                            className="absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2"
-                            style={{ color: "var(--text3)" }}
-                          />
-                          <Input
-                            id="account_number" name="account_number" type="text"
-                            placeholder="0123456789"
-                            maxLength={10}
-                            className="pl-9"
-                            value={accountNumber}
-                            onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ""))}
-                          />
-                        </div>
-                      </FloatingTooltip.Trigger>
+                      </label>
+                      <input
+                        id="account_number" name="account_number" type="text"
+                        placeholder="0123456789"
+                        maxLength={10}
+                        className={inputBase}
+                        style={inputStyle}
+                        value={accountNumber}
+                        onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ""))}
+                      />
                       {verifyingAccount && (
                         <div className="flex items-center gap-1.5 mt-1">
-                          <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" style={{ color: "var(--text3)" }} />
-                          <span className="text-xs" style={{ color: "var(--text3)" }}>{COPY.ONBOARDING.VERIFYING_ACCOUNT}</span>
+                          <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" style={{ color: "var(--mute)" }} />
+                          <span className="text-xs" style={{ color: "var(--mute)" }}>{COPY.ONBOARDING.VERIFYING_ACCOUNT}</span>
                         </div>
                       )}
                       {accountName && (
@@ -467,6 +349,66 @@ export default function OnboardingPage() {
                           <span className="text-xs" style={{ color: "var(--negative)" }}>{accountError}</span>
                         </div>
                       )}
+                    </div>
+
+                    {/* Bank Name */}
+                    <div className="mt-3">
+                      <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-foreground" htmlFor="bank_code">
+                        <BuildingOffice2Icon className="h-3.5 w-3.5 text-muted-foreground" />
+                        {COPY.PROFILE.FIELD_BANK_NAME}
+                      </label>
+                      <div className="relative" ref={bankSelectRef}>
+                        <button
+                          id="bank_code"
+                          type="button"
+                          onClick={() => {
+                            if (!bankSelectOpen && bankSelectRef.current) {
+                              const rect = bankSelectRef.current.getBoundingClientRect();
+                              setDropUp(rect.top >= 250);
+                            }
+                            setBankSelectOpen(!bankSelectOpen);
+                          }}
+                          className={`${inputBase} flex w-full items-center justify-between pr-10 cursor-pointer focus:shadow-[0_0_0_2px_var(--ring)]`}
+                          style={inputStyle}
+                        >
+                          <span style={{ color: selectedBankCode ? "var(--foreground)" : "var(--mute)" }}>
+                            {selectedBankCode
+                              ? bankList.find((b) => b.code === selectedBankCode)?.name
+                              : COPY.ONBOARDING.BANK_SELECT}
+                          </span>
+                          <ChevronDownIcon
+                            className={`h-4 w-4 text-muted-foreground transition-transform ${bankSelectOpen ? "rotate-180" : ""}`}
+                          />
+                        </button>
+                        {bankSelectOpen && (
+                          <div
+                            className={`absolute left-0 right-0 z-50 rounded-[24px] border bg-white shadow-lg py-1 max-h-60 overflow-y-auto hide-scrollbar ${
+                              dropUp
+                                ? "bottom-full mb-1"
+                                : "top-full mt-1"
+                            }`}
+                            style={inputStyle}
+                          >
+                            {bankList.map((bank) => (
+                              <button
+                                key={bank.code}
+                                type="button"
+                                onClick={() => {
+                                  setSelectedBankCode(bank.code);
+                                  setBankSelectOpen(false);
+                                }}
+                                className={`w-full px-3.5 py-2.5 text-left text-sm transition-colors hover:bg-secondary ${
+                                  bank.code === selectedBankCode
+                                    ? "bg-primary/10 text-foreground font-semibold"
+                                    : "text-foreground"
+                                }`}
+                              >
+                                {bank.name}
+                              </button>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
@@ -495,8 +437,7 @@ export default function OnboardingPage() {
                     )}
                   </button>
                 </form>
-              </div>
-            </BlobCard>
+            </div>
 
             <p className="mt-5 text-center text-xs text-mute">
               Your data is encrypted and never shared without your consent.
@@ -504,6 +445,5 @@ export default function OnboardingPage() {
           </div>
         </div>
       </div>
-    </FloatingTooltip.Provider>
   );
 }
