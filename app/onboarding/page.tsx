@@ -165,7 +165,7 @@ export default function OnboardingPage() {
         const res = await fetch("/api/verify-account", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ bank_code: selectedBankCode, account_number }),
+          body: JSON.stringify({ bank_code: selectedBankCode || "", account_number: accountNumber }),
         });
         if (res.ok) {
           const data = await res.json();
