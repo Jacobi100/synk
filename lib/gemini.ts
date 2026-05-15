@@ -123,9 +123,11 @@ async function runOnce<T extends z.ZodTypeAny>(
 export async function callGemini<T extends z.ZodTypeAny>(
   params: CallGeminiParams<T>
 ): Promise<z.infer<T>> {
-  const apiKey = process.env.GEMINI_API_KEY;
+  const apiKey = process.env.GEMINI_API_KEY ?? process.env.NEXT_PUBLIC_GEMINI_API_KEY;
   if (!apiKey) {
-    throw new GeminiError("GEMINI_API_KEY environment variable is not set.");
+    throw new GeminiError(
+      "GEMINI_API_KEY or NEXT_PUBLIC_GEMINI_API_KEY environment variable is not set.",
+    );
   }
 
   const genAI = new GoogleGenerativeAI(apiKey);

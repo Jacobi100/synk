@@ -196,6 +196,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [generatingDescription, setGeneratingDescription] = useState(false);
   const [locating, setLocating] = useState(false);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
   const [suggest, setSuggest] = useState<{
@@ -318,6 +319,42 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
     );
   };
 
+  const handleGenerateDescription = async () => {
+    const descriptionText = formData.description?.trim() || "";
+    if (!descriptionText) {
+      setError(
+        "Please type a few words before generating the full description.",
+      );
+      return;
+    }
+
+    setError(null);
+    setGeneratingDescription(true);
+
+    try {
+      const res = await fetch("/api/ai/complete-description", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text: descriptionText }),
+      });
+
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error || "Failed to generate description.");
+      }
+
+      const data = await res.json();
+      setFormData((prev) => ({
+        ...prev,
+        description: data.description || prev.description,
+      }));
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An error occurred.");
+    } finally {
+      setGeneratingDescription(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setLoading(true);
@@ -432,10 +469,21 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
 
       {/* Description */}
       <div>
-        <FieldLabel>
-          <DocumentTextIcon className="h-3.5 w-3.5 text-muted-foreground" />
-          {COPY.BOUNTY_FORM.FIELD_DESCRIPTION}
-        </FieldLabel>
+        <div className="mb-3 flex items-center justify-between gap-3">
+          <FieldLabel>
+            <DocumentTextIcon className="h-3.5 w-3.5 text-muted-foreground" />
+            {COPY.BOUNTY_FORM.FIELD_DESCRIPTION}
+          </FieldLabel>
+          <Button
+            type="button"
+            size="sm"
+            variant="secondary"
+            onClick={handleGenerateDescription}
+            disabled={generatingDescription || !formData.description?.trim()}
+          >
+            {generatingDescription ? "Generating…" : "Generate description"}
+          </Button>
+        </div>
         <textarea
           name="description"
           value={formData.description || ""}

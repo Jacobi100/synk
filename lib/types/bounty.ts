@@ -69,6 +69,10 @@ export type ProviderProfile = {
   phone_number: string | null;
   date_of_birth: string | null;
   onboarding_complete: boolean | null;
+  trust_badge?: string | null;
+  trust_score?: number | null;
+  trust_signals?: string[] | null;
+  trust_computed_at?: string | null;
   account_number?: string | null;
   bank_code?: string | null;
   created_at: string;
