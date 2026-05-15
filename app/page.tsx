@@ -122,21 +122,23 @@ export default function Home() {
 
 
       {/* Mobile floating action bar */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t border-border bg-background/80 backdrop-blur-lg md:hidden">
-        <div className="mx-auto flex max-w-7xl items-center gap-3 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] sm:px-6 lg:px-8">
-          <Button size="lg" asChild className="flex-1">
-            <Link href="/bounties/create">
-              <PlusIcon className="h-4 w-4" />
-              {COPY.HOME.POST_A_JOB}
-            </Link>
-          </Button>
-          <Button variant="outline" size="lg" asChild className="flex-1">
-            <Link href="/dashboard">
-              <MagnifyingGlassIcon className="h-4 w-4" />
-              {COPY.HOME.FIND_JOBS}
-              <ArrowRightIcon className="h-3.5 w-3.5" />
-            </Link>
-          </Button>
+      <div className="fixed bottom-0 left-0 right-0 z-50 md:hidden">
+        <div className="mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center gap-3 border-t border-border bg-background/80 backdrop-blur-lg py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
+            <Button size="lg" asChild className="flex-1">
+              <Link href="/bounties/create">
+                <PlusIcon className="h-4 w-4" />
+                {COPY.HOME.POST_A_JOB}
+              </Link>
+            </Button>
+            <Button variant="outline" size="lg" asChild className="flex-1">
+              <Link href="/dashboard">
+                <MagnifyingGlassIcon className="h-4 w-4" />
+                {COPY.HOME.FIND_JOBS}
+                <ArrowRightIcon className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

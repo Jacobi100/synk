@@ -220,9 +220,9 @@ export default function NearbyJobsMap({ compact, flush }: NearbyJobsMapProps) {
 
   if (compact) {
     return (
-      <>
+      <div className="relative overflow-hidden">
         <div
-          className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full blur-3xl"
+          className="pointer-events-none absolute -top-24 right-0 h-72 w-72 rounded-full blur-3xl sm:-top-32 sm:-right-32 sm:h-96 sm:w-96"
           style={{ background: "radial-gradient(circle, rgba(94,58,255,0.08) 0%, transparent 70%)" }}
         />
 
@@ -257,7 +257,7 @@ export default function NearbyJobsMap({ compact, flush }: NearbyJobsMapProps) {
             </Link>
           </div>
         </div>
-      </>
+      </div>
     );
   }
 
