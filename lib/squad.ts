@@ -187,6 +187,77 @@ export async function squadSimulatePayment(
   }
 }
 
+export async function squadGetBankList(): Promise<
+  { name: string; code: string }[]
+> {
+  const secret = squadSecret();
+  if (!secret) {
+    const fallback = [
+      { name: "Access Bank", code: "044" },
+      { name: "GTBank", code: "058" },
+      { name: "First Bank", code: "011" },
+      { name: "Zenith Bank", code: "057" },
+      { name: "UBA", code: "033" },
+      { name: "Opay", code: "999" },
+      { name: "PalmPay", code: "100" },
+      { name: "Moniepoint", code: "505" },
+      { name: "Kuda", code: "502" },
+      { name: "Providus Bank", code: "101" },
+    ];
+    console.log("[MOCK SQUAD] Returning fallback bank list");
+    return fallback;
+  }
+  try {
+    const res = await fetch(`${SQUAD_BASE}/bank`, {
+      headers: squadHeaders(secret),
+    });
+    if (!res.ok) {
+      console.error("Squad bank list error:", res.status);
+      return [];
+    }
+    const raw = (await res.json()) as Record<string, unknown>;
+    const data = (raw.data ?? []) as { name: string; code: string }[];
+    return data;
+  } catch (e) {
+    console.error("Squad bank list exception:", e);
+    return [];
+  }
+}
+
+export async function squadResolveAccountName(
+  bankCode: string,
+  accountNumber: string,
+): Promise<{ account_name: string } | null> {
+  const secret = squadSecret();
+  if (!secret) {
+    console.log(
+      `[MOCK SQUAD] Resolving account: ${accountNumber} (bank ${bankCode}) → "MOCK ACCOUNT NAME"`,
+    );
+    return null;
+  }
+  try {
+    const res = await fetch(`${SQUAD_BASE}/payout/account-lookup`, {
+      method: "POST",
+      headers: squadHeaders(secret),
+      body: JSON.stringify({
+        bank_code: bankCode,
+        account_number: accountNumber,
+      }),
+    });
+    const raw = (await res.json()) as Record<string, unknown>;
+    if (!res.ok) {
+      console.error("Squad account lookup error:", res.status, raw);
+      return null;
+    }
+    const data = raw.data as { account_name: string } | undefined;
+    if (!data?.account_name) return null;
+    return { account_name: data.account_name };
+  } catch (e) {
+    console.error("Squad account lookup exception:", e);
+    return null;
+  }
+}
+
 export function verifySquadWebhookSignature(
   rawBody: string,
   headerSig: string | null | undefined,

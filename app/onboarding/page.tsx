@@ -1,7 +1,7 @@
 "use client";
 
 import { useUser } from "@clerk/nextjs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { COPY } from "@/lib/copy";
 import {
@@ -13,6 +13,8 @@ import {
   BoltIcon,
   BuildingOffice2Icon,
   CreditCardIcon,
+  CheckCircleIcon,
+  ExclamationCircleIcon,
 } from "@heroicons/react/24/outline";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -106,6 +108,12 @@ export default function OnboardingPage() {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [accountNumber, setAccountNumber] = useState("");
+  const [bankList, setBankList] = useState<{ name: string; code: string }[]>([]);
+  const [selectedBankCode, setSelectedBankCode] = useState("");
+  const [accountName, setAccountName] = useState<string | null>(null);
+  const [verifyingAccount, setVerifyingAccount] = useState(false);
+  const [accountError, setAccountError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -117,13 +125,12 @@ export default function OnboardingPage() {
     const username = (form.elements.namedItem("username") as HTMLInputElement).value;
     const phone_number = (form.elements.namedItem("phone_number") as HTMLInputElement).value;
     const date_of_birth = (form.elements.namedItem("date_of_birth") as HTMLInputElement).value;
-    const bank_code = (form.elements.namedItem("bank_code") as HTMLInputElement).value;
     const account_number = (form.elements.namedItem("account_number") as HTMLInputElement).value;
 
     const res = await fetch("/api/onboarding", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, phone_number, date_of_birth, bank_code, account_number }),
+      body: JSON.stringify({ username, phone_number, date_of_birth, bank_code: selectedBankCode, account_number }),
     });
 
     if (!res.ok) {
@@ -134,6 +141,49 @@ export default function OnboardingPage() {
     }
     router.push("/");
   };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await fetch("/api/banks");
+        const data = await res.json();
+        setBankList(data.banks ?? []);
+      } catch { /* silent */ }
+    })();
+  }, []);
+
+  useEffect(() => {
+    if (!selectedBankCode || accountNumber.length !== 10) {
+      setAccountName(null);
+      setAccountError("");
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setVerifyingAccount(true);
+      setAccountError("");
+      try {
+        const res = await fetch("/api/verify-account", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ bank_code: selectedBankCode, account_number }),
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setAccountName(data.account_name);
+          setAccountError("");
+        } else {
+          setAccountName(null);
+          setAccountError("Could not resolve account name. Check the bank and account number.");
+        }
+      } catch {
+        setAccountName(null);
+        setAccountError("Could not verify account. Please try again.");
+      } finally {
+        setVerifyingAccount(false);
+      }
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [selectedBankCode, accountNumber]);
 
   if (!isLoaded) {
     return (
@@ -331,25 +381,46 @@ export default function OnboardingPage() {
                       Bank Account (for receiving payments)
                     </p>
 
-                    {/* Bank Code */}
+                    {/* Bank Name */}
                     <div className="space-y-1.5">
                       <Label htmlFor="bank_code" style={{ color: "var(--text)" }}>
-                        Bank Code
+                        {COPY.PROFILE.FIELD_BANK_NAME}
                       </Label>
                       <FloatingTooltip.Trigger
-                        content="Your bank's CBN code"
-                        description="e.g. 058 for GTBank, 044 for Access Bank"
+                        content={COPY.PROFILE.BANK_NAME_HINT}
+                        description="We use this to send payments to your account"
                       >
                         <div className="relative">
                           <BuildingOffice2Icon
-                            className="absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2"
+                            className="pointer-events-none absolute left-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2"
                             style={{ color: "var(--text3)" }}
                           />
-                          <Input
-                            id="bank_code" name="bank_code" type="text"
-                            placeholder="058"
-                            className="pl-9"
-                          />
+                          <select
+                            id="bank_code"
+                            name="bank_code"
+                            value={selectedBankCode}
+                            onChange={(e) => setSelectedBankCode(e.target.value)}
+                            className="w-full rounded-[24px] border px-3.5 py-2.5 pl-9 text-sm outline-none transition-all appearance-none"
+                            style={{
+                              background: "var(--secondary)",
+                              borderColor: "var(--border)",
+                              color: selectedBankCode ? "var(--foreground)" : "var(--mute)",
+                            }}
+                          >
+                            <option value="" disabled>Select your bank</option>
+                            {bankList.map((bank) => (
+                              <option key={bank.code} value={bank.code}>
+                                {bank.name}
+                              </option>
+                            ))}
+                          </select>
+                          <svg
+                            className="pointer-events-none absolute right-3 top-1/2 z-10 h-4 w-4 -translate-y-1/2"
+                            style={{ color: "var(--text3)" }}
+                            fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                          >
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                          </svg>
                         </div>
                       </FloatingTooltip.Trigger>
                     </div>
@@ -373,9 +444,29 @@ export default function OnboardingPage() {
                             placeholder="0123456789"
                             maxLength={10}
                             className="pl-9"
+                            value={accountNumber}
+                            onChange={(e) => setAccountNumber(e.target.value.replace(/\D/g, ""))}
                           />
                         </div>
                       </FloatingTooltip.Trigger>
+                      {verifyingAccount && (
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" style={{ color: "var(--text3)" }} />
+                          <span className="text-xs" style={{ color: "var(--text3)" }}>Verifying account…</span>
+                        </div>
+                      )}
+                      {accountName && (
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <CheckCircleIcon className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--positive)" }} />
+                          <span className="text-xs" style={{ color: "var(--positive)" }}>{accountName}</span>
+                        </div>
+                      )}
+                      {accountError && (
+                        <div className="flex items-center gap-1.5 mt-1">
+                          <ExclamationCircleIcon className="h-3.5 w-3.5 shrink-0" style={{ color: "var(--negative)" }} />
+                          <span className="text-xs" style={{ color: "var(--negative)" }}>{accountError}</span>
+                        </div>
+                      )}
                     </div>
                   </div>
 
