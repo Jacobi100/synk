@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { Show, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
-import { Bars3Icon, XMarkIcon, BoltIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { NotificationBell } from "@/components/NotificationBell";
+import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -30,19 +31,8 @@ export function Navbar() {
         <div className="flex h-16 items-center justify-between">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div
-              className="flex h-8 w-8 items-center justify-center rounded-lg transition-transform group-hover:scale-105"
-              style={{ background: "linear-gradient(135deg, var(--violet), var(--violet2))" }}
-            >
-              <BoltIcon className="h-4 w-4 text-white" />
-            </div>
-            <span
-              className="hidden text-[15px] font-bold tracking-tight sm:inline"
-              style={{ color: "var(--text)" }}
-            >
-              Synk
-            </span>
+          <Link href="/">
+            <Logo />
           </Link>
 
           {/* Desktop nav */}
