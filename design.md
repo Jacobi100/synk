@@ -14,7 +14,7 @@
 
 ### Current Implementation
 
-The design system is applied globally across all pages. The brand identity is a single purple accent (`#5E3AFF`) on a sage-tinted secondary canvas (`#e8ebe6` light / `#1a1b18` dark), paired with near-black text (`#0e0f0c` light / `#e8ebe6` dark). Heavy display typography at weight 900 for hero headlines, Inter at weight 600 for UI text. Cards use surface contrast for elevation — no shadows.
+The design system is applied globally across all pages. The brand identity is a single purple accent (`#5E3AFF`) on a sage-tinted secondary canvas (`#e8ebe6` light / `#1a1b18` dark), paired with near-black text (`#0e0f0c` light / `#e8ebe6` dark). Heavy display typography at weight 900 for hero headlines, Inter at weight 600 for UI text. Cards use surface contrast for elevation (no shadows).
 
 ---
 
@@ -32,9 +32,9 @@ The design system is applied globally across all pages. The brand identity is a 
 
 ### Font Loading
 
-- **Inter** — Loaded via `next/font/google` as CSS variable `--font-inter`. All Tailwind `font-sans` utilities map to this variable.
-- **Geist Mono** — Loaded via `next/font/google` for monospace needs.
-- **Google Sans Flex** — Used exclusively for the "Synk" logo wordmark via `--font-google-sans-flex`. Not a system font.
+- **Inter** - Loaded via `next/font/google` as CSS variable `--font-inter`. All Tailwind `font-sans` utilities map to this variable.
+- **Geist Mono** - Loaded via `next/font/google` for monospace needs.
+- **Google Sans Flex** - Used exclusively for the "Synk" logo wordmark via `--font-google-sans-flex`. Not a system font.
 
 ---
 
@@ -61,7 +61,7 @@ The design system is applied globally across all pages. The brand identity is a 
 | `--card` | `#ffffff` | `#0e0f0c` | Card surface |
 | `--card-foreground` | `#0e0f0c` | `#e8ebe6` | Text on card |
 
-### Brand Accent — Synk Purple
+### Brand Accent - Synk Purple
 
 | Token | Value | Usage |
 |---|---|---|
@@ -100,7 +100,7 @@ The design system is applied globally across all pages. The brand identity is a 
 | `--radius-sm` | `8px` | Inline pills, small badges |
 | `--radius-md` | `12px` | Form inputs, map controls |
 | `--radius-lg` | `16px` | Mid-size cards |
-| `--radius-xl` | `24px` | **Canonical** — buttons, cards, badges, nav pills |
+| `--radius-xl` | `24px` | **Canonical** - buttons, cards, badges, nav pills |
 | `--radius-pill` | `9999px` | Status pills, avatars |
 
 All buttons, nav pills, and badges use `rounded-[24px]` as the canonical shape. Cards also use `rounded-[24px]` universally. The consistent 24px radius across surfaces is the defining shape language. Inputs are the only component using `rounded-md` (12px) to differentiate interactivity.
@@ -207,10 +207,10 @@ All buttons, nav pills, and badges use `rounded-[24px]` as the canonical shape. 
 - Hover (desktop): shows rich InfoWindow tooltip with job details + "View Details" link
 - Click: navigates to `/bounties/[id]` via Next.js router
 - Current location marker: black circle (18px, white border, subtle shadow)
-- Map styles: all POIs, transit, addresses, land parcels, and neighborhoods hidden — only roads, terrain, water, and administrative boundaries (states/regions) visible
+- Map styles: all POIs, transit, addresses, land parcels, and neighborhoods hidden - only roads, terrain, water, and administrative boundaries (states/regions) visible
 - Map controls: `zoomControl` (RIGHT_CENTER), `fullscreenControl` (RIGHT_TOP), `streetViewControl` and `mapTypeControl` disabled
 - Google Maps control buttons: overridden with CSS to match design system (`border-radius: 12px`, theme-aware background/border, no shadow, `active:scale(0.97)`)
-- Two variants: `compact` (used in hero — 420px height, optional flush mode) and full (standalone page with heading)
+- Two variants: `compact` (used in hero, 420px height, optional flush mode) and full (standalone page with heading)
 
 ### NavigationMap (`components/map/NavigationMap.tsx`)
 
@@ -233,7 +233,7 @@ The brand uses surface contrast (`--secondary` sage/gray background vs `--backgr
 
 | Level | Treatment |
 |---|---|
-| Default | White card on sage canvas — contrast IS the elevation |
+| Default | White card on sage canvas - contrast IS the elevation |
 | Elevated | Same, z-index layering |
 | Google Maps controls | No shadow (`box-shadow: none !important`) |
 
@@ -274,7 +274,7 @@ Hero headline uses `text-5xl md:text-7xl font-black leading-[0.85] tracking-tigh
 |---|---|
 | **API loading** | Dynamic script injection with `callback=__gmapsReady` |
 | **Channel** | `v=weekly` (latest weekly channel) |
-| **Marker library** | `libraries=marker` — `AdvancedMarkerElement` + `PinElement` |
+| **Marker library** | `libraries=marker` - `AdvancedMarkerElement` + `PinElement` |
 | **Map ID** | `DEMO_MAP_ID` (testing); real map ID required for production |
 | **Marker style (jobs)** | Custom HTML: purple pill (#5E3AFF, white text, `rounded-[8px]`, max-width 160px, text-ellipsis) with a downward CSS arrow |
 | **Marker style (current location)** | Black circle (18px, `border-radius: 50%`, `background: #000`, `border: 3px solid #fff`, `box-shadow`) |
@@ -326,17 +326,17 @@ Hero headline uses `text-5xl md:text-7xl font-black leading-[0.85] tracking-tigh
 ## 12. Design Review Checklist
 
 - [x] Sage canvas (`bg-secondary`) as page background, white cards (`bg-card`) on top
-- [x] Single purple CTA accent (`#5E3AFF`) — no second brand color
+- [x] Single purple CTA accent (`#5E3AFF`) - no second brand color
 - [x] Buttons use `rounded-[24px]` (pill) shape
 - [x] Cards use `rounded-[24px]` shape
 - [x] Inputs use `rounded-[12px]` with border
 - [x] Hero headlines use weight 900 (Inter weight 900)
-- [x] No card shadows — elevation via surface contrast
-- [x] No hardcoded colors — use CSS variable tokens
+- [x] No card shadows - elevation via surface contrast
+- [x] No hardcoded colors - use CSS variable tokens
 - [x] Interactive elements have `active:scale-[0.97]` tactile feedback
 - [x] Dark mode properly inverted
 - [x] Map markers match brand purple
 - [x] Map controls themed with design system tokens
-- [x] Google Maps POIs hidden — only roads + states visible
+- [x] Google Maps POIs hidden - only roads + states visible
 - [x] Map hidden on mobile hero view
 - [x] Consistent 24px radius across all surfaces

@@ -46,10 +46,12 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
   const fetchBounty = useCallback(async () => {
     try {
       const res = await fetch(`/api/bounties/${id}`);
-      if (!res.ok) throw new Error("Failed to fetch bounty.");
+      if (!res.ok) throw new Error(COPY.JOB_DETAIL.ERROR_MESSAGE);
       setBounty(await res.json());
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "Failed to load bounty.");
+      setErrorMessage(
+        err instanceof Error ? err.message : COPY.JOB_DETAIL.ERROR_MESSAGE,
+      );
       setPageState("error");
     } finally {
       setLoading(false);
@@ -88,13 +90,15 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
       setPageState("success");
 
     } catch (err) {
-      setErrorMessage(err instanceof Error ? err.message : "An unexpected error occurred.");
+      setErrorMessage(
+        err instanceof Error ? err.message : COPY.COMPLETE.ERROR_TITLE,
+      );
       if (pageState !== "success") setPageState("error");
     }
   };
 
   // -------------------------------------------------------------------------
-  // Pay now — for in_progress bounties that haven't been funded yet
+  // Pay now - for in_progress bounties that haven't been funded yet
   // -------------------------------------------------------------------------
 
   const handlePayNow = async () => {
@@ -106,14 +110,14 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
         method: "POST",
       });
       const data = await res.json();
-      if (!res.ok) {
-        setPayError(data.error || "Payment failed. Please try again.");
-        return;
-      }
+        if (!res.ok) {
+          setPayError(data.error || COPY.COMPLETE.ERROR_TITLE);
+          return;
+        }
       // Refresh bounty to get updated status
       await fetchBounty();
     } catch (err) {
-      setPayError(err instanceof Error ? err.message : "Payment failed.");
+      setPayError(err instanceof Error ? err.message : COPY.COMPLETE.ERROR_TITLE);
     } finally {
       setPaying(false);
     }
@@ -174,7 +178,12 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
 
             {!reviewed ? (
               <div className="mt-6 w-full border-t border-border pt-6 text-left">
-                <h3 className="mb-3 text-sm font-bold uppercase tracking-wide" style={{ color: "var(--positive-deep)" }}>Rate your experience</h3>
+                <h3
+                  className="mb-3 text-sm font-bold uppercase tracking-wide"
+                  style={{ color: "var(--positive-deep)" }}
+                >
+                  {COPY.COMPLETE_REVIEW.TITLE}
+                </h3>
                 <div className="flex gap-1.5 mb-5">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -189,7 +198,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
                 <textarea
                   className="w-full rounded-[24px] border bg-background p-3 text-sm outline-none focus:ring-2 transition-all"
                   style={{ borderColor: "var(--primary-pale)", "--tw-ring-color": "var(--positive)" } as React.CSSProperties}
-                  placeholder="Tell us more about the service..."
+                  placeholder={COPY.COMPLETE_REVIEW.PLACEHOLDER}
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   rows={3}
@@ -200,13 +209,13 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
                   className="mt-4 w-full rounded-[24px] py-3 text-sm font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
                   style={{ background: "var(--positive)" }}
                 >
-                  {submittingReview ? "Saving..." : "Submit Review"}
+                  {submittingReview ? COPY.COMPLETE_REVIEW.SAVING : COPY.COMPLETE_REVIEW.SUBMIT}
                 </button>
               </div>
             ) : (
               <div className="mt-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
                 <p className="rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider" style={{ background: "var(--primary-pale)", color: "var(--positive-deep)" }}>
-                  Feedback Received!
+                  {COPY.COMPLETE_REVIEW.RECEIVED}
                 </p>
               </div>
             )}

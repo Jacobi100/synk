@@ -18,9 +18,9 @@ import { normalizeNigerianPhone } from "@/lib/phone";
  * POST /api/bounties/[id]/simulate-payment
  *
  * Simulates a payment for a bounty in development / sandbox mode.
- * - If the VA is a real Squad VA → calls Squad's simulate endpoint
+  * - If the VA is a real Squad VA: calls Squad's simulate endpoint
  *   (Squad will then fire its webhook to /api/webhooks/squad).
- * - If the VA is a mock (MOCKVA*) → runs the webhook handler logic
+  * - If the VA is a mock (MOCKVA*): runs the webhook handler logic
  *   directly so the bounty transitions to "paid" immediately.
  */
 export async function POST(
@@ -50,7 +50,7 @@ export async function POST(
     const tx = await getTransactionByBountyId(bountyId);
     if (!tx) {
       return NextResponse.json(
-        { error: "No transaction found — accept a provider first" },
+        { error: "No payment yet. Accept a helper first" },
         { status: 400 },
       );
     }
@@ -124,8 +124,8 @@ export async function POST(
     await createNotification({
       user_id: tx.provider_id,
       type: "payment_confirmed",
-      title: "Payment confirmed",
-      body: "Payment confirmed. Proceed with the service.",
+      title: "Money received",
+      body: "Money received. You can start the job now.",
       related_bounty_id: bountyId,
     });
 
@@ -134,13 +134,13 @@ export async function POST(
     if (phone) {
       await squadSendSms(
         phone,
-        "Payment confirmed. Proceed with the service.",
+        "Money received. You can start the job now.",
       );
     }
 
     return NextResponse.json({
       ok: true,
-      message: "Payment simulated successfully. Bounty is now paid.",
+      message: "Payment done. This job is now paid.",
       simulated_via: "mock",
       transaction_status: "paid",
     });

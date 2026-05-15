@@ -15,7 +15,7 @@ import { calculateTrustProfile } from "@/lib/trust/calculator";
 import { supabaseAdmin } from "@/lib/supabase/server";
 
 // ---------------------------------------------------------------------------
-// Fraud check — runs before funds are released
+// Fraud check - runs before funds are released
 // ---------------------------------------------------------------------------
 
 async function runFraudCheck(params: {
@@ -79,7 +79,7 @@ async function runFraudCheck(params: {
     }
 
     console.info(
-      "[fraud] Check complete — recommendation:",
+      "[fraud] Check complete - recommendation:",
       assessment.recommendation,
       "| score:",
       assessment.finalScore
@@ -88,14 +88,14 @@ async function runFraudCheck(params: {
     return { recommendation: assessment.recommendation };
 
   } catch (err) {
-    // Never block a payment over a failed fraud check — log and approve
+    // Never block a payment over a failed fraud check - log and approve
     console.error("[fraud] assessTransaction threw unexpectedly:", err);
     return { recommendation: "approve" };
   }
 }
 
 // ---------------------------------------------------------------------------
-// Reputation update — runs after payout succeeds (fire and forget)
+// Reputation update - runs after payout succeeds (fire and forget)
 // ---------------------------------------------------------------------------
 
 async function updateProviderReputation(providerId: string): Promise<void> {
@@ -117,7 +117,7 @@ async function updateProviderReputation(providerId: string): Promise<void> {
     const uniqueBuyerIds = [...new Set(txRows.map((t) => t.poster_id))];
     const totalUniqueBuyers = uniqueBuyerIds.length;
 
-    // Repeat buyers — those who appear more than once
+    // Repeat buyers - those who appear more than once
     const buyerCounts = txRows.reduce<Record<string, number>>((acc, t) => {
       acc[t.poster_id] = (acc[t.poster_id] ?? 0) + 1;
       return acc;
@@ -176,7 +176,7 @@ async function updateProviderReputation(providerId: string): Promise<void> {
       console.error("[reputation] Failed to update trust profile:", error.message);
     } else {
       console.info(
-        "[reputation] Trust profile updated — provider:",
+        "[reputation] Trust profile updated - provider:",
         providerId,
         "| badge:",
         profile.badge,
@@ -191,7 +191,7 @@ async function updateProviderReputation(providerId: string): Promise<void> {
 }
 
 // ---------------------------------------------------------------------------
-// Complete bounty — main function
+// Complete bounty - main function
 // ---------------------------------------------------------------------------
 
 export async function completeBountyForPoster(clerkUserId: string, bountyId: string) {
@@ -237,7 +237,7 @@ export async function completeBountyForPoster(clerkUserId: string, bountyId: str
   }
 
   // -------------------------------------------------------------------------
-  // Fraud check — BEFORE releasing funds
+  // Fraud check - BEFORE releasing funds
   // -------------------------------------------------------------------------
 
   const fraud = await runFraudCheck({
@@ -253,7 +253,7 @@ export async function completeBountyForPoster(clerkUserId: string, bountyId: str
 
   if (fraud.recommendation === "block") {
     return {
-      error: "Payment could not be released — flagged by fraud detection. Contact support.",
+      error: "Payment could not be released - flagged by fraud detection. Contact support.",
       status: 402 as const,
     };
   }
@@ -266,7 +266,7 @@ export async function completeBountyForPoster(clerkUserId: string, bountyId: str
   }
 
   // -------------------------------------------------------------------------
-  // Fraud approved — release funds
+  // Fraud approved - release funds
   // -------------------------------------------------------------------------
 
   const ref = `synk_${bountyId}_${Date.now()}`;
@@ -283,7 +283,7 @@ export async function completeBountyForPoster(clerkUserId: string, bountyId: str
 
   if (!transfer.ok) {
     return {
-      error: "Squad transfer failed — check server logs",
+      error: "Squad transfer failed - check server logs",
       status: 502 as const,
       detail: transfer.raw,
     };
@@ -296,7 +296,7 @@ export async function completeBountyForPoster(clerkUserId: string, bountyId: str
   if (!updatedBounty) return { error: "Failed to update bounty", status: 500 as const };
 
   // -------------------------------------------------------------------------
-  // Reputation update — fire and forget, never blocks the response
+  // Reputation update - fire and forget, never blocks the response
   // -------------------------------------------------------------------------
 
   void updateProviderReputation(tx.provider_id);

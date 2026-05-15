@@ -51,10 +51,12 @@ export default function MyPostingsPage() {
       try {
         setLoading(true);
         const res = await fetch("/api/bounties?mine=true");
-        if (!res.ok) throw new Error("Failed to fetch bounties");
+        if (!res.ok) throw new Error(COPY.MY_POSTINGS.ERROR_LOAD);
         setBounties(await res.json());
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to load");
+        setError(
+          err instanceof Error ? err.message : COPY.MY_POSTINGS.ERROR_LOAD,
+        );
       } finally {
         setLoading(false);
       }
@@ -62,7 +64,7 @@ export default function MyPostingsPage() {
   }, [user]);
 
   const priceDisplay = (b: Bounty) => {
-    if (!b.price_min && !b.price_max) return "Price on request";
+    if (!b.price_min && !b.price_max) return COPY.MY_POSTINGS.ASK_FOR_PRICE;
     if (b.price_min && b.price_max) return `${b.currency} ${b.price_min.toLocaleString()} – ${b.price_max.toLocaleString()}`;
     if (b.price_min) return `${b.currency} ${b.price_min.toLocaleString()}+`;
     return `${b.currency} ${b.price_max?.toLocaleString()}`;
@@ -73,7 +75,7 @@ export default function MyPostingsPage() {
       <div className="min-h-screen">
         <Navbar />
         <div className="mx-auto max-w-4xl px-4 py-12 text-center text-sm text-muted-foreground">
-          Sign in to view your postings.
+          {COPY.MY_POSTINGS.SIGN_IN_REQUIRED}
         </div>
       </div>
     );
@@ -88,7 +90,7 @@ export default function MyPostingsPage() {
           href="/"
           className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
         >
-          <ArrowLeftIcon className="h-4 w-4" /> Back
+          <ArrowLeftIcon className="h-4 w-4" /> {COPY.BACK}
         </Link>
 
         <div className="mb-8 flex items-end justify-between gap-4">
@@ -199,7 +201,7 @@ export default function MyPostingsPage() {
                     )}
                     <div className="flex items-center gap-1.5">
                       <UsersIcon className="h-3.5 w-3.5 text-mute" />
-                      {bounty.slots_available} {bounty.slots_available !== 1 ? "slots" : "slot"}
+                      {COPY.HELPERS_NEEDED_COUNT(bounty.slots_available)}
                     </div>
                   </div>
 
@@ -208,7 +210,7 @@ export default function MyPostingsPage() {
                       href={`/bounties/${bounty.id}`}
                       className="inline-flex items-center rounded-[24px] border border-border px-3.5 py-2 text-sm font-medium transition-colors hover:border-primary hover:text-primary text-muted-foreground"
                     >
-                      View details
+                      {COPY.MY_POSTINGS.VIEW_DETAILS}
                     </Link>
                     {bounty.status === "open" && (
                       <Link

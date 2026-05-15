@@ -98,7 +98,7 @@ function sanitizeQuery(raw: string): string {
 }
 
 // ---------------------------------------------------------------------------
-// Keyword filter — applied in memory after DB fetch
+// Keyword filter - applied in memory after DB fetch
 // ---------------------------------------------------------------------------
 
 function filterByKeywords(bounties: BountyRow[], keywords: string[]): BountyRow[] {
@@ -119,7 +119,7 @@ async function fetchMatchingBounties(
   lng?: number
 ): Promise<BountyRow[]> {
   try {
-    // If coordinates provided — use PostGIS RPC for proximity, filter in memory
+    // If coordinates provided - use PostGIS RPC for proximity, filter in memory
     if (lat !== undefined && lng !== undefined) {
       const { data: nearbyBounties, error } = await supabaseAdmin.rpc(
         "nearby_open_bounties",
@@ -141,7 +141,7 @@ async function fetchMatchingBounties(
       }
     }
 
-    // No coordinates — standard query with category filter
+    // No coordinates - standard query with category filter
     let query = supabaseAdmin
       .from("bounties")
       .select("*")
@@ -232,7 +232,7 @@ CLASSIFICATION RULES
    - Default to "flexible" if no timing signal is present.
 5. priceSignal: Interpret price sensitivity:
    - "budget": cheap, affordable, no go cost plenty, low budget, make e no cost much, reasonably priced
-   - "standard": no price signal — default
+   - "standard": no price signal - default
    - "premium": best, top quality, professional, premium, I go pay well
    - Default to "unspecified" if ambiguous.
 6. confidence: A score from 0.0 to 1.0 representing how clearly you understood the query intent.
@@ -297,7 +297,7 @@ export async function POST(
   try {
     const interpretation = await interpretSearchQuery(body);
 
-    // Fetch matching listings — empty array if query is irrelevant
+    // Fetch matching listings - empty array if query is irrelevant
     const listings = interpretation.isRelevant
       ? await fetchMatchingBounties(interpretation, body.lat, body.lng)
       : [];
@@ -311,7 +311,7 @@ export async function POST(
     };
 
     console.info(
-      "[search] Query interpreted —",
+      "[search] Query interpreted -",
       "categories:", interpretation.categories.length,
       "| listings found:", listings.length,
       "| urgency:", interpretation.urgency,

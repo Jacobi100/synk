@@ -52,7 +52,7 @@ async function writeTrustProfile(profile: TrustProfile): Promise<void> {
       console.error("[reputation] Failed to write trust profile:", error.message);
     } else {
       console.info(
-        "[reputation] Trust profile written — provider:",
+        "[reputation] Trust profile written - provider:",
         profile.providerId,
         "| badge:",
         profile.badge,

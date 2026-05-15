@@ -3,8 +3,14 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { AnimateCount } from "@/components/unlumen-ui/animate-count";
+import { cn } from "@/lib/utils";
 
-export function WalletNavButton() {
+type WalletNavButtonProps = {
+  className?: string;
+  onClick?: () => void;
+};
+
+export function WalletNavButton({ className, onClick }: WalletNavButtonProps) {
   const [balance, setBalance] = useState<number | null>(null);
 
   useEffect(() => {
@@ -17,7 +23,11 @@ export function WalletNavButton() {
   return (
     <Link
       href="/wallet"
-      className="flex items-center px-3 py-1.5 text-sm font-bold transition-colors hover:bg-secondary text-foreground rounded-[24px]"
+      onClick={onClick}
+      className={cn(
+        "flex items-center px-3 py-1.5 text-sm font-bold transition-colors hover:bg-secondary text-foreground rounded-[24px]",
+        className
+      )}
     >
       <div className="flex items-baseline gap-0.5 tabular-nums">
         <span>₦</span>

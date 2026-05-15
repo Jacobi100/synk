@@ -19,14 +19,14 @@ export default function SignInPage() {
         </div>
         <div className="relative z-10 max-w-md">
           <h1 className="text-5xl font-black leading-[0.85] tracking-tighter text-white md:text-6xl">
-            Find work.
+            Find jobs.
             <br />
-            Hire talent.
+            Find helpers.
             <br />
-            Get things done.
+            Get it done.
           </h1>
           <p className="mt-8 text-base leading-relaxed text-white/70 md:text-lg">
-            The marketplace connecting skilled professionals with local opportunities in Africa.
+            Post a job and meet people near you.
           </p>
         </div>
         <div className="relative z-10 text-sm font-medium text-white/40">&copy; 2026 Synk</div>

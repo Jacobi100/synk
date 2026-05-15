@@ -11,7 +11,7 @@ export interface Coordinate {
 /**
  * Any object that carries a `location` coordinate.
  * Used as the constraint on the generic filter helper so it works with
- * any service shape in the app — not just one fixed type.
+ * any service shape in the app - not just one fixed type.
  */
 export interface Locatable {
   location: Coordinate;
@@ -31,7 +31,7 @@ export type WithDistance<T> = T & { distanceKm: number };
 const EARTH_RADIUS_KM = 6371;
 
 // ---------------------------------------------------------------------------
-// Internal helpers — not exported, single responsibility
+// Internal helpers - not exported, single responsibility
 // ---------------------------------------------------------------------------
 
 /** Converts degrees to radians. */
@@ -72,7 +72,7 @@ export function getDistance(pointA: Coordinate, pointB: Coordinate): number {
  * of an origin coordinate, and attaches a `distanceKm` field to each result.
  * Results are sorted nearest-first.
  *
- * The radius cutoff is always controlled by the caller — this function has
+ * The radius cutoff is always controlled by the caller - this function has
  * no opinion on what counts as "close enough".
  *
  * @param services - Array of objects that each have a `location: Coordinate` field.

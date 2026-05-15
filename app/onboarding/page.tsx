@@ -407,7 +407,7 @@ export default function OnboardingPage() {
                               color: selectedBankCode ? "var(--foreground)" : "var(--mute)",
                             }}
                           >
-                            <option value="" disabled>Select your bank</option>
+                            <option value="" disabled>{COPY.ONBOARDING.BANK_SELECT}</option>
                             {bankList.map((bank) => (
                               <option key={bank.code} value={bank.code}>
                                 {bank.name}
@@ -452,7 +452,7 @@ export default function OnboardingPage() {
                       {verifyingAccount && (
                         <div className="flex items-center gap-1.5 mt-1">
                           <ArrowPathIcon className="h-3.5 w-3.5 animate-spin" style={{ color: "var(--text3)" }} />
-                          <span className="text-xs" style={{ color: "var(--text3)" }}>Verifying account…</span>
+                          <span className="text-xs" style={{ color: "var(--text3)" }}>{COPY.ONBOARDING.VERIFYING_ACCOUNT}</span>
                         </div>
                       )}
                       {accountName && (

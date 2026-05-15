@@ -1,11 +1,11 @@
 // ---------------------------------------------------------------------------
-// Trust System — Shared Type Contracts
+// Trust System - Shared Type Contracts
 //
 // All types, interfaces, and constants for the trust badge system.
 // No logic. No imports. Pure contract.
 //
 // The trust badge is pre-computed after every transaction completion and
-// cached on the provider's profile. Buyers read the cached result — no
+// cached on the provider's profile. Buyers read the cached result - no
 // computation happens at view time.
 // ---------------------------------------------------------------------------
 
@@ -13,7 +13,7 @@
 // Badge tiers
 //
 // Four tiers communicating positive trust signals only.
-// Absence of a high tier means the provider is new — not suspicious.
+// Absence of a high tier means the provider is new - not suspicious.
 // No tier blocks a provider from offering services.
 // ---------------------------------------------------------------------------
 
@@ -84,12 +84,12 @@ export interface TrustSignal {
   /** Points this signal contributed to the total trust score. */
   points:      number;
 
-  /** Raw value that produced this signal — for analytics and debugging. */
+  /** Raw value that produced this signal - for analytics and debugging. */
   rawValue:    number | string;
 }
 
 // ---------------------------------------------------------------------------
-// Provider stats — input shape for the calculator
+// Provider stats - input shape for the calculator
 //
 // Normalised transaction history summary passed to calculateTrustProfile().
 // The route handler is responsible for assembling this from the database
@@ -112,7 +112,7 @@ export interface ProviderStats {
 }
 
 // ---------------------------------------------------------------------------
-// TrustProfile — the computed output cached on the provider's record
+// TrustProfile - the computed output cached on the provider's record
 // ---------------------------------------------------------------------------
 
 export interface TrustProfile {

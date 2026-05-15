@@ -54,14 +54,14 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
         const contentType = br.headers.get("content-type") || "";
         const errorText = contentType.includes("application/json")
           ? (await br.json()).error
-          : "Failed to fetch bounty";
-        throw new Error(errorText || "Failed to fetch bounty");
+          : COPY.PAYMENT.LOAD_ERROR;
+        throw new Error(errorText || COPY.PAYMENT.LOAD_ERROR);
       }
       setBounty(await br.json());
       if (er.ok) setEscrow(await er.json());
       else setEscrow(null);
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load");
+      setError(err instanceof Error ? err.message : COPY.PAYMENT.LOAD_ERROR);
     } finally {
       setLoading(false);
     }
@@ -86,19 +86,19 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
       });
       const data = await res.json();
       if (!res.ok) {
-        setSimResult({ ok: false, message: data.error || "Simulation failed" });
+        setSimResult({ ok: false, message: data.error || COPY.PAYMENT.SIM_FAIL });
         return;
       }
       setSimResult({
         ok: true,
-        message: data.message || "Payment simulated successfully!",
+        message: data.message || COPY.PAYMENT.SIM_OK,
       });
       // Refresh escrow data after successful simulation
       await loadData();
     } catch (err) {
       setSimResult({
         ok: false,
-        message: err instanceof Error ? err.message : "Simulation failed",
+        message: err instanceof Error ? err.message : COPY.PAYMENT.SIM_FAIL,
       });
     } finally {
       setSimulating(false);
@@ -127,7 +127,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
         <Navbar />
         <div className="mx-auto max-w-2xl px-4 py-8">
           <div className="rounded-[24px] border border-red-200 bg-red-50 p-6">
-            <p className="text-red-800">{error || "Bounty not found"}</p>
+            <p className="text-red-800">{error || COPY.PAYMENT.NOT_FOUND}</p>
           </div>
         </div>
       </div>
@@ -151,8 +151,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
           {COPY.PAYMENT.TITLE}
         </h1>
         <p className="mb-8 text-gray-600">
-          Transfer the agreed amount to the Squad virtual account below. We will
-          notify the provider when payment clears.
+          {COPY.PAYMENT.INTRO}
         </p>
 
         <div className="rounded-[24px] border border-gray-200 bg-background p-8">
@@ -189,11 +188,10 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
               <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
               <div>
                 <p className="font-semibold text-green-900">
-                  Payment confirmed
+                  {COPY.PAYMENT.PAID_TITLE}
                 </p>
                 <p className="text-sm text-green-800">
-                  This bounty has been funded. The provider has been notified to
-                  proceed.
+                  {COPY.PAYMENT.PAID_BODY}
                 </p>
               </div>
             </div>
@@ -201,9 +199,9 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
 
           {escrow?.virtual_account_number ? (
             <div className="mb-8 rounded-[24px] border-2 border-indigo-200 bg-indigo-50 p-6">
-              <p className="mb-1 text-sm font-medium text-indigo-900">
-                Virtual account number
-              </p>
+                <p className="mb-1 text-sm font-medium text-indigo-900">
+                  {COPY.PAYMENT.ACCOUNT_NUMBER}
+                </p>
               <div className="flex items-center gap-2">
                 <code className="text-xl font-bold tracking-wide text-indigo-950">
                   {escrow.virtual_account_number}
@@ -218,11 +216,11 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
                   <DocumentDuplicateIcon className="h-4 w-4" />
                 </Button>
               </div>
-              <p className="mt-3 text-xs text-indigo-800">
-                {COPY.PAYMENT.TRANSFER_INSTRUCTION(escrow.status)}
-              </p>
-            </div>
-          ) : (
+                <p className="mt-3 text-xs text-indigo-800">
+                  {COPY.PAYMENT.TRANSFER_INSTRUCTION(escrow.status)}
+                </p>
+              </div>
+            ) : (
             <div className="mb-8 flex items-start gap-3 rounded-[24px] border border-amber-200 bg-amber-50 p-4">
               <ExclamationCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
               <p className="text-sm text-amber-900">
@@ -256,19 +254,23 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
                   boxShadow: "var(--shadow-violet)",
                 }}
               >
-                {simulating ? (
-                  <>
-                    <ArrowPathIcon className="mr-2 h-5 w-5 animate-spin" />
-                    Processing payment…
-                  </>
-                ) : (
-                  <>Pay ₦{Number(escrow.amount).toLocaleString("en-NG")}</>
-                )}
-              </Button>
-            </div>
-          )}
+                  {simulating ? (
+                    <>
+                      <ArrowPathIcon className="mr-2 h-5 w-5 animate-spin" />
+                      {COPY.PAYMENT.PAYING}
+                    </>
+                  ) : (
+                    <>
+                      {COPY.PAYMENT.PAY_BUTTON(
+                        `₦${Number(escrow.amount).toLocaleString("en-NG")}`,
+                      )}
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
 
-          {/* Already paid — go to completion */}
+          {/* Already paid - go to completion */}
           {isPaid && (
             <div className="mb-8">
               <Button
@@ -278,7 +280,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
               >
                 <Link href={`/bounties/${id}/complete`}>
                   <CheckCircleIcon className="mr-2 h-5 w-5" />
-                  Confirm Done & Pay Helper
+                  {COPY.JOB_DETAIL.CONFIRM_AND_PAY}
                 </Link>
               </Button>
             </div>
@@ -289,7 +291,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
               <ShieldCheckIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
               <div>
                 <h3 className="font-semibold text-gray-900">
-                  Your money is safe
+                  {COPY.PAYMENT.SAFETY_TITLE}
                 </h3>
                 <p className="text-sm text-gray-600">
                   {COPY.PAYMENT.HELD_NOTICE}
@@ -300,18 +302,17 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
               <CheckCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-green-600" />
               <div>
                 <h3 className="font-semibold text-gray-900">
-                  Instant confirmation
+                  {COPY.PAYMENT.UPDATE_TITLE}
                 </h3>
                 <p className="text-sm text-gray-600">
-                  The helper will be notified immediately once your payment is
-                  received.
+                  {COPY.PAYMENT.UPDATE_BODY}
                 </p>
               </div>
             </div>
           </div>
 
           <Button variant="outline" asChild className="w-full">
-            <Link href={`/bounties/${id}`}>Back to Job</Link>
+            <Link href={`/bounties/${id}`}>{COPY.BACK_TO_JOB}</Link>
           </Button>
         </div>
       </div>
