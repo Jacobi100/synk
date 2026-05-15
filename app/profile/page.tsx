@@ -21,22 +21,22 @@ function FormField({
 }) {
   return (
     <div>
-      <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium" style={{ color: "var(--text)" }}>
-        {Icon && <Icon className="h-3.5 w-3.5" style={{ color: "var(--text3)" }} />}
+      <label className="mb-1.5 flex items-center gap-1.5 text-sm font-medium text-foreground">
+        {Icon && <Icon className="h-3.5 w-3.5 text-mute" />}
         {label}
       </label>
       {children}
-      {hint && <p className="mt-1 text-xs" style={{ color: "var(--text3)" }}>{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-mute">{hint}</p>}
     </div>
   );
 }
 
 const inputCls =
-  "w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-[var(--text3)]";
+  "w-full rounded-[24px] border px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-mute";
 const inputStyle = {
-  background: "var(--bg2)",
+  background: "var(--secondary)",
   borderColor: "var(--border)",
-  color: "var(--text)",
+  color: "var(--foreground)",
 };
 
 export default function ProfilePage() {
@@ -90,7 +90,7 @@ export default function ProfilePage() {
     return (
       <div className="min-h-screen">
         <Navbar />
-        <div className="px-4 py-12 text-center text-sm" style={{ color: "var(--text2)" }}>
+        <div className="px-4 py-12 text-center text-sm text-muted-foreground">
           Sign in to manage your profile.
         </div>
       </div>
@@ -103,29 +103,28 @@ export default function ProfilePage() {
       <div className="mx-auto max-w-lg px-4 py-10 sm:px-6">
         <Link
           href="/dashboard"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
-          style={{ color: "var(--text2)" }}
+          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
         >
           <ArrowLeftIcon className="h-4 w-4" /> {COPY.BACK_TO_FEED}
         </Link>
 
         <h1
-          className="text-2xl font-bold"
-          style={{ color: "var(--text)", letterSpacing: "-0.02em" }}
+          className="text-2xl font-bold text-foreground"
+          style={{ letterSpacing: "-0.02em" }}
         >
           {COPY.PROFILE.TITLE}
         </h1>
-        <p className="mt-1 mb-8 text-sm" style={{ color: "var(--text2)" }}>
+        <p className="mt-1 mb-8 text-sm text-muted-foreground">
           {COPY.PROFILE.SUBTITLE}
         </p>
 
         {loading ? (
           <div className="flex justify-center py-16">
-            <ArrowPathIcon className="h-7 w-7 animate-spin" style={{ color: "var(--violet)" }} />
+            <ArrowPathIcon className="h-7 w-7 animate-spin" style={{ color: "var(--primary)" }} />
           </div>
         ) : (
           <div
-            className="rounded-xl border bg-white p-6 shadow-[var(--synk-shadow)] space-y-5"
+            className="rounded-[24px] border bg-background p-6 space-y-5"
             style={{ borderColor: "var(--border)" }}
           >
             <FormField label={COPY.PROFILE.FIELD_USERNAME} icon={UserIcon}>
@@ -136,8 +135,8 @@ export default function ProfilePage() {
                 placeholder="yourhandle"
                 onChange={(e) => setUsername(e.target.value)}
                 onFocus={(e) => {
-                  e.target.style.borderColor = "var(--violet)";
-                  e.target.style.boxShadow = "0 0 0 3px var(--violet-glow)";
+                  e.target.style.borderColor = "var(--primary)";
+                  e.target.style.boxShadow = "0 0 0 3px var(--ring)";
                 }}
                 onBlur={(e) => {
                   e.target.style.borderColor = "var(--border)";
@@ -154,8 +153,8 @@ export default function ProfilePage() {
                 placeholder="Your full name"
                 onChange={(e) => setFullName(e.target.value)}
                 onFocus={(e) => {
-                  e.target.style.borderColor = "var(--violet)";
-                  e.target.style.boxShadow = "0 0 0 3px var(--violet-glow)";
+                  e.target.style.borderColor = "var(--primary)";
+                  e.target.style.boxShadow = "0 0 0 3px var(--ring)";
                 }}
                 onBlur={(e) => {
                   e.target.style.borderColor = "var(--border)";
@@ -172,8 +171,8 @@ export default function ProfilePage() {
                 placeholder="0801 234 5678"
                 onChange={(e) => setPhone(e.target.value)}
                 onFocus={(e) => {
-                  e.target.style.borderColor = "var(--violet)";
-                  e.target.style.boxShadow = "0 0 0 3px var(--violet-glow)";
+                  e.target.style.borderColor = "var(--primary)";
+                  e.target.style.boxShadow = "0 0 0 3px var(--ring)";
                 }}
                 onBlur={(e) => {
                   e.target.style.borderColor = "var(--border)";
@@ -182,16 +181,15 @@ export default function ProfilePage() {
               />
             </FormField>
 
-            {/* Payout section */}
             <div
-              className="rounded-lg border p-4 space-y-4"
-              style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
+              className="rounded-[24px] border p-4 space-y-4"
+              style={{ borderColor: "var(--border)", background: "var(--secondary)" }}
             >
               <div>
-                <h2 className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                <h2 className="text-sm font-semibold text-foreground">
                   {COPY.PROFILE.PAYOUT_TITLE}
                 </h2>
-                <p className="mt-0.5 text-xs" style={{ color: "var(--text3)" }}>
+                <p className="mt-0.5 text-xs text-mute">
                   {COPY.PROFILE.PAYOUT_SUBTITLE}
                 </p>
               </div>
@@ -204,14 +202,14 @@ export default function ProfilePage() {
                   placeholder="058"
                   onChange={(e) => setBankCode(e.target.value)}
                   onFocus={(e) => {
-                    e.target.style.borderColor = "var(--violet)";
-                    e.target.style.boxShadow = "0 0 0 3px var(--violet-glow)";
-                    e.target.style.background = "#fff";
+                    e.target.style.borderColor = "var(--primary)";
+                    e.target.style.boxShadow = "0 0 0 3px var(--ring)";
+                    e.target.style.background = "var(--background)";
                   }}
                   onBlur={(e) => {
                     e.target.style.borderColor = "var(--border)";
                     e.target.style.boxShadow = "none";
-                    e.target.style.background = "var(--bg2)";
+                    e.target.style.background = "var(--secondary)";
                   }}
                 />
               </FormField>
@@ -225,27 +223,26 @@ export default function ProfilePage() {
                   maxLength={10}
                   onChange={(e) => setAccountNumber(e.target.value)}
                   onFocus={(e) => {
-                    e.target.style.borderColor = "var(--violet)";
-                    e.target.style.boxShadow = "0 0 0 3px var(--violet-glow)";
-                    e.target.style.background = "#fff";
+                    e.target.style.borderColor = "var(--primary)";
+                    e.target.style.boxShadow = "0 0 0 3px var(--ring)";
+                    e.target.style.background = "var(--background)";
                   }}
                   onBlur={(e) => {
                     e.target.style.borderColor = "var(--border)";
                     e.target.style.boxShadow = "none";
-                    e.target.style.background = "var(--bg2)";
+                    e.target.style.background = "var(--secondary)";
                   }}
                 />
               </FormField>
             </div>
 
-            {/* Feedback */}
             {message && (
               <div
-                className="flex items-center gap-2 rounded-lg border p-3 text-sm"
+                className="flex items-center gap-2 rounded-[24px] border p-3 text-sm"
                 style={
                   message.type === "success"
-                    ? { background: "#f0fdf4", borderColor: "#bbf7d0", color: "#15803d" }
-                    : { background: "#fef2f2", borderColor: "#fecaca", color: "#b91c1c" }
+                    ? { background: "var(--primary-pale)", borderColor: "color-mix(in srgb, var(--primary) 30%, transparent)", color: "var(--positive-deep)" }
+                    : { background: "color-mix(in srgb, var(--negative) 10%, transparent)", borderColor: "color-mix(in srgb, var(--negative) 30%, transparent)", color: "var(--negative)" }
                 }
               >
                 {message.type === "success" ? (
@@ -260,8 +257,8 @@ export default function ProfilePage() {
             <button
               onClick={() => void save()}
               disabled={saving}
-              className="w-full rounded-lg py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-              style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+              className="w-full rounded-[24px] py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              style={{ background: "var(--primary)" }}
             >
               {saving ? (
                 <span className="flex items-center justify-center gap-2">

@@ -17,20 +17,12 @@ import {
   Receipt,
 } from "lucide-react";
 
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
-
 interface CompletePageProps {
   params: Promise<{ id: string }>;
 }
 
 type FraudOutcome = "hold" | "block" | null;
 type PageState    = "idle" | "confirming" | "success" | "error";
-
-// ---------------------------------------------------------------------------
-// Page
-// ---------------------------------------------------------------------------
 
 export default function BountyCompletePage({ params }: CompletePageProps) {
   const { id }   = use(params);
@@ -64,11 +56,6 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
     void fetchBounty();
   }, [user, id]);
 
-  // -------------------------------------------------------------------------
-  // Mark complete — calls completeBountyForPoster via the API
-  // Handles fraud block/hold (402) distinctly from generic failures
-  // -------------------------------------------------------------------------
-
   const handleMarkComplete = async () => {
     if (!bounty || bounty.status !== "paid") return;
 
@@ -87,7 +74,6 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
 
       if (!res.ok) {
         if (res.status === 402) {
-          // Fraud detection intercepted — determine hold vs block
           const outcome: FraudOutcome =
             data.error?.toLowerCase().includes("review") ? "hold" : "block";
           setFraudOutcome(outcome);
@@ -119,10 +105,6 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
     }
   };
 
-  // -------------------------------------------------------------------------
-  // Derived values
-  // -------------------------------------------------------------------------
-
   const escrowAmount   = bounty?.price_max ?? bounty?.price_min ?? 0;
   const platformFee    = Math.round(escrowAmount * 0.05 * 100) / 100;
   const providerPayout = Math.round((escrowAmount - platformFee) * 100) / 100;
@@ -131,25 +113,17 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
   const formatNaira = (amount: number) =>
     `${currency} ${amount.toLocaleString("en-NG")}`;
 
-  // -------------------------------------------------------------------------
-  // Loading
-  // -------------------------------------------------------------------------
-
   if (loading) {
     return (
       <div className="min-h-screen">
         <Navbar />
         <div className="flex flex-col items-center justify-center py-24 gap-3">
-          <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
-          <p className="text-sm" style={{ color: "var(--text2)" }}>{COPY.LOADING}</p>
+          <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--primary)" }} />
+          <p className="text-sm text-muted-foreground">{COPY.LOADING}</p>
         </div>
       </div>
     );
   }
-
-  // -------------------------------------------------------------------------
-  // Success
-  // -------------------------------------------------------------------------
 
   if (pageState === "success") {
     return (
@@ -157,20 +131,20 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
         <Navbar />
         <div className="mx-auto max-w-lg px-4 py-12 sm:px-6">
           <div
-            className="rounded-xl border p-10 flex flex-col items-center gap-4 text-center"
-            style={{ borderColor: "#bbf7d0", backgroundColor: "#f0fdf4" }}
+            className="rounded-[24px] border p-10 flex flex-col items-center gap-4 text-center"
+            style={{ borderColor: "var(--primary-pale)", backgroundColor: "color-mix(in srgb, var(--primary-pale) 50%, transparent)" }}
           >
-            <CheckCircle2 className="h-14 w-14" style={{ color: "#16a34a" }} />
-            <h2 className="text-2xl font-bold" style={{ color: "#14532d" }}>
+            <CheckCircle2 className="h-14 w-14" style={{ color: "var(--positive)" }} />
+            <h2 className="text-2xl font-bold" style={{ color: "var(--positive-deep)" }}>
               {COPY.COMPLETE.SUCCESS_TITLE}
             </h2>
-            <p className="text-sm" style={{ color: "#15803d" }}>
+            <p className="text-sm" style={{ color: "var(--positive-deep)" }}>
               {COPY.COMPLETE.SUCCESS_BODY(formatNaira(providerPayout))}
             </p>
 
             {!reviewed ? (
-              <div className="mt-6 w-full border-t border-green-200 pt-6 text-left">
-                <h3 className="mb-3 text-sm font-bold text-green-900 uppercase tracking-wide">Rate your experience</h3>
+              <div className="mt-6 w-full border-t border-border pt-6 text-left">
+                <h3 className="mb-3 text-sm font-bold uppercase tracking-wide" style={{ color: "var(--positive-deep)" }}>Rate your experience</h3>
                 <div className="flex gap-1.5 mb-5">
                   {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -183,7 +157,8 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
                   ))}
                 </div>
                 <textarea
-                  className="w-full rounded-xl border border-green-200 bg-white p-3 text-sm outline-none focus:ring-2 focus:ring-green-400 focus:border-transparent transition-all placeholder:text-green-300"
+                  className="w-full rounded-[24px] border bg-background p-3 text-sm outline-none focus:ring-2 transition-all"
+                  style={{ borderColor: "var(--primary-pale)", "--tw-ring-color": "var(--positive)" } as React.CSSProperties}
                   placeholder="Tell us more about the service..."
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
@@ -192,15 +167,15 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
                 <button
                   onClick={() => void handleSubmitReview()}
                   disabled={submittingReview}
-                  className="mt-4 w-full rounded-xl py-3 text-sm font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
-                  style={{ background: "#16a34a" }}
+                  className="mt-4 w-full rounded-[24px] py-3 text-sm font-bold text-white transition-all hover:opacity-90 disabled:opacity-50"
+                  style={{ background: "var(--positive)" }}
                 >
                   {submittingReview ? "Saving..." : "Submit Review"}
                 </button>
               </div>
             ) : (
               <div className="mt-6 animate-in fade-in slide-in-from-bottom-2 duration-500">
-                <p className="rounded-full bg-green-100 px-4 py-1.5 text-xs font-bold text-green-700 uppercase tracking-wider">
+                <p className="rounded-full px-4 py-1.5 text-xs font-bold uppercase tracking-wider" style={{ background: "var(--primary-pale)", color: "var(--positive-deep)" }}>
                   Feedback Received!
                 </p>
               </div>
@@ -208,8 +183,8 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
 
             <Link
               href="/dashboard"
-              className="mt-4 rounded-lg px-6 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
-              style={{ backgroundColor: "#16a34a" }}
+              className="mt-4 rounded-[24px] px-6 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+              style={{ backgroundColor: "var(--positive)" }}
             >
               {COPY.COMPLETE.BACK_TO_FEED}
             </Link>
@@ -219,17 +194,13 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
     );
   }
 
-  // -------------------------------------------------------------------------
-  // Fraud — hold
-  // -------------------------------------------------------------------------
-
   if (pageState === "error" && fraudOutcome === "hold") {
     return (
       <div className="min-h-screen">
         <Navbar />
         <div className="mx-auto max-w-lg px-4 py-12 sm:px-6">
           <div
-            className="rounded-xl border p-8 flex flex-col items-center gap-4 text-center"
+            className="rounded-[24px] border p-8 flex flex-col items-center gap-4 text-center"
             style={{ borderColor: "#fed7aa", backgroundColor: "#fff7ed" }}
           >
             <ShieldAlert className="h-12 w-12" style={{ color: "#ea580c" }} />
@@ -244,7 +215,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
             </p>
             <Link
               href={`/bounties/${id}`}
-              className="mt-2 rounded-lg border px-6 py-2.5 text-sm font-semibold transition-colors"
+              className="mt-2 rounded-[24px] border px-6 py-2.5 text-sm font-semibold transition-colors"
               style={{ borderColor: "#fed7aa", color: "#ea580c" }}
             >
               {COPY.COMPLETE.BACK_TO_JOB}
@@ -255,33 +226,29 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
     );
   }
 
-  // -------------------------------------------------------------------------
-  // Fraud — block
-  // -------------------------------------------------------------------------
-
   if (pageState === "error" && fraudOutcome === "block") {
     return (
       <div className="min-h-screen">
         <Navbar />
         <div className="mx-auto max-w-lg px-4 py-12 sm:px-6">
           <div
-            className="rounded-xl border p-8 flex flex-col items-center gap-4 text-center"
-            style={{ borderColor: "#fecaca", backgroundColor: "#fef2f2" }}
+            className="rounded-[24px] border p-8 flex flex-col items-center gap-4 text-center"
+            style={{ background: "color-mix(in srgb, var(--negative) 10%, transparent)", borderColor: "color-mix(in srgb, var(--negative) 30%, transparent)" }}
           >
-            <ShieldX className="h-12 w-12" style={{ color: "#dc2626" }} />
-            <h2 className="text-xl font-bold" style={{ color: "#7f1d1d" }}>
+            <ShieldX className="h-12 w-12" style={{ color: "var(--negative)" }} />
+            <h2 className="text-xl font-bold" style={{ color: "var(--negative)" }}>
               {COPY.COMPLETE.BLOCK_TITLE}
             </h2>
-            <p className="text-sm" style={{ color: "#991b1b" }}>
+            <p className="text-sm" style={{ color: "var(--negative)" }}>
               {COPY.COMPLETE.BLOCK_BODY}
             </p>
-            <p className="text-xs mt-1" style={{ color: "#b91c1c" }}>
+            <p className="text-xs mt-1" style={{ color: "var(--negative)" }}>
               {COPY.COMPLETE.BLOCK_CONTACT(id)}
             </p>
             <Link
               href="/dashboard"
-              className="mt-2 rounded-lg border px-6 py-2.5 text-sm font-semibold transition-colors"
-              style={{ borderColor: "#fecaca", color: "#dc2626" }}
+              className="mt-2 rounded-[24px] border px-6 py-2.5 text-sm font-semibold transition-colors"
+              style={{ borderColor: "color-mix(in srgb, var(--negative) 30%, transparent)", color: "var(--negative)" }}
             >
               {COPY.BACK_TO_FEED}
             </Link>
@@ -291,31 +258,27 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
     );
   }
 
-  // -------------------------------------------------------------------------
-  // Generic error
-  // -------------------------------------------------------------------------
-
   if (pageState === "error" && !fraudOutcome) {
     return (
       <div className="min-h-screen">
         <Navbar />
         <div className="mx-auto max-w-lg px-4 py-8 sm:px-6">
           <div
-            className="rounded-xl border p-6 flex items-start gap-4"
-            style={{ backgroundColor: "#fef2f2", borderColor: "#fecaca" }}
+            className="rounded-[24px] border p-6 flex items-start gap-4"
+            style={{ backgroundColor: "color-mix(in srgb, var(--negative) 10%, transparent)", borderColor: "color-mix(in srgb, var(--negative) 30%, transparent)" }}
           >
-            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
+            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "var(--negative)" }} />
             <div>
-              <h3 className="font-semibold" style={{ color: "#7f1d1d" }}>
+              <h3 className="font-semibold" style={{ color: "var(--negative)" }}>
                 {COPY.COMPLETE.ERROR_TITLE}
               </h3>
-              <p className="text-sm mt-0.5" style={{ color: "#991b1b" }}>
+              <p className="text-sm mt-0.5" style={{ color: "var(--negative)" }}>
                 {errorMessage}
               </p>
               <button
                 onClick={() => setPageState("idle")}
                 className="mt-3 text-sm font-medium underline"
-                style={{ color: "#dc2626" }}
+                style={{ color: "var(--negative)" }}
               >
                 {COPY.COMPLETE.TRY_AGAIN}
               </button>
@@ -326,24 +289,16 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
     );
   }
 
-  // -------------------------------------------------------------------------
-  // Bounty not found
-  // -------------------------------------------------------------------------
-
   if (!bounty) {
     return (
       <div className="min-h-screen">
         <Navbar />
         <div className="mx-auto max-w-lg px-4 py-8">
-          <p className="text-sm" style={{ color: "var(--text2)" }}>{COPY.COMPLETE.NOT_FOUND}</p>
+          <p className="text-sm text-muted-foreground">{COPY.COMPLETE.NOT_FOUND}</p>
         </div>
       </div>
     );
   }
-
-  // -------------------------------------------------------------------------
-  // Main confirmation screen
-  // -------------------------------------------------------------------------
 
   const canComplete   = bounty.status === "paid";
   const isConfirming  = pageState === "confirming";
@@ -353,100 +308,92 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
       <Navbar />
       <div className="mx-auto max-w-lg px-4 py-10 sm:px-6">
 
-        {/* Back */}
         <Link
           href={`/bounties/${id}`}
-          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
-          style={{ color: "var(--text2)" }}
+          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
         >
           <ArrowLeft className="h-4 w-4" /> {COPY.COMPLETE.BACK_TO_JOB}
         </Link>
 
         <h1
-          className="text-2xl font-bold mb-1"
-          style={{ color: "var(--text)", letterSpacing: "-0.02em" }}
+          className="text-2xl font-bold mb-1 text-foreground"
+          style={{ letterSpacing: "-0.02em" }}
         >
           {COPY.COMPLETE.PAGE_TITLE}
         </h1>
-        <p className="text-sm mb-8" style={{ color: "var(--text2)" }}>
+        <p className="text-sm mb-8 text-muted-foreground">
           {COPY.COMPLETE.PAGE_SUBTITLE}
         </p>
 
         <div
-          className="rounded-xl border bg-white p-6 space-y-6"
-          style={{ borderColor: "var(--border)", boxShadow: "var(--synk-shadow)" }}
+          className="rounded-[24px] border bg-background p-6 space-y-6"
+          style={{ borderColor: "var(--border)" }}
         >
-          {/* Bounty summary */}
           <div>
-              <p className="text-xs font-semibold uppercase tracking-wide mb-3"
-              style={{ color: "var(--text3)" }}>
+              <p className="text-xs font-semibold uppercase tracking-wide mb-3 text-mute">
               {COPY.COMPLETE.SECTION_JOB}
             </p>
-            <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+            <p className="text-sm font-semibold text-foreground">
               {bounty.title}
             </p>
-            <p className="text-xs mt-0.5" style={{ color: "var(--text2)" }}>
+            <p className="text-xs mt-0.5 text-muted-foreground">
               {bounty.category}
             </p>
           </div>
 
           <div className="glow-divider" />
 
-          {/* Payout breakdown */}
           <div className="space-y-3">
-            <p className="text-xs font-semibold uppercase tracking-wide"
-              style={{ color: "var(--text3)" }}>
+            <p className="text-xs font-semibold uppercase tracking-wide text-mute">
               {COPY.COMPLETE.SECTION_BREAKDOWN}
             </p>
 
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text2)" }}>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Banknote className="h-4 w-4" />
                 {COPY.COMPLETE.TOTAL_AMOUNT}
               </div>
-              <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+              <span className="text-sm font-semibold text-foreground">
                 {formatNaira(escrowAmount)}
               </span>
             </div>
 
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-sm" style={{ color: "var(--text2)" }}>
+              <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Receipt className="h-4 w-4" />
                 {COPY.COMPLETE.SERVICE_CHARGE}
               </div>
-              <span className="text-sm" style={{ color: "var(--text2)" }}>
+              <span className="text-sm text-muted-foreground">
                 − {formatNaira(platformFee)}
               </span>
             </div>
 
             <div
-              className="flex items-center justify-between rounded-lg p-3"
-              style={{ backgroundColor: "var(--bg2)", borderTop: "1px solid var(--border)" }}
+              className="flex items-center justify-between rounded-[24px] p-3"
+              style={{ backgroundColor: "var(--secondary)", borderTop: "1px solid var(--border)" }}
             >
-              <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+              <span className="text-sm font-semibold text-foreground">
                 {COPY.COMPLETE.HELPER_RECEIVES}
               </span>
-              <span className="text-base font-bold" style={{ color: "var(--violet)" }}>
+              <span className="text-base font-bold" style={{ color: "var(--primary)" }}>
                 {formatNaira(providerPayout)}
               </span>
             </div>
           </div>
 
-          {/* Fraud check notice */}
           <div
-            className="rounded-lg border p-4 flex items-start gap-3"
-            style={{ backgroundColor: "#f5f3ff", borderColor: "#ddd6fe" }}
+            className="rounded-[24px] border p-4 flex items-start gap-3"
+            style={{ backgroundColor: "var(--primary-pale)", borderColor: "color-mix(in srgb, var(--primary) 30%, transparent)" }}
           >
-            <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--violet)" }} />
-            <p className="text-xs leading-relaxed" style={{ color: "#5b21b6" }}>
+            <ShieldAlert className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "var(--primary)" }} />
+            <p className="text-xs leading-relaxed" style={{ color: "var(--positive-deep)" }}>
               {COPY.COMPLETE.SAFETY_NOTICE}
             </p>
           </div>
 
-          {/* Cannot complete warning */}
           {!canComplete && (
             <div
-              className="rounded-lg border p-4 flex items-start gap-3"
+              className="rounded-[24px] border p-4 flex items-start gap-3"
               style={{ backgroundColor: "#fffbeb", borderColor: "#fed7aa" }}
             >
               <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#d97706" }} />
@@ -456,12 +403,11 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
             </div>
           )}
 
-          {/* Actions */}
           <div className="flex gap-3">
               <Link
               href={`/bounties/${id}`}
-              className="flex-1 flex items-center justify-center rounded-lg border py-3 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
-              style={{ borderColor: "var(--border)", color: "var(--text2)" }}
+              className="flex-1 flex items-center justify-center rounded-[24px] border py-3 text-sm font-medium transition-colors hover:border-primary hover:text-primary"
+              style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
             >
               {COPY.COMPLETE.CANCEL}
             </Link>
@@ -469,10 +415,9 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
             <button
               onClick={() => void handleMarkComplete()}
               disabled={!canComplete || isConfirming}
-              className="flex-1 flex items-center justify-center gap-2 rounded-lg py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              className="flex-1 flex items-center justify-center gap-2 rounded-[24px] py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               style={{
-                backgroundColor: canComplete ? "var(--violet)" : "#9ca3af",
-                boxShadow:       canComplete ? "var(--shadow-violet)" : "none",
+                backgroundColor: canComplete ? "var(--primary)" : "#9ca3af",
               }}
             >
               {isConfirming ? (

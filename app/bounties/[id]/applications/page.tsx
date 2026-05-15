@@ -117,7 +117,7 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-secondary">
         <Navbar />
         <div className="px-4 py-8">
           <p className="text-gray-600">Please sign in to view applications.</p>
@@ -127,7 +127,7 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-secondary">
       <Navbar />
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
         <Link href={`/bounties/${id}`} className="font-medium text-blue-600 hover:text-blue-700">
@@ -136,7 +136,7 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
         <h1 className="mt-6 mb-2 text-3xl font-bold text-gray-900">{COPY.APPLICATIONS.TITLE}</h1>
         <p className="mb-8 text-gray-600">{COPY.APPLICATIONS.SUBTITLE}</p>
         {actionError && (
-          <div className="mb-6 rounded-lg border border-red-200 bg-red-50 p-4">
+          <div className="mb-6 rounded-[24px] border border-red-200 bg-red-50 p-4">
             <p className="text-red-800">{actionError}</p>
           </div>
         )}
@@ -145,7 +145,7 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
             <ArrowPathIcon className="h-8 w-8 animate-spin text-blue-600" />
           </div>
         ) : error ? (
-          <div className="flex gap-4 rounded-lg border border-red-200 bg-red-50 p-6">
+          <div className="flex gap-4 rounded-[24px] border border-red-200 bg-red-50 p-6">
             <ExclamationCircleIcon className="mt-0.5 h-6 w-6 shrink-0 text-red-600" />
             <div>
               <h3 className="font-semibold text-red-900">{COPY.APPLICATIONS.ERROR_TITLE}</h3>
@@ -153,13 +153,13 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
             </div>
           </div>
         ) : applications.length === 0 ? (
-          <div className="rounded-lg border border-gray-200 bg-white p-12 text-center text-gray-600">
+          <div className="rounded-[24px] border border-gray-200 bg-background p-12 text-center text-gray-600">
             {COPY.APPLICATIONS.EMPTY}
           </div>
         ) : (
           <div className="space-y-4">
             {applications.map((app) => (
-              <div key={app.id} className="rounded-lg border border-gray-200 bg-white p-6">
+              <div key={app.id} className="rounded-[24px] border border-gray-200 bg-background p-6">
                 <div className="mb-4 flex items-start justify-between">
                   <div className="flex items-center gap-3">
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-linear-to-br from-blue-400 to-blue-600 text-white">
@@ -175,9 +175,8 @@ export default function BountyApplicationsPage({ params }: ApplicationsPageProps
                   </span>
                 </div>
 
-                {/* Risk Assessment */}
                 {app.risk && (
-                  <div className={`mb-6 rounded-xl border p-4 ${
+                  <div className={`mb-6 rounded-[24px] border p-4 ${
                     app.risk.riskLevel === 'low' ? 'bg-emerald-50/50 border-emerald-100' :
                     app.risk.riskLevel === 'medium' ? 'bg-amber-50/50 border-amber-100' :
                     'bg-rose-50/50 border-rose-100'

@@ -48,9 +48,9 @@ const variantStyles: Record<
     dot: "bg-red-200",
   },
   info: {
-    badge: "bg-blue-500 text-blue-100",
-    glow: "bg-blue-500",
-    dot: "bg-blue-200",
+    badge: "bg-[#9fe870] text-[#0e0f0c]",
+    glow: "bg-[#9fe870]",
+    dot: "bg-[#0e0f0c]",
   },
 };
 

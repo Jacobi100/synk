@@ -59,7 +59,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-secondary">
         <Navbar />
         <div className="flex justify-center items-center py-20">
           <ArrowPathIcon className="w-8 h-8 text-blue-600 animate-spin" />
@@ -70,10 +70,10 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
 
   if (error || !bounty) {
     return (
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-secondary">
         <Navbar />
         <div className="mx-auto max-w-2xl px-4 py-8">
-          <div className="rounded-lg border border-red-200 bg-red-50 p-6">
+          <div className="rounded-[24px] border border-red-200 bg-red-50 p-6">
             <p className="text-red-800">{error || "Bounty not found"}</p>
           </div>
         </div>
@@ -82,7 +82,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-secondary">
       <Navbar />
       <div className="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-6">
@@ -94,10 +94,10 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
         <h1 className="mb-2 text-3xl font-bold text-gray-900">{COPY.PAYMENT.TITLE}</h1>
         <p className="mb-8 text-gray-600">
           Transfer the agreed amount to the Squad virtual account below. We will notify the provider when payment
-          clears.{/* COPY.PAYMENT — no key for this full sentence */}
+          clears.
         </p>
 
-        <div className="rounded-lg border border-gray-200 bg-white p-8">
+        <div className="rounded-[24px] border border-gray-200 bg-background p-8">
           <div className="mb-6 space-y-2 border-b border-gray-100 pb-6">
             <div className="flex justify-between text-sm">
               <span className="text-gray-600">{COPY.COMPLETE.SECTION_JOB}</span>
@@ -122,8 +122,8 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
           </div>
 
           {escrow?.virtual_account_number ? (
-            <div className="mb-8 rounded-xl border-2 border-indigo-200 bg-indigo-50 p-6">
-              <p className="mb-1 text-sm font-medium text-indigo-900">Virtual account number{/* COPY.PAYMENT.VIRTUAL_ACCOUNT_LABEL — key missing from lib/copy.ts */}</p>
+            <div className="mb-8 rounded-[24px] border-2 border-indigo-200 bg-indigo-50 p-6">
+              <p className="mb-1 text-sm font-medium text-indigo-900">Virtual account number</p>
               <div className="flex items-center gap-2">
                 <code className="text-xl font-bold tracking-wide text-indigo-950">
                   {escrow.virtual_account_number}
@@ -137,7 +137,7 @@ export default function BountyPaymentPage({ params }: PaymentPageProps) {
               </p>
             </div>
           ) : (
-            <div className="mb-8 flex items-start gap-3 rounded-lg border border-amber-200 bg-amber-50 p-4">
+            <div className="mb-8 flex items-start gap-3 rounded-[24px] border border-amber-200 bg-amber-50 p-4">
               <ExclamationCircleIcon className="mt-0.5 h-5 w-5 shrink-0 text-amber-700" />
               <p className="text-sm text-amber-900">
                 {COPY.PAYMENT.NOT_AVAILABLE}

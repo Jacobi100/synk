@@ -204,18 +204,12 @@ export default function NavigationMap({
   }, [destinationLat, destinationLng, destinationLabel]);
 
   return (
-    <div
-      className="rounded-xl border overflow-hidden"
-      style={{ borderColor: "var(--border)", boxShadow: "var(--synk-shadow)" }}
-    >
+    <div className="rounded-xl border border-border overflow-hidden">
       {/* Header */}
-      <div
-        className="flex items-center justify-between px-5 py-4 border-b"
-        style={{ borderColor: "var(--border)", backgroundColor: "var(--bg2)" }}
-      >
+      <div className="flex items-center justify-between px-5 py-4 border-b border-border bg-secondary">
         <div className="flex items-center gap-2">
-          <Navigation className="h-4 w-4" style={{ color: "var(--violet)" }} />
-          <span className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+          <Navigation className="h-4 w-4 text-primary" />
+          <span className="text-sm font-semibold text-foreground">
             {COPY.NAV_MAP.TITLE}
           </span>
         </div>
@@ -223,11 +217,7 @@ export default function NavigationMap({
           href={googleMapsDirectionsUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-semibold text-white transition-all hover:-translate-y-0.5"
-          style={{
-            backgroundColor: "var(--violet)",
-            boxShadow:       "var(--shadow-violet)",
-          }}
+          className="flex items-center gap-1.5 rounded-[24px] bg-primary px-3 py-1.5 text-xs font-semibold text-primary-foreground transition-all hover:bg-[var(--primary-hover)]"
         >
           <ExternalLink className="h-3.5 w-3.5" />
           {COPY.NAV_MAP.OPEN_IN_MAPS}
@@ -236,19 +226,16 @@ export default function NavigationMap({
 
       {/* Route summary — rendered only after directions load */}
       {routeInfo && (
-        <div
-          className="flex items-center gap-4 px-5 py-2.5 border-b text-sm"
-          style={{ borderColor: "var(--border)", backgroundColor: "#f5f3ff" }}
-        >
-          <span className="font-semibold" style={{ color: "var(--violet)" }}>
+        <div className="flex items-center gap-4 px-5 py-2.5 border-b border-border bg-[var(--primary-pale)] text-sm">
+          <span className="font-semibold text-primary">
             {routeInfo.duration}
           </span>
-          <span style={{ color: "var(--text2)" }}>·</span>
-          <span style={{ color: "var(--text2)" }}>📍 {routeInfo.distance}</span>
+          <span className="text-muted-foreground">·</span>
+          <span className="text-muted-foreground">📍 {routeInfo.distance}</span>
           {destinationLabel && (
             <>
-              <span style={{ color: "var(--text2)" }}>·</span>
-              <span style={{ color: "var(--text2)" }}>{destinationLabel}</span>
+              <span className="text-muted-foreground">·</span>
+              <span className="text-muted-foreground">{destinationLabel}</span>
             </>
           )}
         </div>
@@ -273,30 +260,23 @@ export default function NavigationMap({
       <div className="relative" style={{ height: "360px" }}>
 
         {mapStatus === "loading" && (
-          <div
-            className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10"
-            style={{ backgroundColor: "var(--bg2)" }}
-          >
-            <Loader2 className="h-7 w-7 animate-spin" style={{ color: "var(--violet)" }} />
-            <p className="text-sm" style={{ color: "var(--text2)" }}>{COPY.NAV_MAP.LOADING}</p>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 z-10 bg-secondary">
+            <Loader2 className="h-7 w-7 animate-spin text-primary" />
+            <p className="text-sm text-muted-foreground">{COPY.NAV_MAP.LOADING}</p>
           </div>
         )}
 
         {mapStatus === "error" && (
-          <div
-            className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 z-10"
-            style={{ backgroundColor: "var(--bg2)" }}
-          >
-            <MapPin className="h-8 w-8" style={{ color: "var(--text3)" }} />
-            <p className="text-sm text-center" style={{ color: "var(--text2)" }}>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-4 p-6 z-10 bg-secondary">
+            <MapPin className="h-8 w-8 text-mute" />
+            <p className="text-sm text-center text-muted-foreground">
               {errorMessage}
             </p>
             <a
               href={googleMapsDirectionsUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="flex items-center gap-1.5 rounded-lg px-4 py-2 text-sm font-semibold text-white"
-              style={{ backgroundColor: "var(--violet)" }}
+              className="flex items-center gap-1.5 rounded-[24px] bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground"
             >
               <ExternalLink className="h-4 w-4" />
               {COPY.NAV_MAP.ERROR_FALLBACK}

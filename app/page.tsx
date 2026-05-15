@@ -19,6 +19,7 @@ import { ShimmerSkeleton } from "@/components/unlumen-ui/shimmer-skeleton";
 import { GlowingBadge } from "@/components/unlumen-ui/glowing-badge";
 import { COPY } from "@/lib/copy";
 import { Button } from "@/components/ui/button";
+import NearbyJobsMap from "@/components/map/NearbyJobsMap";
 
 interface DashboardStats {
   activeBounties: number;
@@ -74,36 +75,44 @@ export default function Home() {
     <div className="min-h-screen">
       <Navbar />
 
-      {/* Hero — sage canvas band */}
+      {/* Hero — sage canvas band with Google Maps */}
       <div className="bg-secondary">
         <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-          <div className="max-w-2xl">
-            {user && (
-              <GlowingBadge variant="info" dot={false} className="mb-3">
-                {COPY.HOME.WELCOME(user?.firstName)}
-              </GlowingBadge>
-            )}
-            <h1 className="text-5xl font-black leading-[0.85] tracking-tighter text-foreground md:text-7xl">
-              {COPY.HOME.HEADLINE}
-            </h1>
-            <p className="mt-6 mb-10 text-lg leading-relaxed text-muted-foreground max-w-xl">
-              {COPY.HOME.SUBHEADLINE}
-            </p>
+          <div className="grid grid-cols-1 items-center gap-8 lg:grid-cols-2">
+            {/* Left: text content */}
+            <div className="max-w-2xl">
+              {user && (
+                <GlowingBadge variant="info" dot={false} className="mb-3">
+                  {COPY.HOME.WELCOME(user?.firstName)}
+                </GlowingBadge>
+              )}
+              <h1 className="text-5xl font-black leading-[0.85] tracking-tighter text-foreground md:text-7xl">
+                {COPY.HOME.HEADLINE}
+              </h1>
+              <p className="mt-6 mb-10 text-lg leading-relaxed text-muted-foreground max-w-xl">
+                {COPY.HOME.SUBHEADLINE}
+              </p>
 
-            <div className="flex flex-wrap gap-3">
-              <Button size="lg" asChild>
-                <Link href="/bounties/create">
-                  <PlusIcon className="h-4 w-4" />
-                  {COPY.HOME.POST_A_JOB}
-                </Link>
-              </Button>
-              <Button variant="outline" size="lg" asChild>
-                <Link href="/dashboard">
-                  <MagnifyingGlassIcon className="h-4 w-4" />
-                  {COPY.HOME.FIND_JOBS}
-                  <ArrowRightIcon className="h-3.5 w-3.5" />
-                </Link>
-              </Button>
+              <div className="flex flex-wrap gap-3">
+                <Button size="lg" asChild>
+                  <Link href="/bounties/create">
+                    <PlusIcon className="h-4 w-4" />
+                    {COPY.HOME.POST_A_JOB}
+                  </Link>
+                </Button>
+                <Button variant="outline" size="lg" asChild>
+                  <Link href="/dashboard">
+                    <MagnifyingGlassIcon className="h-4 w-4" />
+                    {COPY.HOME.FIND_JOBS}
+                    <ArrowRightIcon className="h-3.5 w-3.5" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* Right: Google Maps */}
+            <div className="hidden lg:block relative overflow-hidden rounded-[24px] bg-[#0e0f0c]">
+              <NearbyJobsMap compact />
             </div>
           </div>
         </div>
@@ -129,7 +138,7 @@ export default function Home() {
                     </p>
                   )}
                 </div>
-                <Icon className="h-8 w-8 opacity-10" style={{ color: iconColor }} />
+                <Icon className="h-8 w-8 opacity-20" style={{ color: iconColor }} />
               </div>
             </div>
           ))}
