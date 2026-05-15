@@ -39,7 +39,7 @@ function AnimateCount({
     >
       <AnimatePresence initial={false}>
         {animate && prev !== null && prev !== displayCount && (
-          <motion.div
+          <motion.p
             key={`exit-${prev}-${displayCount}`}
             aria-hidden
             initial={{ opacity: 1, filter: "blur(0px)", y: 0 }}
@@ -51,7 +51,7 @@ function AnimateCount({
             onAnimationComplete={() => setPrev(null)}
           >
             {prev}
-          </motion.div>
+          </motion.p>
         )}
       </AnimatePresence>
       <motion.div

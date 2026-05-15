@@ -133,6 +133,60 @@ export async function squadTransferPayout(params: {
   return { ok: true, raw };
 }
 
+/**
+ * Simulate a payment into a virtual account.
+ * - For real Squad VAs: calls Squad's sandbox simulate endpoint.
+ * - For MOCKVA* accounts: returns a synthetic success so the caller
+ *   can trigger the webhook handler directly.
+ */
+export async function squadSimulatePayment(
+  virtualAccountNumber: string,
+  amount: number,
+): Promise<{ ok: boolean; isMock: boolean; raw: unknown }> {
+  const isMock = virtualAccountNumber.startsWith("MOCKVA");
+
+  if (isMock) {
+    // No Squad API to call — the caller should invoke the webhook handler directly
+    return {
+      ok: true,
+      isMock: true,
+      raw: {
+        simulated: true,
+        virtual_account_number: virtualAccountNumber,
+        amount,
+      },
+    };
+  }
+
+  // Real VA — call Squad sandbox simulate endpoint
+  const secret = squadSecret();
+  if (!secret) {
+    console.error("[squad] No secret key for simulate payment");
+    return { ok: false, isMock: false, raw: { error: "No SQUAD_SECRET_KEY" } };
+  }
+
+  try {
+    const res = await fetch(`${SQUAD_BASE}/virtual-account/simulate/payment`, {
+      method: "POST",
+      headers: squadHeaders(secret),
+      body: JSON.stringify({
+        virtual_account_number: virtualAccountNumber,
+        amount: String(amount),
+      }),
+    });
+    const raw = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      console.error("Squad simulate payment error:", res.status, raw);
+      return { ok: false, isMock: false, raw };
+    }
+    console.info("[squad] Simulate payment success:", raw);
+    return { ok: true, isMock: false, raw };
+  } catch (e) {
+    console.error("Squad simulate payment exception:", e);
+    return { ok: false, isMock: false, raw: { error: String(e) } };
+  }
+}
+
 export function verifySquadWebhookSignature(
   rawBody: string,
   headerSig: string | null | undefined,

@@ -19,6 +19,8 @@ export async function POST(req: Request) {
         username: body.username,
         phone_number: body.phone_number,
         date_of_birth: body.date_of_birth,
+        bank_code: body.bank_code || null,
+        account_number: body.account_number || null,
         onboarding_complete: true,
       },
       { onConflict: "clerk_id" }

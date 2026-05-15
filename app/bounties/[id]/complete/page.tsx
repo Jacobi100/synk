@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useCallback } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
 import { Bounty } from "@/lib/types/bounty";
@@ -39,22 +39,27 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
   const [submittingReview, setSubmittingReview] = useState(false);
   const [reviewed, setReviewed]       = useState(false);
 
+  // Payment state for in_progress bounties
+  const [paying, setPaying]           = useState(false);
+  const [payError, setPayError]       = useState<string | null>(null);
+
+  const fetchBounty = useCallback(async () => {
+    try {
+      const res = await fetch(`/api/bounties/${id}`);
+      if (!res.ok) throw new Error("Failed to fetch bounty.");
+      setBounty(await res.json());
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : "Failed to load bounty.");
+      setPageState("error");
+    } finally {
+      setLoading(false);
+    }
+  }, [id]);
+
   useEffect(() => {
     if (!user) return;
-    async function fetchBounty() {
-      try {
-        const res = await fetch(`/api/bounties/${id}`);
-        if (!res.ok) throw new Error("Failed to fetch bounty.");
-        setBounty(await res.json());
-      } catch (err) {
-        setErrorMessage(err instanceof Error ? err.message : "Failed to load bounty.");
-        setPageState("error");
-      } finally {
-        setLoading(false);
-      }
-    }
     void fetchBounty();
-  }, [user, id]);
+  }, [user, fetchBounty]);
 
   const handleMarkComplete = async () => {
     if (!bounty || bounty.status !== "paid") return;
@@ -86,6 +91,32 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
     } catch (err) {
       setErrorMessage(err instanceof Error ? err.message : "An unexpected error occurred.");
       if (pageState !== "success") setPageState("error");
+    }
+  };
+
+  // -------------------------------------------------------------------------
+  // Pay now — for in_progress bounties that haven't been funded yet
+  // -------------------------------------------------------------------------
+
+  const handlePayNow = async () => {
+    if (!bounty) return;
+    setPaying(true);
+    setPayError(null);
+    try {
+      const res = await fetch(`/api/bounties/${id}/simulate-payment`, {
+        method: "POST",
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setPayError(data.error || "Payment failed. Please try again.");
+        return;
+      }
+      // Refresh bounty to get updated status
+      await fetchBounty();
+    } catch (err) {
+      setPayError(err instanceof Error ? err.message : "Payment failed.");
+    } finally {
+      setPaying(false);
     }
   };
 
@@ -301,6 +332,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
   }
 
   const canComplete   = bounty.status === "paid";
+  const needsPayment  = bounty.status === "in_progress";
   const isConfirming  = pageState === "confirming";
 
   return (
@@ -391,15 +423,26 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
             </p>
           </div>
 
-          {!canComplete && (
-            <div
-              className="rounded-[24px] border p-4 flex items-start gap-3"
-              style={{ backgroundColor: "#fffbeb", borderColor: "#fed7aa" }}
-            >
-              <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#d97706" }} />
-              <p className="text-xs" style={{ color: "#92400e" }}>
-                {COPY.COMPLETE.CANNOT_PAY_YET(bounty.status.replace("_", " "))}
-              </p>
+          {needsPayment && (
+            <div className="space-y-3">
+              <div
+                className="rounded-[24px] border p-4 flex items-start gap-3"
+                style={{ backgroundColor: "#fffbeb", borderColor: "#fed7aa" }}
+              >
+                <AlertCircle className="h-4 w-4 shrink-0 mt-0.5" style={{ color: "#d97706" }} />
+                <p className="text-xs" style={{ color: "#92400e" }}>
+                  {COPY.COMPLETE.CANNOT_PAY_YET(bounty.status.replace("_", " "))}
+                </p>
+              </div>
+
+              {payError && (
+                <div
+                  className="rounded-[24px] border p-3 text-sm"
+                  style={{ backgroundColor: "#fef2f2", borderColor: "#fecaca", color: "#b91c1c" }}
+                >
+                  {payError}
+                </div>
+              )}
             </div>
           )}
 
@@ -412,26 +455,49 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
               {COPY.COMPLETE.CANCEL}
             </Link>
 
-            <button
-              onClick={() => void handleMarkComplete()}
-              disabled={!canComplete || isConfirming}
-              className="flex-1 flex items-center justify-center gap-2 rounded-[24px] py-3 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
-              style={{
-                backgroundColor: canComplete ? "var(--primary)" : "#9ca3af",
-              }}
-            >
-              {isConfirming ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  {COPY.COMPLETE.PROCESSING}
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 className="h-4 w-4" />
-                  {COPY.COMPLETE.CONFIRM_BUTTON}
-                </>
-              )}
-            </button>
+            {needsPayment ? (
+              <button
+                onClick={() => void handlePayNow()}
+                disabled={paying}
+                className="flex-1 flex items-center justify-center gap-2 rounded-[24px] py-3 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                style={{
+                  backgroundColor: "var(--primary)",
+                }}
+              >
+                {paying ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {COPY.COMPLETE.PROCESSING}
+                  </>
+                ) : (
+                  <>
+                    <Banknote className="h-4 w-4" />
+                    Pay {formatNaira(escrowAmount)}
+                  </>
+                )}
+              </button>
+            ) : (
+              <button
+                onClick={() => void handleMarkComplete()}
+                disabled={!canComplete || isConfirming}
+                className="flex-1 flex items-center justify-center gap-2 rounded-[24px] py-3 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+                style={{
+                  backgroundColor: canComplete ? "var(--primary)" : "#9ca3af",
+                }}
+              >
+                {isConfirming ? (
+                  <>
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    {COPY.COMPLETE.PROCESSING}
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle2 className="h-4 w-4" />
+                    {COPY.COMPLETE.CONFIRM_BUTTON}
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </div>
 

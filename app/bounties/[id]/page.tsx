@@ -424,13 +424,22 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
               )}
 
               {isOwnBounty && bounty.status === "in_progress" && (
-                <Link
-                  href={`/bounties/${id}/payment`}
-                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5"
-                  style={{ background: "var(--primary)" }}
-                >
-                  {COPY.JOB_DETAIL.MAKE_SAFE_PAYMENT}
-                </Link>
+                <>
+                  <Link
+                    href={`/bounties/${id}/payment`}
+                    className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5"
+                    style={{ background: "var(--primary)" }}
+                  >
+                    {COPY.JOB_DETAIL.MAKE_SAFE_PAYMENT}
+                  </Link>
+                  <Link
+                    href={`/bounties/${id}/complete`}
+                    className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5"
+                    style={{ background: "var(--positive)", color: "#fff" }}
+                  >
+                    <CheckCircleIcon className="h-4 w-4" /> {COPY.JOB_DETAIL.CONFIRM_AND_PAY}
+                  </Link>
+                </>
               )}
 
               {isOwnBounty && bounty.status === "paid" && (

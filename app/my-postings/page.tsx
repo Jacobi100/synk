@@ -236,6 +236,15 @@ export default function MyPostingsPage() {
                         </Link>
                       </>
                     )}
+                    {bounty.status === "paid" && (
+                      <Link
+                        href={`/bounties/${bounty.id}/complete`}
+                        className="inline-flex items-center rounded-lg px-3.5 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+                        style={{ background: "var(--success-color)" }}
+                      >
+                        {COPY.MY_POSTINGS.CONFIRM_DONE}
+                      </Link>
+                    )}
                   </div>
                 </div>
               );
