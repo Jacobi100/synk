@@ -2,7 +2,12 @@
 
 import Link from "next/link";
 import type { Bounty, BountyFeedItem } from "@/lib/types/bounty";
-import { MapPinIcon, ClockIcon, SparklesIcon, UsersIcon } from "@heroicons/react/24/outline";
+import {
+  MapPinIcon,
+  ClockIcon,
+  SparklesIcon,
+  UsersIcon,
+} from "@heroicons/react/24/outline";
 import { formatDistanceToNow } from "date-fns";
 import { useRef } from "react";
 import { COPY } from "@/lib/copy";
@@ -16,25 +21,25 @@ function isFeedItem(b: Bounty | BountyFeedItem): b is BountyFeedItem {
 }
 
 const STATUS_STYLES: Record<string, string> = {
-  open:        "bg-[var(--primary-pale)] text-[var(--positive-deep)]",
+  open: "bg-[var(--primary-pale)] text-[var(--positive-deep)]",
   in_progress: "bg-[#fff3cd] text-[#856404]",
-  paid:        "bg-[var(--primary-pale)] text-foreground",
-  completed:   "bg-[var(--primary-pale)] text-[var(--positive-deep)]",
-  cancelled:   "bg-muted text-mute",
+  paid: "bg-[var(--primary-pale)] text-foreground",
+  completed: "bg-[var(--primary-pale)] text-[var(--positive-deep)]",
+  cancelled: "bg-muted text-mute",
 };
 
 const STATUS_LABELS: Record<string, string> = {
-  open:        COPY.STATUS.open,
+  open: COPY.STATUS.open,
   in_progress: COPY.STATUS.in_progress,
-  paid:        COPY.STATUS.paid,
-  completed:   COPY.STATUS.completed,
-  cancelled:   COPY.STATUS.cancelled,
+  paid: COPY.STATUS.paid,
+  completed: COPY.STATUS.completed,
+  cancelled: COPY.STATUS.cancelled,
 };
 
 const URGENCY_STYLES: Record<string, string> = {
-  asap:      "bg-[var(--negative)]/10 text-[var(--negative)]",
+  asap: "bg-[var(--negative)]/10 text-[var(--negative)]",
   scheduled: "bg-[var(--primary-pale)] text-foreground",
-  flexible:  "bg-[var(--primary-pale)] text-[var(--positive-deep)]",
+  flexible: "bg-[var(--primary-pale)] text-[var(--positive-deep)]",
 };
 
 export function BountyCard({ bounty }: BountyCardProps) {
@@ -52,7 +57,8 @@ export function BountyCard({ bounty }: BountyCardProps) {
     if (!bounty.price_min && !bounty.price_max) return "Price on request";
     if (bounty.price_min && bounty.price_max)
       return `${bounty.currency} ${bounty.price_min.toLocaleString()} – ${bounty.price_max.toLocaleString()}`;
-    if (bounty.price_min) return `${bounty.currency} ${bounty.price_min.toLocaleString()}+`;
+    if (bounty.price_min)
+      return `${bounty.currency} ${bounty.price_min.toLocaleString()}+`;
     return `${bounty.currency} ${bounty.price_max?.toLocaleString()}`;
   };
 
@@ -89,7 +95,9 @@ export function BountyCard({ bounty }: BountyCardProps) {
               </p>
             )}
           </div>
-          <span className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${statusStyle}`}>
+          <span
+            className={`shrink-0 rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${statusStyle}`}
+          >
             {STATUS_LABELS[bounty.status] ?? bounty.status}
           </span>
         </div>
@@ -105,14 +113,14 @@ export function BountyCard({ bounty }: BountyCardProps) {
               {bounty.location_name}
             </div>
           )}
-          <div className="text-sm font-bold text-primary">
-            {priceDisplay()}
-          </div>
+          <div className="text-sm font-bold text-primary">{priceDisplay()}</div>
         </div>
 
         <div className="mt-auto flex flex-wrap items-center justify-between gap-2 border-t border-border pt-3">
           <div className="flex flex-wrap gap-1.5">
-            <span className={`rounded-full px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wide ${urgencyStyle}`}>
+            <span
+              className={`rounded-full px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wide ${urgencyStyle}`}
+            >
               {bounty.urgency}
             </span>
             {bounty.price_negotiable && (
@@ -120,17 +128,20 @@ export function BountyCard({ bounty }: BountyCardProps) {
                 {COPY.BOUNTY_FORM.FIELD_NEGOTIABLE}
               </span>
             )}
-            {feed?.suggested_price_min != null && feed.suggested_price_max != null && (
-              <span className="inline-flex items-center gap-1 rounded-full bg-[var(--primary-pale)] px-2.5 py-0.5 text-[11px] font-semibold text-primary">
-                <SparklesIcon className="h-3 w-3" />
-                ₦{feed.suggested_price_min.toLocaleString("en-NG")}–
-                {feed.suggested_price_max.toLocaleString("en-NG")}
-              </span>
-            )}
+            {feed?.suggested_price_min != null &&
+              feed.suggested_price_max != null && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-[var(--primary-pale)] px-2.5 py-0.5 text-[11px] font-semibold text-primary">
+                  <SparklesIcon className="h-3 w-3" />₦
+                  {feed.suggested_price_min.toLocaleString("en-NG")}–
+                  {feed.suggested_price_max.toLocaleString("en-NG")}
+                </span>
+              )}
           </div>
           <div className="flex items-center gap-1 text-[11px] text-mute">
             <ClockIcon className="h-3 w-3" />
-            {formatDistanceToNow(new Date(bounty.created_at), { addSuffix: true })}
+            {formatDistanceToNow(new Date(bounty.created_at), {
+              addSuffix: true,
+            })}
           </div>
         </div>
 
