@@ -47,7 +47,7 @@ export function NotificationBell() {
 
       {open && (
         <div
-          className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-[24px] border border-border bg-background shadow-lg"
+          className="fixed left-4 right-4 z-50 mt-2 overflow-hidden rounded-[24px] border border-border bg-background shadow-lg sm:absolute sm:left-auto sm:right-0 sm:w-80"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
