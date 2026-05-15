@@ -77,7 +77,18 @@ export function Navbar() {
             </Show>
 
             <Show when="signed-in">
-              <UserButton />
+              <UserButton
+                appearance={{
+                  elements: {
+                    userButtonPopoverCard:
+                      "bg-background border border-border rounded-[24px] shadow-none",
+                    userButtonPopoverActionItem:
+                      "text-foreground hover:bg-secondary transition-colors",
+                    userButtonPopoverActionItemText: "text-foreground",
+                    userButtonPopoverFooter: "hidden",
+                  },
+                }}
+              />
             </Show>
 
             <button
@@ -92,7 +103,7 @@ export function Navbar() {
 
         {/* Mobile menu */}
         {isOpen && (
-          <div className="border-t border-border pb-4 md:hidden">
+          <div className="border-t border-border bg-background pb-4 md:hidden">
             <div className="flex flex-col gap-1 pt-3">
               <Show when="signed-in">
                 {NAV_LINKS.map(({ href, label }) => {

@@ -54,15 +54,15 @@ function StepIndicator({ current }: { current: number }) {
         <div key={label} className="flex items-center gap-3">
           <div className="flex flex-col items-center gap-1">
             {i < current ? (
-              <GlowingBadge variant="success" pulse={false} dot={false}>
+              <GlowingBadge variant="success" dot={false}>
                 ✓
               </GlowingBadge>
             ) : i === current ? (
-              <GlowingBadge variant="info" pulse={true} dot={true}>
+              <GlowingBadge variant="info" dot={true}>
                 <AnimateCount>{i + 1}</AnimateCount>
               </GlowingBadge>
             ) : (
-              <GlowingBadge variant="neutral" pulse={false} dot={false}>
+              <GlowingBadge variant="neutral" dot={false}>
                 {i + 1}
               </GlowingBadge>
             )}

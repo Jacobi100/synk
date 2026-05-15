@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Bounty, CreateBountyInput } from "@/lib/types/bounty";
 import {
@@ -57,6 +57,130 @@ function SectionDivider({ title }: { title: string }) {
         {title}
       </span>
       <div className="h-px flex-1 bg-border/60" />
+    </div>
+  );
+}
+
+function CustomSelect({
+  value,
+  onChange,
+  options,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  placeholder: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const selected = options.find((o) => o.value === value);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={`${inputBase} flex w-full items-center justify-between pr-10 focus:shadow-[0_0_0_2px_var(--ring)]`}
+        style={inputStyle}
+      >
+        <span className={value ? "" : "text-muted-foreground"}>
+          {selected ? selected.label : placeholder}
+        </span>
+        <ChevronDownIcon
+          className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && (
+        <div
+          className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-[24px] border py-1"
+          style={inputStyle}
+        >
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => { onChange(opt.value); setOpen(false); }}
+              className={`w-full px-3.5 py-2.5 text-left text-sm transition-colors hover:bg-secondary ${
+                opt.value === value ? "bg-primary/10 text-foreground font-semibold" : "text-foreground"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DatePicker({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const displayDate = value
+    ? new Date(value).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }) +
+      " " +
+      new Date(value).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={`${inputBase} flex w-full items-center justify-between pr-10 focus:shadow-[0_0_0_2px_var(--ring)]`}
+        style={inputStyle}
+      >
+        <span className={value ? "" : "text-muted-foreground"}>
+          {value ? displayDate : "Select date & time"}
+        </span>
+        <CalendarDaysIcon className="h-4 w-4 text-muted-foreground" />
+      </button>
+      {open && (
+        <div
+          className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-[24px] border p-4"
+          style={inputStyle}
+        >
+          <input
+            type="datetime-local"
+            value={value}
+            onChange={(e) => { onChange(e.target.value); setOpen(false); }}
+            className="w-full rounded-[24px] border bg-secondary px-3.5 py-2.5 text-sm outline-none focus:shadow-[0_0_0_2px_var(--ring)]"
+            style={inputStyle}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -243,19 +367,12 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       {/* Category */}
       <div>
         <FieldLabel><TagIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_CATEGORY}</FieldLabel>
-        <div className="relative">
-          <select
-            name="category" value={formData.category} onChange={handleChange} required
-            className={`${inputBase} appearance-none pr-10 focus:shadow-[0_0_0_2px_var(--ring)]`}
-            style={inputStyle}
-          >
-            <option value="">Select a category</option>
-            {CATEGORIES.map((cat) => (
-              <option key={cat} value={cat}>{cat}</option>
-            ))}
-          </select>
-          <ChevronDownIcon className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        </div>
+        <CustomSelect
+          value={formData.category}
+          onChange={(v) => setFormData((prev) => ({ ...prev, category: v }))}
+          options={CATEGORIES.map((c) => ({ value: c, label: c }))}
+          placeholder="Select a category"
+        />
       </div>
 
       {/* Photos */}
@@ -357,27 +474,19 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
             <CalendarDaysIcon className="h-3.5 w-3.5 text-muted-foreground" />
             {COPY.BOUNTY_FORM.FIELD_DEADLINE}
           </FieldLabel>
-          <input
-            type="datetime-local" name="deadline" value={formData.deadline || ""}
-            onChange={handleChange}
-            className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
-            style={inputStyle}
+          <DatePicker
+            value={formData.deadline || ""}
+            onChange={(v) => setFormData((prev) => ({ ...prev, deadline: v }))}
           />
         </div>
         <div>
           <FieldLabel><ClockIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_URGENCY}</FieldLabel>
-          <div className="relative">
-            <select
-              name="urgency" value={formData.urgency} onChange={handleChange}
-              className={`${inputBase} appearance-none pr-10 focus:shadow-[0_0_0_2px_var(--ring)]`}
-              style={inputStyle}
-            >
-              {URGENCY_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
-              ))}
-            </select>
-            <ChevronDownIcon className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          </div>
+          <CustomSelect
+            value={formData.urgency}
+            onChange={(v) => setFormData((prev) => ({ ...prev, urgency: v }))}
+            options={URGENCY_OPTIONS}
+            placeholder="Select urgency"
+          />
         </div>
       </div>
 

@@ -48,7 +48,6 @@ const variantStyles: Record<
 
 function GlowingBadge({
   variant = "default",
-  pulse = true,
   dot = true,
   children,
   className,
