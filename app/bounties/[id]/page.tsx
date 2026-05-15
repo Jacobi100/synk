@@ -335,15 +335,15 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
           </div>
 
           <div className="space-y-4">
-            <div className="relative overflow-hidden rounded-[24px] bg-[#0e0f0c] p-6">
+            <div className="relative overflow-hidden rounded-[24px] border bg-background p-6" style={{ borderColor: "var(--border)" }}>
               <div
                 className="pointer-events-none absolute -bottom-8 -right-8 h-32 w-32 rounded-full blur-2xl"
-                style={{ background: "rgba(94,58,255,0.12)" }}
+                style={{ background: "rgba(94,58,255,0.08)" }}
               />
-              <p className="text-xs font-medium uppercase tracking-wide text-[#868685]">
+              <p className="text-xs font-medium uppercase tracking-wide text-primary">
                 {COPY.BUDGET}
               </p>
-              <h3 className="mt-1 text-2xl font-bold text-[#e8ebe6]">
+              <h3 className="mt-1 text-2xl font-bold text-foreground whitespace-nowrap">
                 {priceDisplay()}
               </h3>
               {bounty.price_negotiable && (

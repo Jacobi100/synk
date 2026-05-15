@@ -33,8 +33,8 @@ export default function SignInPage() {
       </div>
       <div className="flex flex-1 items-center justify-center bg-secondary p-8">
         <div className="w-full max-w-md animate-fade-in">
-          <div className="mb-8 md:hidden">
-            <Logo />
+          <div className="mb-8 flex justify-center md:hidden">
+            <Logo gradient size={48} showText={false} />
           </div>
           <SignIn
             appearance={{
