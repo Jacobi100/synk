@@ -19,14 +19,14 @@ import { supabaseAdmin } from "@/lib/supabase/server";
 // ---------------------------------------------------------------------------
 
 async function runFraudCheck(params: {
-  bountyId:    string;
+  bountyId: string;
   transactionId: string;
-  buyerId:     string;
-  providerId:  string;
-  amount:      number;
+  buyerId: string;
+  providerId: string;
+  amount: number;
   description: string;
-  category:    string;
-  createdAt:   string;
+  category: string;
+  createdAt: string;
 }): Promise<{ recommendation: "approve" | "hold" | "block" }> {
   try {
     // How long since payment was confirmed
@@ -43,11 +43,11 @@ async function runFraudCheck(params: {
       .eq("status", "released");
 
     const assessment = await assessTransaction({
-      buyerId:                  params.buyerId,
-      providerId:               params.providerId,
-      amount:                   params.amount,
-      serviceDescription:       params.description,
-      category:                 params.category,
+      buyerId: params.buyerId,
+      providerId: params.providerId,
+      amount: params.amount,
+      serviceDescription: params.description,
+      category: params.category,
       timeElapsedMinutes,
       previousTransactionCount: previousCount ?? 0,
     });
@@ -58,19 +58,19 @@ async function runFraudCheck(params: {
       assessment.recommendation === "block"
     ) {
       const { error } = await supabaseAdmin.from("fraud_alerts").insert({
-        transaction_id:      params.transactionId,
-        bounty_id:           params.bountyId,
-        buyer_id:            params.buyerId,
-        provider_id:         params.providerId,
-        amount:              params.amount,
-        final_score:         assessment.finalScore,
-        recommendation:      assessment.recommendation,
-        risk_factors:        assessment.riskFactors,
-        explanation:         assessment.explanation,
-        layer1_score:        assessment.layer1Score,
-        layer2_score:        assessment.layer2Score,
+        transaction_id: params.transactionId,
+        bounty_id: params.bountyId,
+        buyer_id: params.buyerId,
+        provider_id: params.providerId,
+        amount: params.amount,
+        final_score: assessment.finalScore,
+        recommendation: assessment.recommendation,
+        risk_factors: assessment.riskFactors,
+        explanation: assessment.explanation,
+        layer1_score: assessment.layer1Score,
+        layer2_score: assessment.layer2Score,
         gemini_contribution: assessment.geminiContribution,
-        signals:             assessment.signals,
+        signals: assessment.signals,
       });
 
       if (error) {
@@ -108,9 +108,9 @@ async function updateProviderReputation(providerId: string): Promise<void> {
 
     if (!txRows || txRows.length === 0) return;
 
-    const completed  = txRows.filter((t) => t.status === "released").length;
-    const disputed   = txRows.filter((t) => t.status === "disputed").length;
-    const total      = txRows.length;
+    const completed = txRows.filter((t) => t.status === "released").length;
+    const disputed = txRows.filter((t) => t.status === "disputed").length;
+    const total = txRows.length;
     const completionRate = total > 0 ? completed / total : 0;
 
     // Unique buyers
@@ -142,32 +142,32 @@ async function updateProviderReputation(providerId: string): Promise<void> {
 
     const accountAgeDays = profileRow
       ? Math.floor(
-          (Date.now() - new Date(profileRow.created_at).getTime()) /
-          (1000 * 60 * 60 * 24)
-        )
+        (Date.now() - new Date(profileRow.created_at).getTime()) /
+        (1000 * 60 * 60 * 24)
+      )
       : 0;
 
     const profile = calculateTrustProfile({
       providerId,
-      completedJobs:              completed,
+      completedJobs: completed,
       completionRate,
       totalUniqueBuyers,
       repeatBuyerCount,
       repeatBuyerRatio,
-      disputeCount:               disputed,
-      fraudFlags:                 fraudFlags ?? 0,
+      disputeCount: disputed,
+      fraudFlags: fraudFlags ?? 0,
       averageResponseTimeMinutes: 60, // default until response time tracking is added
       accountAgeDays,
-      averageRating:              Number(profileRow?.average_rating || 0),
-      ratingCount:                Number(profileRow?.rating_count || 0),
+      averageRating: Number(profileRow?.average_rating || 0),
+      ratingCount: Number(profileRow?.rating_count || 0),
     });
 
     const { error } = await supabaseAdmin
       .from("profiles")
       .update({
-        trust_badge:       profile.badge,
-        trust_score:       profile.trustScore,
-        trust_signals:     profile.signals,
+        trust_badge: profile.badge,
+        trust_score: profile.trustScore,
+        trust_signals: profile.signals,
         trust_computed_at: new Date().toISOString(),
       })
       .eq("id", providerId);
@@ -205,7 +205,7 @@ export async function completeBountyForPoster(clerkUserId: string, bountyId: str
 
   if (bounty.status !== "paid") {
     return {
-      error:  "Bounty must be paid before completion and payout",
+      error: "Bounty must be paid before completion and payout",
       status: 400 as const,
     };
   }
@@ -218,13 +218,20 @@ export async function completeBountyForPoster(clerkUserId: string, bountyId: str
   const provider = await getProfileById(tx.provider_id);
   if (!provider) return { error: "Provider profile not found", status: 500 as const };
 
-  const acct   = (provider.account_number ?? "").replace(/\D/g, "");
-  const bank   = (provider.bank_code ?? "").trim();
+  const acct = String(provider.account_number ?? "").replace(/\D/g, "");
+  const bank = String(provider.bank_code ?? "").trim();
   const payout = Number(tx.provider_payout ?? 0);
 
-  if (!acct || acct.length < 10 || !bank) {
+  console.log("Provider payout debug:", {
+    account_number: provider.account_number,
+    bank_code: provider.bank_code,
+    acct_digits: acct,
+    bank_trimmed: bank,
+  });
+
+  if (!acct || acct.length < 9 || !bank) {
     return {
-      error:  "Provider must add bank_code and account_number on their profile to receive payout",
+      error: `Provider must add bank_code and account_number on their profile to receive payout. Got acct=${acct} (len=${acct.length}), bank=${bank}`,
       status: 400 as const,
     };
   }
@@ -236,24 +243,24 @@ export async function completeBountyForPoster(clerkUserId: string, bountyId: str
   const fraud = await runFraudCheck({
     bountyId,
     transactionId: tx.id,
-    buyerId:       bounty.poster_id,
-    providerId:    tx.provider_id,
-    amount:        Number(tx.amount),
-    description:   bounty.description || "",
-    category:      bounty.category,
-    createdAt:     tx.created_at,
+    buyerId: bounty.poster_id,
+    providerId: tx.provider_id,
+    amount: Number(tx.amount),
+    description: bounty.description || "",
+    category: bounty.category,
+    createdAt: tx.created_at,
   });
 
   if (fraud.recommendation === "block") {
     return {
-      error:  "Payment could not be released — flagged by fraud detection. Contact support.",
+      error: "Payment could not be released — flagged by fraud detection. Contact support.",
       status: 402 as const,
     };
   }
 
   if (fraud.recommendation === "hold") {
     return {
-      error:  "Payment is under review. You will be notified once it is cleared.",
+      error: "Payment is under review. You will be notified once it is cleared.",
       status: 402 as const,
     };
   }
@@ -262,21 +269,21 @@ export async function completeBountyForPoster(clerkUserId: string, bountyId: str
   // Fraud approved — release funds
   // -------------------------------------------------------------------------
 
-  const ref        = `synk_${bountyId}_${Date.now()}`;
+  const ref = `synk_${bountyId}_${Date.now()}`;
   const amountKobo = Math.max(1, Math.round(payout * 100));
 
   const transfer = await squadTransferPayout({
     transaction_reference: ref,
     amountKobo,
-    bank_code:       bank,
-    account_number:  acct,
-    account_name:    provider.full_name?.trim() || "Synk Provider",
-    remark:          `Payout bounty ${bounty.title.slice(0, 40)}`,
+    bank_code: bank,
+    account_number: acct,
+    account_name: String(provider.full_name ?? "Synk Provider").trim(),
+    remark: `Payout bounty ${bounty.title.slice(0, 40)}`,
   });
 
   if (!transfer.ok) {
     return {
-      error:  "Squad transfer failed — check server logs",
+      error: "Squad transfer failed — check server logs",
       status: 502 as const,
       detail: transfer.raw,
     };
@@ -299,10 +306,10 @@ export async function completeBountyForPoster(clerkUserId: string, bountyId: str
   // -------------------------------------------------------------------------
 
   await createNotification({
-    user_id:           tx.provider_id,
-    type:              "payout_sent",
-    title:             "Payout sent",
-    body:              `Your payment of ₦${payout.toLocaleString("en-NG")} has been sent to your account.`,
+    user_id: tx.provider_id,
+    type: "payout_sent",
+    title: "Payout sent",
+    body: `Your payment of ₦${payout.toLocaleString("en-NG")} has been sent to your account.`,
     related_bounty_id: bountyId,
   });
 

@@ -54,10 +54,11 @@ export type BountyApplication = {
   bounty_id: string;
   provider_id: string;
   status: "pending" | "accepted" | "rejected" | "withdrawn";
+  proposed_price?: number | null;
   created_at: string;
 };
 
-export type CreateBountyApplicationInput = Pick<BountyApplication, "bounty_id" | "provider_id">;
+export type CreateBountyApplicationInput = Pick<BountyApplication, "bounty_id" | "provider_id" | "proposed_price">;
 
 export type ProviderProfile = {
   id: string;
