@@ -1,10 +1,15 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Bounty, CreateBountyInput } from "@/lib/types/bounty";
-import { ArrowPathIcon, MapPinIcon, CalendarDaysIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowPathIcon, MapPinIcon, CalendarDaysIcon, SparklesIcon,
+  PencilIcon, DocumentTextIcon, TagIcon, PhotoIcon, CurrencyDollarIcon, ClockIcon, UserGroupIcon,
+  ChevronDownIcon,
+} from "@heroicons/react/24/outline";
 import { COPY } from "@/lib/copy";
+import { Button } from "@/components/ui/button";
 
 interface BountyFormProps {
   bounty?: Bounty;
@@ -30,26 +35,16 @@ const URGENCY_OPTIONS = [
   { value: "flexible", label: "Flexible" },
 ];
 
-/* shared input styles */
 const inputBase =
-  "w-full rounded-lg border px-3.5 py-2.5 text-sm outline-none transition-all placeholder:opacity-60";
-
-function useInputFocus() {
-  return {
-    onFocus: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-      e.target.style.borderColor = "var(--violet)";
-      e.target.style.boxShadow = "0 0 0 3px var(--violet-glow)";
-    },
-    onBlur: (e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-      e.target.style.borderColor = "var(--border)";
-      e.target.style.boxShadow = "none";
-    },
-  };
-}
+  "w-full rounded-[24px] border bg-secondary px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-mute focus:bg-background";
+const inputStyle = {
+  borderColor: "var(--border)",
+  color: "var(--foreground)",
+};
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="mb-1.5 block text-sm font-medium" style={{ color: "var(--text)" }}>
+    <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-foreground">
       {children}
     </label>
   );
@@ -57,12 +52,135 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 
 function SectionDivider({ title }: { title: string }) {
   return (
-    <div className="flex items-center gap-3 py-1">
-      <div className="h-px flex-1" style={{ background: "var(--border)" }} />
-      <span className="font-mono text-[11px] font-bold uppercase tracking-widest" style={{ color: "var(--text3)" }}>
+    <div className="flex items-center gap-4 pt-8 pb-4">
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {title}
       </span>
-      <div className="h-px flex-1" style={{ background: "var(--border)" }} />
+      <div className="h-px flex-1 bg-border/60" />
+    </div>
+  );
+}
+
+function CustomSelect({
+  value,
+  onChange,
+  options,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  options: { value: string; label: string }[];
+  placeholder: string;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const selected = options.find((o) => o.value === value);
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={`${inputBase} flex w-full items-center justify-between pr-10 focus:shadow-[0_0_0_2px_var(--ring)]`}
+        style={inputStyle}
+      >
+        <span className="text-foreground">
+          {selected ? selected.label : placeholder}
+        </span>
+        <ChevronDownIcon
+          className={`h-4 w-4 text-muted-foreground transition-transform ${open ? "rotate-180" : ""}`}
+        />
+      </button>
+      {open && (
+        <div
+          className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-[24px] border bg-background py-1"
+          style={inputStyle}
+        >
+          {options.map((opt) => (
+            <button
+              key={opt.value}
+              type="button"
+              onClick={() => { onChange(opt.value); setOpen(false); }}
+              className={`w-full px-3.5 py-2.5 text-left text-sm transition-colors hover:bg-secondary ${
+                opt.value === value ? "bg-primary/10 text-foreground font-semibold" : "text-foreground"
+              }`}
+            >
+              {opt.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function DatePicker({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    }
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, []);
+
+  const displayDate = value
+    ? new Date(value).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      }) +
+      " " +
+      new Date(value).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "";
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        onClick={() => setOpen(!open)}
+        className={`${inputBase} flex w-full items-center justify-between pr-10 focus:shadow-[0_0_0_2px_var(--ring)]`}
+        style={inputStyle}
+      >
+        <span className="text-foreground">
+          {value ? displayDate : "Select date & time"}
+        </span>
+        <CalendarDaysIcon className="h-4 w-4 text-muted-foreground" />
+      </button>
+      {open && (
+        <div
+          className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-[24px] border bg-background p-4"
+          style={inputStyle}
+        >
+          <input
+            type="datetime-local"
+            value={value}
+            onChange={(e) => { onChange(e.target.value); setOpen(false); }}
+            className="w-full rounded-[24px] border bg-secondary px-3.5 py-2.5 text-sm outline-none focus:shadow-[0_0_0_2px_var(--ring)] focus:bg-background"
+            style={inputStyle}
+          />
+        </div>
+      )}
     </div>
   );
 }
@@ -78,7 +196,6 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
     suggested_min: number | null;
     suggested_max: number | null;
   } | null>(null);
-  const focus = useInputFocus();
 
   const [formData, setFormData] = useState<CreateBountyInput>({
     title: bounty?.title || "",
@@ -197,22 +314,13 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
     }
   };
 
-  const inputStyle = {
-    background: "var(--bg2)",
-    borderColor: "var(--border)",
-    color: "var(--text)",
-  };
-
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
 
       {/* AI suggestion */}
       {suggest?.suggested_min != null && suggest.suggested_max != null && (
-        <div
-          className="flex items-start gap-3 rounded-xl border p-4 text-sm"
-          style={{ background: "var(--violet-subtle)", borderColor: "var(--violet)", color: "var(--violet)" }}
-        >
-          <SparklesIcon className="mt-0.5 h-4 w-4 shrink-0" />
+        <div className="flex items-start gap-3 rounded-[24px] bg-[var(--primary-pale)] p-4 text-sm text-foreground">
+          <SparklesIcon className="mt-0.5 h-4 w-4 shrink-0 text-primary" />
           <div>
             {COPY.BOUNTY_FORM.PRICE_SUGGESTION(
               suggest.suggested_min.toLocaleString("en-NG"),
@@ -227,10 +335,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
 
       {/* Error */}
       {error && (
-        <div
-          className="rounded-xl border px-4 py-3 text-sm"
-          style={{ background: "#fef2f2", borderColor: "#fecaca", color: "#b91c1c" }}
-        >
+        <div className="rounded-[24px] bg-[var(--negative)]/10 p-4 text-sm text-[var(--negative)]">
           {error}
         </div>
       )}
@@ -239,52 +344,48 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
 
       {/* Title */}
       <div>
-        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_TITLE}</FieldLabel>
+        <FieldLabel><PencilIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_TITLE}</FieldLabel>
         <input
           type="text" name="title" value={formData.title} onChange={handleChange} required
           placeholder="What do you need done?"
-          className={inputBase} style={inputStyle} {...focus}
+          className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
+          style={inputStyle}
         />
       </div>
 
       {/* Description */}
       <div>
-        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_DESCRIPTION}</FieldLabel>
+        <FieldLabel><DocumentTextIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_DESCRIPTION}</FieldLabel>
         <textarea
           name="description" value={formData.description || ""} onChange={handleChange}
           placeholder="Provide detailed information about the task, requirements, and expectations…"
-          rows={5} className={inputBase} style={inputStyle} {...focus}
+          rows={5} className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
+          style={inputStyle}
         />
       </div>
 
       {/* Category */}
       <div>
-        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_CATEGORY}</FieldLabel>
-        <select
-          name="category" value={formData.category} onChange={handleChange} required
-          className={inputBase} style={inputStyle} {...focus}
-        >
-          <option value="">Select a category</option>
-          {CATEGORIES.map((cat) => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
+        <FieldLabel><TagIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_CATEGORY}</FieldLabel>
+        <CustomSelect
+          value={formData.category}
+          onChange={(v) => setFormData((prev) => ({ ...prev, category: v }))}
+          options={CATEGORIES.map((c) => ({ value: c, label: c }))}
+          placeholder="Select a category"
+        />
       </div>
 
       {/* Photos */}
       <div>
-        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_IMAGES}</FieldLabel>
-        <div
-          className="rounded-lg border border-dashed px-4 py-3 text-sm transition-colors hover:border-[var(--violet)]"
-          style={{ borderColor: "var(--border2)", color: "var(--text3)" }}
-        >
+        <FieldLabel><PhotoIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_IMAGES}</FieldLabel>
+        <div className="rounded-[24px] border border-dashed px-4 py-3 text-sm transition-colors" style={inputStyle}>
           <input
             type="file" accept="image/*" multiple
             onChange={(e) => setImageFiles(Array.from(e.target.files || []))}
             className="w-full cursor-pointer"
           />
           {imageFiles.length > 0 && (
-            <p className="mt-1 text-xs" style={{ color: "var(--violet)" }}>
+            <p className="mt-1 text-xs text-primary">
               {imageFiles.length} file{imageFiles.length !== 1 ? "s" : ""} selected
             </p>
           )}
@@ -297,34 +398,36 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <FieldLabel>
-            <MapPinIcon className="mr-1 inline h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
+            <MapPinIcon className="h-3.5 w-3.5 text-muted-foreground" />
             {COPY.BOUNTY_FORM.FIELD_LOCATION}
           </FieldLabel>
           <div className="flex gap-2">
             <input
               type="text" name="location_name" value={formData.location_name || ""}
               onChange={handleChange} placeholder="e.g., Yaba, Lagos"
-              className={`${inputBase} flex-1`} style={inputStyle} {...focus}
+              className={`${inputBase} flex-1 focus:shadow-[0_0_0_2px_var(--ring)]`}
+              style={inputStyle}
             />
             <button
               type="button" onClick={handleUseMyLocation} disabled={locating}
-              className="flex shrink-0 items-center gap-1.5 rounded-lg border px-3 py-2.5 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)] disabled:opacity-50"
-              style={{ borderColor: "var(--border2)", color: "var(--text2)", background: "var(--bg2)" }}
+              className="flex shrink-0 items-center gap-1.5 rounded-[24px] border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary disabled:opacity-50"
+              style={inputStyle}
             >
               {locating ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : <MapPinIcon className="h-4 w-4" />}
               {locating ? "" : "GPS"}
             </button>
           </div>
-          <p className="mt-1 font-mono text-[11px]" style={{ color: "var(--text3)" }}>
+          <p className="mt-1 text-xs text-muted-foreground">
             {formData.latitude.toFixed(5)}, {formData.longitude.toFixed(5)}
           </p>
         </div>
         <div>
-          <FieldLabel>Radius (km)</FieldLabel>
+          <FieldLabel><MapPinIcon className="h-3.5 w-3.5 text-muted-foreground" />Radius (km)</FieldLabel>
           <input
             type="number" name="radius_km" value={formData.radius_km}
             onChange={handleNumberChange} min={1}
-            className={inputBase} style={inputStyle} {...focus}
+            className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
+            style={inputStyle}
           />
         </div>
       </div>
@@ -332,30 +435,32 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       <SectionDivider title="Pricing" />
 
       <div>
-        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_PRICE}</FieldLabel>
+        <FieldLabel><CurrencyDollarIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_PRICE}</FieldLabel>
         <div className="grid gap-3 md:grid-cols-2">
           <div>
-            <label className="mb-1 block text-xs" style={{ color: "var(--text3)" }}>Minimum</label>
+            <label className="mb-1 block text-xs text-muted-foreground">Minimum</label>
             <input
               type="number" name="price_min" value={formData.price_min ?? ""}
               onChange={handleNumberChange} placeholder="0"
-              className={inputBase} style={inputStyle} {...focus}
+              className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
+              style={inputStyle}
             />
           </div>
           <div>
-            <label className="mb-1 block text-xs" style={{ color: "var(--text3)" }}>Maximum</label>
+            <label className="mb-1 block text-xs text-muted-foreground">Maximum</label>
             <input
               type="number" name="price_max" value={formData.price_max ?? ""}
               onChange={handleNumberChange} placeholder="0"
-              className={inputBase} style={inputStyle} {...focus}
+              className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
+              style={inputStyle}
             />
           </div>
         </div>
-        <label className="mt-3 flex cursor-pointer items-center gap-2.5 text-sm" style={{ color: "var(--text2)" }}>
+        <label className="mt-3 flex cursor-pointer items-center gap-2.5 text-sm text-muted-foreground">
           <input
             type="checkbox" name="price_negotiable" checked={formData.price_negotiable}
             onChange={handleChange}
-            className="h-4 w-4 rounded accent-[var(--violet)]"
+            className="h-4 w-4 rounded accent-primary"
           />
           {COPY.BOUNTY_FORM.FIELD_NEGOTIABLE}
         </label>
@@ -366,57 +471,47 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <FieldLabel>
-            <CalendarDaysIcon className="mr-1 inline h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
+            <CalendarDaysIcon className="h-3.5 w-3.5 text-muted-foreground" />
             {COPY.BOUNTY_FORM.FIELD_DEADLINE}
           </FieldLabel>
-          <input
-            type="datetime-local" name="deadline" value={formData.deadline || ""}
-            onChange={handleChange}
-            className={inputBase} style={inputStyle} {...focus}
+          <DatePicker
+            value={formData.deadline || ""}
+            onChange={(v) => setFormData((prev) => ({ ...prev, deadline: v }))}
           />
         </div>
         <div>
-          <FieldLabel>{COPY.BOUNTY_FORM.FIELD_URGENCY}</FieldLabel>
-          <select
-            name="urgency" value={formData.urgency} onChange={handleChange}
-            className={inputBase} style={inputStyle} {...focus}
-          >
-            {URGENCY_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
+          <FieldLabel><ClockIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_URGENCY}</FieldLabel>
+          <CustomSelect
+            value={formData.urgency}
+            onChange={(v) => setFormData((prev) => ({ ...prev, urgency: v as CreateBountyInput["urgency"] }))}
+            options={URGENCY_OPTIONS}
+            placeholder="Select urgency"
+          />
         </div>
       </div>
 
       <div>
-        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_SLOTS}</FieldLabel>
+        <FieldLabel><UserGroupIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_SLOTS}</FieldLabel>
         <input
           type="number" name="slots_available" value={formData.slots_available}
           onChange={handleNumberChange} min={1}
-          className={inputBase} style={{ ...inputStyle, maxWidth: "10rem" }} {...focus}
+          className={`${inputBase} max-w-[10rem] focus:shadow-[0_0_0_2px_var(--ring)]`}
+          style={inputStyle}
         />
-        <p className="mt-1 text-xs" style={{ color: "var(--text3)" }}>
+        <p className="mt-1 text-xs text-mute">
           How many providers can be selected for this bounty.
         </p>
       </div>
 
       {/* Submit */}
       <div className="flex gap-3 pt-2">
-        <button
-          type="submit" disabled={loading}
-          className="flex flex-1 items-center justify-center gap-2 rounded-lg py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed"
-          style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
-        >
+        <Button type="submit" disabled={loading} className="flex-1">
           {loading && <ArrowPathIcon className="h-4 w-4 animate-spin" />}
           {bounty ? "Update bounty" : "Post bounty"}
-        </button>
-        <button
-          type="button" onClick={() => router.back()}
-          className="rounded-lg border px-5 py-2.5 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
-          style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
-        >
+        </Button>
+        <Button type="button" variant="outline" onClick={() => router.back()}>
           Cancel
-        </button>
+        </Button>
       </div>
     </form>
   );

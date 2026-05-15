@@ -4,18 +4,11 @@ import { useState, useRef, useEffect, useCallback } from "react";
 import { MicrophoneIcon, ArrowPathIcon, ExclamationCircleIcon } from "@heroicons/react/24/outline";
 import { COPY } from "@/lib/copy";
 
-// ---------------------------------------------------------------------------
-// Safari compatibility — webkit prefix without using `any`
-// ---------------------------------------------------------------------------
 declare global {
   interface Window {
     webkitAudioContext?: typeof AudioContext;
   }
 }
-
-// ---------------------------------------------------------------------------
-// Types
-// ---------------------------------------------------------------------------
 
 type RecordingState = "idle" | "recording" | "processing" | "error";
 
@@ -24,7 +17,6 @@ interface Language {
   label: string;
 }
 
-// Full response shape from /api/ai/restructure
 export interface RestructureResult {
   listing: {
     title:              string;
@@ -44,19 +36,11 @@ export interface RestructureResult {
 }
 
 export interface VoiceInputProps {
-  /** Called with the English transcript once Gemini processes the audio. */
   onTranscript: (transcript: string) => void;
-  /** Called with the full structured result — use this for listing creation. */
   onResult?: (result: RestructureResult) => void;
-  /** Coordinates to pass to the restructure route for geocoding. */
   coordinates?: { lat: number; lng: number };
-  /** Optional initial language override from a parent component. */
   language?: string;
 }
-
-// ---------------------------------------------------------------------------
-// Constants
-// ---------------------------------------------------------------------------
 
 const LANGUAGES: Language[] = [
   { code: "yo-NG", label: "Yoruba"  },
@@ -66,25 +50,15 @@ const LANGUAGES: Language[] = [
   { code: "en-NG", label: "English" },
 ];
 
-/** RMS value below which the audio is considered silence. */
 const SILENCE_THRESHOLD = 12;
-
-/** Auto-stop after this many consecutive milliseconds of silence. */
 const SILENCE_DURATION_MS = 10_000;
-
-/** How often the silence detector samples the audio level. */
 const CHECK_INTERVAL_MS = 100;
-
-// ---------------------------------------------------------------------------
-// Component
-// ---------------------------------------------------------------------------
 
 export function VoiceInput({ onTranscript, onResult, coordinates, language: languageProp }: VoiceInputProps) {  const [state, setState] = useState<RecordingState>("idle");
   const [selectedLanguage, setSelectedLanguage] = useState<string>(languageProp ?? "pcm-NG");
   const [errorMessage, setErrorMessage] = useState<string>("");
   const [silenceSeconds, setSilenceSeconds] = useState<number>(0);
 
-  // All mutable recording state in refs — avoids stale closures in callbacks
   const mediaRecorderRef    = useRef<MediaRecorder | null>(null);
   const chunksRef           = useRef<Blob[]>([]);
   const streamRef           = useRef<MediaStream | null>(null);
@@ -92,20 +66,14 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
   const silenceIntervalRef  = useRef<ReturnType<typeof setInterval> | null>(null);
   const silenceCountRef     = useRef<number>(0);
 
-  // Stable ref to selectedLanguage so recorder.onstop always reads the latest value
   const selectedLanguageRef = useRef<string>(selectedLanguage);
   useEffect(() => {
     selectedLanguageRef.current = selectedLanguage;
   }, [selectedLanguage]);
 
-  // Sync external language prop
   useEffect(() => {
     if (languageProp) setSelectedLanguage(languageProp);
   }, [languageProp]);
-
-  // -------------------------------------------------------------------------
-  // Cleanup — stop all browser resources
-  // -------------------------------------------------------------------------
 
   const cleanup = useCallback(() => {
     if (silenceIntervalRef.current) {
@@ -122,30 +90,21 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
 
   useEffect(() => () => cleanup(), [cleanup]);
 
-  // -------------------------------------------------------------------------
-  // Stop recording — also triggered by silence detector
-  // -------------------------------------------------------------------------
-
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current?.state === "recording") {
-      mediaRecorderRef.current.stop(); // fires recorder.onstop → handleAudioReady
+      mediaRecorderRef.current.stop();
     }
     cleanup();
   }, [cleanup]);
 
-  // Stable ref so the setInterval closure always calls the latest stopRecording
   const stopRecordingRef = useRef(stopRecording);
   useEffect(() => {
     stopRecordingRef.current = stopRecording;
   }, [stopRecording]);
 
-  // -------------------------------------------------------------------------
-  // Silence detection via Web Audio API
-  // -------------------------------------------------------------------------
-
   function startSilenceDetection(stream: MediaStream): void {
     const AudioCtx = window.AudioContext ?? window.webkitAudioContext;
-    if (!AudioCtx) return; // gracefully skip if unavailable
+    if (!AudioCtx) return;
 
     const ctx = new AudioCtx();
     const analyser = ctx.createAnalyser();
@@ -168,16 +127,11 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
           stopRecordingRef.current();
         }
       } else {
-        // Sound detected — reset silence counter
         silenceCountRef.current = 0;
         setSilenceSeconds(0);
       }
     }, CHECK_INTERVAL_MS);
   }
-
-  // -------------------------------------------------------------------------
-  // Convert Blob to base64 (strips the data URI prefix)
-  // -------------------------------------------------------------------------
 
   function blobToBase64(blob: Blob): Promise<string> {
     return new Promise((resolve, reject) => {
@@ -187,10 +141,6 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
       reader.readAsDataURL(blob);
     });
   }
-
-  // -------------------------------------------------------------------------
-  // Send audio to /api/ai/restructure
-  // -------------------------------------------------------------------------
 
   async function handleAudioReady(blob: Blob, mimeType: string, lang: string): Promise<void> {
     setState("processing");
@@ -218,7 +168,6 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
       const data = await res.json() as RestructureResult;
       if (!data.transcript) throw new Error("No transcript returned from server");
 
-      // Call both callbacks — onResult for listing creation, onTranscript for other uses
       onTranscript(data.transcript);
       onResult?.(data);
 
@@ -230,10 +179,6 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
       setState("error");
     }
   }
-
-  // -------------------------------------------------------------------------
-  // Start recording
-  // -------------------------------------------------------------------------
 
   async function startRecording(): Promise<void> {
     setErrorMessage("");
@@ -264,7 +209,7 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
     }
 
     const mimeType = MediaRecorder.isTypeSupported("audio/webm") ? "audio/webm" : "audio/mp4";
-    const lang     = selectedLanguageRef.current; // snapshot for this session
+    const lang     = selectedLanguageRef.current;
 
     streamRef.current  = stream;
     chunksRef.current  = [];
@@ -281,14 +226,10 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
       void handleAudioReady(blob, mimeType, lang);
     };
 
-    recorder.start(100); // collect data chunks every 100 ms
+    recorder.start(100);
     setState("recording");
     startSilenceDetection(stream);
   }
-
-  // -------------------------------------------------------------------------
-  // Mic button handler
-  // -------------------------------------------------------------------------
 
   function handleMicClick(): void {
     if (state === "idle" || state === "error") {
@@ -296,12 +237,7 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
     } else if (state === "recording") {
       stopRecording();
     }
-    // "processing" is disabled — nothing happens
   }
-
-  // -------------------------------------------------------------------------
-  // Derived values for UI
-  // -------------------------------------------------------------------------
 
   const silenceProgress     = Math.min((silenceSeconds / 10) * 100, 100);
   const showLanguageSelector = state === "idle" || state === "error";
@@ -321,20 +257,15 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
   };
 
   const buttonColour: Record<RecordingState, string> = {
-    idle:       "bg-green-600 hover:bg-green-700 active:scale-95 focus:ring-green-400",
-    recording:  "bg-red-500 scale-110 hover:bg-red-600 focus:ring-red-400",
-    processing: "bg-muted-foreground/50 cursor-not-allowed focus:ring-muted-foreground/30",
-    error:      "bg-orange-500 hover:bg-orange-600 active:scale-95 focus:ring-orange-400",
+    idle:       "bg-primary hover:bg-[var(--primary-hover)] active:scale-95",
+    recording:  "bg-[var(--negative)] scale-110 hover:bg-[var(--negative-deep)]",
+    processing: "bg-muted cursor-not-allowed",
+    error:      "bg-[var(--warning)] hover:bg-[var(--warning-deep)] active:scale-95",
   };
-
-  // -------------------------------------------------------------------------
-  // Render
-  // -------------------------------------------------------------------------
 
   return (
     <div className="flex flex-col items-center gap-5 p-6 select-none">
 
-      {/* ── Language selector ───────────────────────────────────────────── */}
       {showLanguageSelector && (
         <div
           role="group"
@@ -350,10 +281,10 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
               className={[
                 "px-3 py-1.5 rounded-full text-sm font-semibold",
                 "transition-all duration-200",
-                "focus:outline-none focus:ring-2 focus:ring-offset-1",
+                "focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2",
                 selectedLanguage === lang.code
-                  ? "bg-green-600 text-white shadow scale-105 focus:ring-green-500"
-                  : "bg-muted text-muted-foreground hover:bg-accent focus:ring-muted-foreground",
+                  ? "bg-primary text-primary-foreground shadow scale-105"
+                  : "bg-muted text-muted-foreground hover:bg-accent",
               ].join(" ")}
             >
               {lang.label}
@@ -362,21 +293,19 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
         </div>
       )}
 
-      {/* ── Mic button + pulse rings ─────────────────────────────────────── */}
       <div
         className="relative flex items-center justify-center w-32 h-32"
         aria-hidden="false"
       >
-        {/* Ripple rings — visible only while recording */}
         {state === "recording" && (
           <>
             <span
               aria-hidden="true"
-              className="absolute inset-0 rounded-full bg-red-400 opacity-25 animate-ping"
+              className="absolute inset-0 rounded-full bg-[var(--negative)] opacity-25 animate-ping"
             />
             <span
               aria-hidden="true"
-              className="absolute inset-2 rounded-full bg-red-400 opacity-15 animate-ping"
+              className="absolute inset-2 rounded-full bg-[var(--negative)] opacity-15 animate-ping"
               style={{ animationDelay: "300ms" }}
             />
           </>
@@ -391,7 +320,7 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
             "relative z-10 flex items-center justify-center",
             "w-20 h-20 rounded-full shadow-xl",
             "transition-all duration-300",
-            "focus:outline-none focus:ring-4 focus:ring-offset-2",
+            "focus:outline-none focus:ring-4 focus:ring-ring focus:ring-offset-2",
             buttonColour[state],
           ].join(" ")}
         >
@@ -410,7 +339,6 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
         </button>
       </div>
 
-      {/* ── Silence countdown bar ────────────────────────────────────────── */}
       {state === "recording" && silenceSeconds > 0 && (
         <div className="flex flex-col items-center gap-1 w-44">
           <div className="w-full h-1.5 bg-muted rounded-full overflow-hidden">
@@ -420,7 +348,7 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
               aria-valuemin={0}
               aria-valuemax={10}
               aria-label={`${10 - silenceSeconds} seconds until auto-send`}
-              className="h-full bg-red-400 rounded-full transition-all duration-500"
+              className="h-full bg-[var(--negative)] rounded-full transition-all duration-500"
               style={{ width: `${silenceProgress}%` }}
             />
           </div>
@@ -430,16 +358,15 @@ export function VoiceInput({ onTranscript, onResult, coordinates, language: lang
         </div>
       )}
 
-      {/* ── Status label ─────────────────────────────────────────────────── */}
       <p
         role="status"
         aria-live="polite"
         className={[
           "text-sm font-medium text-center leading-snug max-w-[220px]",
-          state === "recording"  ? "text-red-500"          : "",
-          state === "processing" ? "text-muted-foreground" : "",
-          state === "error"      ? "text-orange-600"       : "",
-          state === "idle"       ? "text-muted-foreground" : "",
+          state === "recording"  ? "text-[var(--negative)]"       : "",
+          state === "processing" ? "text-muted-foreground"        : "",
+          state === "error"      ? "text-[var(--warning-deep)]"   : "",
+          state === "idle"       ? "text-muted-foreground"        : "",
         ].join(" ")}
       >
         {statusText[state]}

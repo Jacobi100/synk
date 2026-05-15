@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, type ChangeEvent } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
 import { Bounty } from "@/lib/types/bounty";
@@ -17,9 +17,12 @@ import {
   ArrowPathIcon,
   ArrowLeftIcon,
   CheckCircleIcon,
+  MinusIcon,
+  PlusIcon,
 } from "@heroicons/react/24/outline";
 import { formatDistanceToNow } from "date-fns";
 import NavigationMap from "@/components/map/NavigationMap";
+import { motion, AnimatePresence } from "framer-motion";
 
 type BountyDetail = Bounty & { poster_phone?: string | null; provider_phone?: string | null };
 
@@ -60,6 +63,35 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
   const [applyLoading, setApplyLoading] = useState(false);
   const [applyError, setApplyError]   = useState<string | null>(null);
   const [applySuccess, setApplySuccess] = useState(false);
+  const [negotiateOpen, setNegotiateOpen] = useState(false);
+  const [negotiatePrice, setNegotiatePrice] = useState<number>(0);
+
+  const STEP = 100;
+
+  const handleOpenNegotiate = () => {
+    setNegotiatePrice(bounty?.price_min ?? 0);
+    setNegotiateOpen(true);
+  };
+
+  const handleNegotiateDecrease = () => {
+    setNegotiatePrice(prev => Math.max(bounty?.price_min ?? 0, prev - STEP));
+  };
+
+  const handleNegotiateIncrease = () => {
+    setNegotiatePrice(prev => prev + STEP);
+  };
+
+  const handleNegotiateInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/[^0-9]/g, "");
+    if (raw === "") {
+      setNegotiatePrice(bounty?.price_min ?? 0);
+      return;
+    }
+    const num = parseInt(raw, 10);
+    if (!isNaN(num)) {
+      setNegotiatePrice(Math.max(bounty?.price_min ?? 0, num));
+    }
+  };
 
   useEffect(() => {
     const fetchBounty = async () => {
@@ -111,8 +143,8 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
       <div className="min-h-screen">
         <Navbar />
         <div className="flex flex-col items-center justify-center py-24 gap-3">
-          <ArrowPathIcon className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
-          <p className="text-sm" style={{ color: "var(--text3)" }}>{COPY.LOADING}</p>
+          <ArrowPathIcon className="h-8 w-8 animate-spin" style={{ color: "var(--primary)" }} />
+          <p className="text-sm text-mute">{COPY.LOADING}</p>
         </div>
       </div>
     );
@@ -124,13 +156,13 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
         <Navbar />
         <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6">
           <div
-            className="rounded-xl border p-6 flex items-start gap-4"
-            style={{ background: "#fef2f2", borderColor: "#fecaca" }}
+            className="rounded-[24px] border p-6 flex items-start gap-4"
+            style={{ background: "color-mix(in srgb, var(--negative) 10%, transparent)", borderColor: "color-mix(in srgb, var(--negative) 30%, transparent)" }}
           >
-            <ExclamationCircleIcon className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
+            <ExclamationCircleIcon className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "var(--negative)" }} />
             <div>
-              <h3 className="font-semibold" style={{ color: "#7f1d1d" }}>Error loading bounty</h3>
-              <p className="text-sm mt-0.5" style={{ color: "#991b1b" }}>{error || "Bounty not found"}</p>
+              <h3 className="font-semibold" style={{ color: "var(--negative)" }}>Error loading bounty</h3>
+              <p className="text-sm mt-0.5" style={{ color: "var(--negative)" }}>{error || "Bounty not found"}</p>
             </div>
           </div>
         </div>
@@ -149,7 +181,6 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
   const statusStyle  = STATUS_STYLES[bounty.status]  ?? STATUS_STYLES.cancelled;
   const urgencyStyle = URGENCY_STYLES[bounty.urgency] ?? "bg-neutral-100 text-neutral-500 border-neutral-200";
 
-  // Show navigation map to the accepted provider only
   const isAcceptedProvider =
     !isOwnBounty &&
     (bounty.status === "in_progress" || bounty.status === "paid") &&
@@ -161,33 +192,29 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
       <Navbar />
       <div className="mx-auto max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
 
-        {/* Back */}
         <Link
           href="/dashboard"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
-          style={{ color: "var(--text2)" }}
+          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
         >
           <ArrowLeftIcon className="h-4 w-4" /> {COPY.BACK_TO_FEED}
         </Link>
 
         <div className="grid gap-6 lg:grid-cols-3">
 
-          {/* Main content */}
           <div className="lg:col-span-2 space-y-5">
             <div
-              className="rounded-xl border bg-white p-7"
-              style={{ borderColor: "var(--border)", boxShadow: "var(--synk-shadow)" }}
+              className="rounded-[24px] border bg-background p-7"
+              style={{ borderColor: "var(--border)" }}
             >
-              {/* Title + status */}
               <div className="mb-5 flex items-start justify-between gap-4">
                 <div>
                   <h1
-                    className="text-2xl font-bold"
-                    style={{ color: "var(--text)", letterSpacing: "-0.02em" }}
+                    className="text-2xl font-bold text-foreground"
+                    style={{ letterSpacing: "-0.02em" }}
                   >
                     {bounty.title}
                   </h1>
-                  <p className="mt-1 text-sm" style={{ color: "var(--text2)" }}>{bounty.category}</p>
+                  <p className="mt-1 text-sm text-muted-foreground">{bounty.category}</p>
                 </div>
                 <span className={`shrink-0 rounded-full border px-3 py-1 text-xs font-semibold ${statusStyle}`}>
                   {STATUS_LABELS[bounty.status] ?? bounty.status}
@@ -196,31 +223,29 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
 
               <div className="glow-divider mb-5" />
 
-              {/* Description */}
               <div className="mb-6">
-                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide" style={{ color: "var(--text3)" }}>
+                <h2 className="mb-2 text-sm font-semibold uppercase tracking-wide text-mute">
                   {COPY.DESCRIPTION}
                 </h2>
-                <p className="text-sm leading-relaxed whitespace-pre-wrap" style={{ color: "var(--text)" }}>
+                <p className="text-sm leading-relaxed whitespace-pre-wrap text-foreground">
                   {bounty.description || COPY.NO_DESCRIPTION}
                 </p>
               </div>
 
-              {/* Detail grid */}
               <div className="grid gap-4 sm:grid-cols-2">
                 {bounty.location_name && (
                   <div
-                    className="rounded-lg border p-4"
-                    style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
+                    className="rounded-[24px] border p-4"
+                    style={{ borderColor: "var(--border)", background: "var(--secondary)" }}
                   >
-                    <div className="mb-1 flex items-center gap-1.5 text-xs" style={{ color: "var(--text3)" }}>
+                    <div className="mb-1 flex items-center gap-1.5 text-xs text-mute">
                       <MapPinIcon className="h-3.5 w-3.5" /> {COPY.LOCATION}
                     </div>
-                    <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                    <p className="text-sm font-semibold text-foreground">
                       {bounty.location_name}
                     </p>
                     {bounty.radius_km > 1 && (
-                      <p className="mt-0.5 text-xs" style={{ color: "var(--text2)" }}>
+                      <p className="mt-0.5 text-xs text-muted-foreground">
                         Up to {bounty.radius_km} km
                       </p>
                     )}
@@ -228,10 +253,10 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                 )}
 
                 <div
-                  className="rounded-lg border p-4"
-                  style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
+                  className="rounded-[24px] border p-4"
+                  style={{ borderColor: "var(--border)", background: "var(--secondary)" }}
                 >
-                  <div className="mb-1 flex items-center gap-1.5 text-xs" style={{ color: "var(--text3)" }}>
+                  <div className="mb-1 flex items-center gap-1.5 text-xs text-mute">
                     <ClockIcon className="h-3.5 w-3.5" /> {COPY.URGENCY_LABEL}
                   </div>
                   <span className={`inline-block rounded-full border px-2.5 py-0.5 text-xs font-semibold ${urgencyStyle}`}>
@@ -241,41 +266,40 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
 
                 {bounty.deadline && (
                   <div
-                    className="rounded-lg border p-4"
-                    style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
+                    className="rounded-[24px] border p-4"
+                    style={{ borderColor: "var(--border)", background: "var(--secondary)" }}
                   >
-                    <div className="mb-1 flex items-center gap-1.5 text-xs" style={{ color: "var(--text3)" }}>
+                    <div className="mb-1 flex items-center gap-1.5 text-xs text-mute">
                       <CalendarDaysIcon className="h-3.5 w-3.5" /> {COPY.DEADLINE}
                     </div>
-                    <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                    <p className="text-sm font-semibold text-foreground">
                       {new Date(bounty.deadline).toLocaleDateString()}
                     </p>
                   </div>
                 )}
 
                 <div
-                  className="rounded-lg border p-4"
-                  style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
+                  className="rounded-[24px] border p-4"
+                  style={{ borderColor: "var(--border)", background: "var(--secondary)" }}
                 >
-                  <div className="mb-1 flex items-center gap-1.5 text-xs" style={{ color: "var(--text3)" }}>
+                  <div className="mb-1 flex items-center gap-1.5 text-xs text-mute">
                     <BriefcaseIcon className="h-3.5 w-3.5" /> {COPY.HELPERS_NEEDED}
                   </div>
-                  <p className="text-sm font-semibold" style={{ color: "var(--text)" }}>
+                  <p className="text-sm font-semibold text-foreground">
                     {COPY.HELPERS_NEEDED_COUNT(bounty.slots_available)}
                   </p>
                 </div>
               </div>
 
-              {/* Contact info */}
               {bounty.poster_phone && (
                 <div
-                  className="mt-5 rounded-lg border p-4"
-                  style={{ background: "#f0fdf4", borderColor: "#bbf7d0" }}
+                  className="mt-5 rounded-[24px] border p-4"
+                  style={{ background: "var(--primary-pale)", borderColor: "color-mix(in srgb, var(--primary) 30%, transparent)" }}
                 >
-                  <p className="text-xs font-semibold" style={{ color: "#166534" }}>
+                  <p className="text-xs font-semibold" style={{ color: "var(--positive-deep)" }}>
                     {COPY.CUSTOMER_CONTACT}
                   </p>
-                  <p className="mt-1 font-mono text-sm font-semibold" style={{ color: "#15803d" }}>
+                  <p className="mt-1 font-mono text-sm font-semibold" style={{ color: "var(--positive-deep)" }}>
                     {bounty.poster_phone}
                   </p>
                 </div>
@@ -283,24 +307,23 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
 
               {bounty.provider_phone && (
                 <div
-                  className="mt-5 rounded-lg border p-4"
-                  style={{ background: "#f0fdf4", borderColor: "#bbf7d0" }}
+                  className="mt-5 rounded-[24px] border p-4"
+                  style={{ background: "var(--primary-pale)", borderColor: "color-mix(in srgb, var(--primary) 30%, transparent)" }}
                 >
-                  <p className="text-xs font-semibold" style={{ color: "#166534" }}>
+                  <p className="text-xs font-semibold" style={{ color: "var(--positive-deep)" }}>
                     {COPY.HELPER_CONTACT}
                   </p>
-                  <p className="mt-1 font-mono text-sm font-semibold" style={{ color: "#15803d" }}>
+                  <p className="mt-1 font-mono text-sm font-semibold" style={{ color: "var(--positive-deep)" }}>
                     {bounty.provider_phone}
                   </p>
                 </div>
               )}
 
-              <div className="mt-5 text-xs" style={{ color: "var(--text3)" }}>
+              <div className="mt-5 text-xs text-mute">
                 Posted {formatDistanceToNow(new Date(bounty.created_at), { addSuffix: true })}
               </div>
             </div>
 
-            {/* Navigation map — accepted provider only */}
             {isAcceptedProvider && (
               <NavigationMap
                 destinationLat={bounty.latitude!}
@@ -311,37 +334,90 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
             )}
           </div>
 
-          {/* Sidebar */}
           <div className="space-y-4">
-            {/* Price card */}
-            <div
-              className="relative overflow-hidden rounded-xl p-6"
-              style={{ background: "var(--bg-ink2)", border: "1px solid var(--border-ink)" }}
-            >
+            <div className="relative overflow-hidden rounded-[24px] border bg-background p-6" style={{ borderColor: "var(--border)" }}>
               <div
                 className="pointer-events-none absolute -bottom-8 -right-8 h-32 w-32 rounded-full blur-2xl"
-                style={{ background: "rgba(94,58,255,0.15)" }}
+                style={{ background: "rgba(94,58,255,0.08)" }}
               />
-              <p className="text-xs font-medium uppercase tracking-wide" style={{ color: "var(--text-inv2)" }}>
+              <p className="text-xs font-medium uppercase tracking-wide text-primary">
                 {COPY.BUDGET}
               </p>
-              <h3 className="mt-1 text-2xl font-bold" style={{ color: "var(--text-inv)" }}>
+              <h3 className="mt-1 text-2xl font-bold text-foreground whitespace-nowrap">
                 {priceDisplay()}
               </h3>
               {bounty.price_negotiable && (
-                <p className="mt-1 text-xs" style={{ color: "var(--violet3)" }}>
+                <p className="mt-1 text-xs" style={{ color: "var(--muted-foreground)" }}>
                   {COPY.PRICE_NEGOTIABLE}
                 </p>
               )}
             </div>
 
-            {/* Actions */}
+            {bounty.price_negotiable && !isOwnBounty && bounty.status === "open" && (
+              <AnimatePresence initial={false}>
+                {!negotiateOpen ? (
+                  <motion.button
+                    key="negotiate-btn"
+                    onClick={handleOpenNegotiate}
+                    className="flex w-full items-center justify-center gap-2 rounded-[24px] border bg-background px-4 py-2.5 text-sm font-medium transition-all active:scale-[0.97]"
+                    style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    {COPY.JOB_DETAIL.NEGOTIATE_PRICE}
+                  </motion.button>
+                ) : (
+                  <motion.div
+                    key="negotiate-controls"
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                    className="flex items-center gap-2"
+                  >
+                    <button
+                      onClick={handleNegotiateDecrease}
+                      disabled={negotiatePrice <= (bounty?.price_min ?? 0)}
+                      className="flex size-10 shrink-0 items-center justify-center rounded-full border bg-background text-base transition-all active:scale-[0.97] disabled:opacity-30 disabled:cursor-not-allowed"
+                      style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+                      aria-label="Decrease price"
+                    >
+                      <MinusIcon className="size-4" />
+                    </button>
+                    <div className="relative flex-1">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={negotiatePrice.toLocaleString()}
+                        onChange={handleNegotiateInput}
+                        className="flex h-10 w-full rounded-[12px] border bg-background px-3 py-2 text-center text-sm font-semibold tabular-nums ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        style={{ borderColor: "var(--border)" }}
+                      />
+                      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-mute">
+                        {bounty?.currency}
+                      </span>
+                    </div>
+                    <button
+                      onClick={handleNegotiateIncrease}
+                      className="flex size-10 shrink-0 items-center justify-center rounded-full border bg-background text-base transition-all active:scale-[0.97]"
+                      style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+                      aria-label="Increase price"
+                    >
+                      <PlusIcon className="size-4" />
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            )}
+
             <div className="space-y-2.5">
               {isOwnBounty && bounty.status === "open" && (
                 <Link
                   href={`/bounties/${id}/applications`}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
-                  style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5"
+                  style={{ background: "var(--primary)" }}
                 >
                   <BriefcaseIcon className="h-4 w-4" /> {COPY.JOB_DETAIL.VIEW_HELPERS}
                 </Link>
@@ -351,15 +427,15 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                 <>
                   <Link
                     href={`/bounties/${id}/payment`}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
-                    style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+                    className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5"
+                    style={{ background: "var(--primary)" }}
                   >
                     {COPY.JOB_DETAIL.MAKE_SAFE_PAYMENT}
                   </Link>
                   <Link
                     href={`/bounties/${id}/complete`}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5"
-                    style={{ background: "var(--success-color)", color: "#fff" }}
+                    className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5"
+                    style={{ background: "var(--positive)", color: "#fff" }}
                   >
                     <CheckCircleIcon className="h-4 w-4" /> {COPY.JOB_DETAIL.CONFIRM_AND_PAY}
                   </Link>
@@ -369,31 +445,31 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
               {isOwnBounty && bounty.status === "paid" && (
                 <Link
                   href={`/bounties/${id}/complete`}
-                  className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5"
-                  style={{ background: "var(--success-color)", color: "#fff" }}
+                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5"
+                  style={{ background: "var(--positive)", color: "#fff" }}
                 >
                   <CheckCircleIcon className="h-4 w-4" /> {COPY.JOB_DETAIL.CONFIRM_AND_PAY}
                 </Link>
               )}
 
               {applySuccess && (
-                <div className="rounded-xl border p-4" style={{ background: "#f0fdf4", borderColor: "#bbf7d0" }}>
-                  <p className="text-sm font-semibold" style={{ color: "#15803d" }}>
+                <div className="rounded-[24px] border p-4" style={{ background: "var(--primary-pale)", borderColor: "color-mix(in srgb, var(--primary) 30%, transparent)" }}>
+                  <p className="text-sm font-semibold" style={{ color: "var(--positive-deep)" }}>
                     {COPY.JOB_DETAIL.APPLY_SUCCESS}
                   </p>
                 </div>
               )}
 
               {applyError && (
-                <div className="rounded-xl border p-4" style={{ background: "#fef2f2", borderColor: "#fecaca" }}>
-                  <p className="text-sm" style={{ color: "#b91c1c" }}>{applyError}</p>
+                <div className="rounded-[24px] border p-4" style={{ background: "color-mix(in srgb, var(--negative) 10%, transparent)", borderColor: "color-mix(in srgb, var(--negative) 30%, transparent)" }}>
+                  <p className="text-sm" style={{ color: "var(--negative)" }}>{applyError}</p>
                 </div>
               )}
 
               {!isOwnBounty && bounty.status === "open" && (
                 <button
-                  className="flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
-                  style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  style={{ background: "var(--primary)" }}
                   disabled={applyLoading}
                   onClick={handleApply}
                 >
@@ -404,34 +480,33 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
               )}
 
               {isOwnBounty && bounty.status === "open" && (
-                <p className="text-center text-xs" style={{ color: "var(--text3)" }}>
+                <p className="text-center text-xs text-mute">
                   {COPY.JOB_DETAIL.YOU_POSTED}
                 </p>
               )}
 
               {!isOwnBounty && bounty.status !== "open" && (
-                <p className="text-center text-xs" style={{ color: "var(--text3)" }}>
+                <p className="text-center text-xs text-mute">
                   {COPY.JOB_DETAIL.NOT_TAKING_HELPERS}
                 </p>
               )}
 
               <button
-                className="flex w-full items-center justify-center gap-2 rounded-lg border px-4 py-2.5 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
-                style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
+                className="flex w-full items-center justify-center gap-2 rounded-[24px] border px-4 py-2.5 text-sm font-medium transition-colors hover:border-primary hover:text-primary"
+                style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
               >
                 <ShareIcon className="h-4 w-4" /> {COPY.JOB_DETAIL.SHARE}
               </button>
             </div>
 
-            {/* Payment info */}
             <div
-              className="rounded-xl border p-4 space-y-1"
-              style={{ borderColor: "var(--border)", background: "var(--bg2)" }}
+              className="rounded-[24px] border p-4 space-y-1"
+              style={{ borderColor: "var(--border)", background: "var(--secondary)" }}
             >
-              <h4 className="text-xs font-semibold uppercase tracking-wide" style={{ color: "var(--text3)" }}>
+              <h4 className="text-xs font-semibold uppercase tracking-wide text-mute">
                 {COPY.JOB_DETAIL.PAYMENT_INFO_TITLE}
               </h4>
-              <p className="text-sm" style={{ color: "var(--text2)" }}>
+              <p className="text-sm text-muted-foreground">
                 {COPY.JOB_DETAIL.PAYMENT_INFO_BODY}
               </p>
             </div>

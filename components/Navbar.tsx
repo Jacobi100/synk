@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { Show, UserButton } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
-import { Bars3Icon, XMarkIcon, BoltIcon } from "@heroicons/react/24/outline";
+import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/outline";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import { NotificationBell } from "@/components/NotificationBell";
+import { Logo } from "@/components/Logo";
 import { cn } from "@/lib/utils";
 
 const NAV_LINKS = [
@@ -22,27 +23,13 @@ export function Navbar() {
   const pathname = usePathname();
 
   return (
-    <nav
-      className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur-md"
-      style={{ borderColor: "var(--border)" }}
-    >
+    <nav className="sticky top-0 z-50 w-full bg-background">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5 group">
-            <div
-              className="flex h-8 w-8 items-center justify-center rounded-lg transition-transform group-hover:scale-105"
-              style={{ background: "linear-gradient(135deg, var(--violet), var(--violet2))" }}
-            >
-              <BoltIcon className="h-4 w-4 text-white" />
-            </div>
-            <span
-              className="hidden text-[15px] font-bold tracking-tight sm:inline"
-              style={{ color: "var(--text)" }}
-            >
-              Synk
-            </span>
+          <Link href="/">
+            <Logo />
           </Link>
 
           {/* Desktop nav */}
@@ -55,29 +42,20 @@ export function Navbar() {
                     key={href}
                     href={href}
                     className={cn(
-                      "relative px-3 py-1.5 text-sm font-medium rounded-md transition-colors",
+                      "relative px-3 py-1.5 text-sm font-semibold rounded-[24px] transition-colors",
                       active
-                        ? "text-[var(--violet)]"
-                        : "text-[var(--text2)] hover:text-[var(--text)] hover:bg-[var(--bg2)]"
+                        ? "text-foreground bg-secondary"
+                        : "text-muted-foreground hover:text-foreground hover:bg-secondary"
                     )}
                   >
                     {label}
-                    {active && (
-                      <span
-                        className="absolute bottom-0 left-3 right-3 h-0.5 rounded-full"
-                        style={{ background: "var(--violet)" }}
-                      />
-                    )}
                   </Link>
                 );
               })}
             </Show>
             <Link
               href="#"
-              className="px-3 py-1.5 text-sm font-medium rounded-md transition-colors"
-              style={{ color: "var(--text2)" }}
-              onMouseEnter={(e) => (e.currentTarget.style.color = "var(--text)")}
-              onMouseLeave={(e) => (e.currentTarget.style.color = "var(--text2)")}
+              className="px-3 py-1.5 text-sm font-semibold rounded-[24px] text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
             >
               How it works
             </Link>
@@ -90,32 +68,31 @@ export function Navbar() {
             </Show>
 
             <Show when="signed-out">
-              <Button
-                variant="ghost"
-                size="sm"
-                asChild
-                className="text-sm font-medium"
-                style={{ color: "var(--text2)" }}
-              >
+              <Button variant="ghost" size="sm" asChild>
                 <Link href="/sign-in">Sign in</Link>
               </Button>
-              <Button
-                size="sm"
-                asChild
-                className="text-sm font-semibold shadow-[var(--shadow-violet)]"
-                style={{ background: "var(--violet)", color: "#fff" }}
-              >
+              <Button variant="default" size="sm" asChild>
                 <Link href="/sign-up">Sign up</Link>
               </Button>
             </Show>
 
             <Show when="signed-in">
-              <UserButton />
+              <UserButton
+                appearance={{
+                  elements: {
+                    userButtonPopoverCard:
+                      "bg-background border border-border rounded-[24px] shadow-none",
+                    userButtonPopoverActionItem:
+                      "text-foreground hover:bg-secondary transition-colors",
+                    userButtonPopoverActionItemText: "text-foreground",
+                    userButtonPopoverFooter: "hidden",
+                  },
+                }}
+              />
             </Show>
 
             <button
-              className="ml-1 rounded-md p-2 md:hidden transition-colors"
-              style={{ color: "var(--text2)" }}
+              className="ml-1 rounded-[24px] p-2 md:hidden transition-colors text-muted-foreground hover:text-foreground hover:bg-secondary"
               onClick={() => setIsOpen(!isOpen)}
               aria-label="Toggle menu"
             >
@@ -126,10 +103,7 @@ export function Navbar() {
 
         {/* Mobile menu */}
         {isOpen && (
-          <div
-            className="border-t pb-4 md:hidden"
-            style={{ borderColor: "var(--border)" }}
-          >
+          <div className="border-t border-border bg-background pb-4 md:hidden">
             <div className="flex flex-col gap-1 pt-3">
               <Show when="signed-in">
                 {NAV_LINKS.map(({ href, label }) => {
@@ -139,11 +113,12 @@ export function Navbar() {
                       key={href}
                       href={href}
                       onClick={() => setIsOpen(false)}
-                      className="rounded-md px-3 py-2 text-sm font-medium transition-colors"
-                      style={{
-                        color: active ? "var(--violet)" : "var(--text2)",
-                        background: active ? "var(--violet-subtle)" : "transparent",
-                      }}
+                      className={cn(
+                        "rounded-[24px] px-3 py-2 text-sm font-semibold transition-colors",
+                        active
+                          ? "text-foreground bg-secondary"
+                          : "text-muted-foreground hover:text-foreground hover:bg-secondary"
+                      )}
                     >
                       {label}
                     </Link>
@@ -153,8 +128,7 @@ export function Navbar() {
               <Link
                 href="#"
                 onClick={() => setIsOpen(false)}
-                className="rounded-md px-3 py-2 text-sm font-medium"
-                style={{ color: "var(--text2)" }}
+                className="rounded-[24px] px-3 py-2 text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors"
               >
                 How it works
               </Link>

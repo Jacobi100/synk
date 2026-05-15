@@ -31,15 +31,14 @@ export function NotificationBell() {
           e.stopPropagation();
           setOpen((v) => !v);
         }}
-        className="relative rounded-lg p-2 transition-colors hover:bg-[var(--bg2)]"
-        style={{ color: "var(--text2)" }}
+        className="relative rounded-[24px] p-2 transition-colors hover:bg-secondary text-muted-foreground"
         aria-label="Notifications"
       >
         <BellIcon className="h-5 w-5" />
         {unreadCount > 0 && (
           <span
-            className="absolute -right-0.5 -top-0.5 flex h-4.5 min-w-[1.1rem] items-center justify-center rounded-full px-1 text-[10px] font-bold text-white"
-            style={{ background: "var(--violet)" }}
+            className="absolute -right-0.5 -top-0.5 flex h-4.5 min-w-[1.1rem] items-center justify-center rounded-full px-1 text-[10px] font-bold text-primary-foreground"
+            style={{ background: "var(--primary)" }}
           >
             {unreadCount > 9 ? "9+" : unreadCount}
           </span>
@@ -48,28 +47,19 @@ export function NotificationBell() {
 
       {open && (
         <div
-          className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-xl border shadow-xl"
-          style={{
-            background: "var(--bg-ink2)",
-            borderColor: "var(--border-ink)",
-            boxShadow: "var(--shadow-ink)",
-          }}
+          className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-[24px] border border-border bg-background shadow-lg"
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
-          <div
-            className="flex items-center justify-between border-b px-4 py-2.5"
-            style={{ borderColor: "var(--border-ink)" }}
-          >
-            <span className="text-sm font-semibold" style={{ color: "var(--text-inv)" }}>
+          <div className="flex items-center justify-between border-b border-border px-4 py-2.5">
+            <span className="text-sm font-semibold text-foreground">
               {COPY.NOTIFICATIONS.TITLE}
             </span>
             {unreadCount > 0 && (
               <Button
                 variant="ghost"
                 size="sm"
-                className="h-7 text-xs hover:bg-white/10"
-                style={{ color: "var(--violet3)" }}
+                className="h-7 text-xs"
+                style={{ color: "var(--primary)" }}
                 onClick={() => void markAllRead()}
               >
                 {COPY.NOTIFICATIONS.MARK_ALL_READ}
@@ -77,14 +67,13 @@ export function NotificationBell() {
             )}
           </div>
 
-          {/* List */}
           <div className="max-h-80 overflow-y-auto">
             {loading && recent.length === 0 ? (
               <div className="flex justify-center py-8">
-                <ArrowPathIcon className="h-5 w-5 animate-spin" style={{ color: "var(--violet3)" }} />
+                <ArrowPathIcon className="h-5 w-5 animate-spin text-muted-foreground" />
               </div>
             ) : recent.length === 0 ? (
-              <p className="px-4 py-6 text-center text-sm" style={{ color: "var(--text-inv2)" }}>
+              <p className="px-4 py-6 text-center text-sm text-muted-foreground">
                 No notifications yet
               </p>
             ) : (
@@ -92,10 +81,9 @@ export function NotificationBell() {
                 <button
                   key={n.id}
                   type="button"
-                  className="block w-full border-b px-4 py-3 text-left text-sm transition-colors hover:bg-white/5"
+                  className="block w-full border-b border-border px-4 py-3 text-left text-sm transition-colors hover:bg-secondary"
                   style={{
-                    borderColor: "var(--border-ink)",
-                    background: !n.read ? "rgba(94,58,255,0.06)" : "transparent",
+                    background: !n.read ? "var(--primary-pale)" : "transparent",
                   }}
                   onClick={() => {
                     setOpen(false);
@@ -104,11 +92,11 @@ export function NotificationBell() {
                 >
                   <div
                     className="font-medium text-[13px]"
-                    style={{ color: n.read ? "var(--text-inv2)" : "var(--text-inv)" }}
+                    style={{ color: n.read ? "var(--muted-foreground)" : "var(--foreground)" }}
                   >
                     {n.title}
                   </div>
-                  <div className="mt-0.5 line-clamp-2 text-xs" style={{ color: "var(--text-inv2)" }}>
+                  <div className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">
                     {n.body}
                   </div>
                 </button>
@@ -116,14 +104,10 @@ export function NotificationBell() {
             )}
           </div>
 
-          {/* Footer */}
-          <div
-            className="border-t px-4 py-2.5 text-center"
-            style={{ borderColor: "var(--border-ink)" }}
-          >
+          <div className="border-t border-border px-4 py-2.5 text-center">
             <button
               className="text-xs font-semibold transition-colors hover:opacity-80"
-              style={{ color: "var(--violet3)" }}
+              style={{ color: "var(--primary)" }}
               onClick={() => {
                 setOpen(false);
                 router.push("/dashboard");

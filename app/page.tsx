@@ -13,11 +13,14 @@ import {
   ClockIcon,
   CheckCircleIcon,
   ArrowRightIcon,
+  EyeIcon,
 } from "@heroicons/react/24/outline";
 import { AnimateCount } from "@/components/unlumen-ui/animate-count";
 import { ShimmerSkeleton } from "@/components/unlumen-ui/shimmer-skeleton";
 import { GlowingBadge } from "@/components/unlumen-ui/glowing-badge";
 import { COPY } from "@/lib/copy";
+import { Button } from "@/components/ui/button";
+import NearbyJobsMap from "@/components/map/NearbyJobsMap";
 
 interface DashboardStats {
   activeBounties: number;
@@ -33,17 +36,6 @@ interface StatCard {
   icon: React.ComponentType<{ className?: string; style?: React.CSSProperties }>;
   iconColor: string;
 }
-
-const SYMBOLS = [
-  { sym: "∑", style: { top: "12%",  right: "8%",   fontSize: 14, opacity: 0.5 } },
-  { sym: "π", style: { top: "28%",  right: "18%",  fontSize: 11, opacity: 0.35 } },
-  { sym: "∞", style: { top: "55%",  right: "6%",   fontSize: 16, opacity: 0.4 } },
-  { sym: "∂", style: { top: "70%",  right: "22%",  fontSize: 10, opacity: 0.3 } },
-  { sym: "√", style: { top: "18%",  right: "32%",  fontSize: 12, opacity: 0.25 } },
-  { sym: "λ", style: { top: "80%",  right: "12%",  fontSize: 13, opacity: 0.3 } },
-  { sym: "∫", style: { top: "40%",  right: "3%",   fontSize: 15, opacity: 0.35 } },
-  { sym: "ε", style: { top: "8%",   right: "46%",  fontSize: 10, opacity: 0.2 } },
-];
 
 export default function Home() {
   const { user } = useUser();
@@ -74,88 +66,57 @@ export default function Home() {
   }, [user]);
 
   const statCards: StatCard[] = [
-    { label: COPY.HOME.ACTIVE_JOBS,    value: stats.activeBounties, icon: BriefcaseIcon, iconColor: "var(--violet)" },
-    { label: COPY.HOME.IN_PROGRESS,    value: stats.inProgress,     icon: ClockIcon,     iconColor: "#d97706" },
-    { label: COPY.HOME.COMPLETED,      value: stats.completed,      icon: CheckCircleIcon, iconColor: "var(--success-color)" },
-    { label: COPY.HOME.TOTAL_EARNINGS, value: stats.totalEarnings,  prefix: "₦",     icon: ArrowTrendingUpIcon, iconColor: "var(--violet)" },
+    { label: COPY.HOME.ACTIVE_JOBS,    value: stats.activeBounties, icon: BriefcaseIcon, iconColor: "var(--primary)" },
+    { label: COPY.HOME.IN_PROGRESS,    value: stats.inProgress,     icon: ClockIcon,     iconColor: "var(--warning)" },
+    { label: COPY.HOME.COMPLETED,      value: stats.completed,      icon: CheckCircleIcon, iconColor: "var(--positive)" },
+    { label: COPY.HOME.TOTAL_EARNINGS, value: stats.totalEarnings,  prefix: "₦",     icon: ArrowTrendingUpIcon, iconColor: "var(--primary)" },
   ];
 
   return (
     <div className="min-h-screen">
       <Navbar />
 
-      {/* Hero — dark ink section */}
-      <div
-        className="relative overflow-hidden"
-        style={{ background: "var(--bg-ink)" }}
-      >
-        {/* Floating symbols */}
-        <div className="pointer-events-none absolute inset-0 select-none overflow-hidden">
-          {SYMBOLS.map(({ sym, style }) => (
-            <span
-              key={sym + JSON.stringify(style)}
-              className="absolute font-mono"
-              style={{
-                ...style,
-                color: "var(--symbol-float-dark)",
-                fontFamily: "var(--font-geist-mono, monospace)",
-              }}
-            >
-              {sym}
-            </span>
-          ))}
-        </div>
+      {/* Hero — sage canvas band with Google Maps */}
+      <div className="bg-secondary">
+        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
+          <div className="flex flex-col gap-8 lg:flex-row lg:items-center">
+            {/* Left: text content */}
+            <div className="max-w-2xl lg:w-1/2 lg:shrink-0">
+              {user && (
+                <div className="relative mb-3 inline-block">
+                  <GlowingBadge variant="info" dot={false} className="rounded-lg">
+                    {COPY.HOME.WELCOME(user?.firstName)}
+                  </GlowingBadge>
+                  <span className="absolute -bottom-1.5 left-3 h-2.5 w-2.5 bg-[#5E3AFF] rotate-45 rounded-sm" />
+                </div>
+              )}
+              <h1 className="text-5xl font-black leading-[0.85] tracking-tighter text-foreground md:text-7xl">
+                {COPY.HOME.HEADLINE}
+              </h1>
+              <p className="mt-6 mb-10 text-lg leading-relaxed text-muted-foreground max-w-xl">
+                {COPY.HOME.SUBHEADLINE}
+              </p>
 
-        {/* Gradient orb */}
-        <div
-          className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full blur-3xl"
-          style={{ background: "radial-gradient(circle, rgba(94,58,255,0.15) 0%, transparent 70%)" }}
-        />
+              <div className="flex flex-wrap gap-3">
+                <Button size="lg" asChild>
+                  <Link href="/bounties/create">
+                    <PlusIcon className="h-4 w-4" />
+                    {COPY.HOME.POST_A_JOB}
+                  </Link>
+                </Button>
+                <Button variant="outline" size="lg" asChild>
+                  <Link href="/dashboard">
+                    <MagnifyingGlassIcon className="h-4 w-4" />
+                    {COPY.HOME.FIND_JOBS}
+                    <ArrowRightIcon className="h-3.5 w-3.5" />
+                  </Link>
+                </Button>
+              </div>
+            </div>
 
-        <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-          <div className="max-w-xl">
-            <GlowingBadge variant="info" dot={false} className="mb-3">
-              {COPY.HOME.WELCOME(user?.firstName)}
-            </GlowingBadge>
-            <h1
-              className="mb-4 text-4xl font-bold sm:text-5xl"
-              style={{ color: "var(--text-inv)", letterSpacing: "-0.03em", lineHeight: 1.1 }}
-            >
-              {COPY.HOME.HEADLINE}
-            </h1>
-            <p className="mb-8 text-base leading-relaxed" style={{ color: "var(--text-inv2)" }}>
-              {COPY.HOME.SUBHEADLINE}
-            </p>
-
-            <div className="flex flex-wrap gap-3">
-              <Link
-                href="/bounties/create"
-                className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 active:translate-y-0"
-                style={{
-                  background: "var(--violet)",
-                  boxShadow: "var(--shadow-violet)",
-                }}
-                onMouseEnter={(e) => (e.currentTarget.style.background = "var(--violet2)")}
-                onMouseLeave={(e) => (e.currentTarget.style.background = "var(--violet)")}
-              >
-                <PlusIcon className="h-4 w-4" />
-                {COPY.HOME.POST_A_JOB}
-              </Link>
-              <Link
-                href="/dashboard"
-                className="inline-flex items-center gap-2 rounded-lg border px-5 py-2.5 text-sm font-semibold transition-all hover:-translate-y-0.5"
-                style={{
-                  borderColor: "var(--border-ink2)",
-                  color: "var(--text-inv2)",
-                  background: "transparent",
-                }}
-                onMouseEnter={(e) => { e.currentTarget.style.borderColor = "var(--violet3)"; e.currentTarget.style.color = "var(--text-inv)"; }}
-                onMouseLeave={(e) => { e.currentTarget.style.borderColor = "var(--border-ink2)"; e.currentTarget.style.color = "var(--text-inv2)"; }}
-              >
-                <MagnifyingGlassIcon className="h-4 w-4" />
-                {COPY.HOME.FIND_JOBS}
-                <ArrowRightIcon className="h-3.5 w-3.5" />
-              </Link>
+            {/* Right: Google Maps */}
+            <div className="relative overflow-hidden rounded-[24px] bg-[#0e0f0c] lg:flex-1">
+              <NearbyJobsMap compact />
             </div>
           </div>
         </div>
@@ -164,27 +125,70 @@ export default function Home() {
       {/* Stats */}
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-2 gap-4 py-8 sm:grid-cols-4">
-          {statCards.map(({ label, value, prefix, icon: Icon, iconColor }) => (
-            <div
-              key={label}
-              className="rounded-xl border p-5"
-              style={{ borderColor: "var(--border)", boxShadow: "var(--synk-shadow)" }}
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-xs font-medium" style={{ color: "var(--text3)" }}>{label}</p>
-                  {loading ? (
-                    <ShimmerSkeleton className="mt-2 h-7 w-20" />
-                  ) : (
-                    <p className="mt-1.5 text-2xl font-bold tabular-nums" style={{ color: "var(--text)" }}>
-                      {prefix && <span>{prefix}</span>}
-                      <AnimateCount>{value}</AnimateCount>
+          {statCards.map(({ label, value, prefix, icon: Icon, iconColor }, i) => (
+            i === 3 ? (
+              <div
+                key={label}
+                className="relative col-span-2 overflow-hidden rounded-[24px] sm:col-span-1"
+                style={{ background: "linear-gradient(-45deg, #000000 0%, #5E3AFF 56%, #11073D 96%)" }}
+              >
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full opacity-10"
+                  style={{ background: "radial-gradient(circle, #5E3AFF 0%, transparent 70%)" }}
+                />
+                <div
+                  aria-hidden
+                  className="pointer-events-none absolute -bottom-8 -left-8 h-32 w-32 rounded-full opacity-[0.04]"
+                  style={{ background: "radial-gradient(circle, #ffffff 0%, transparent 70%)" }}
+                />
+                <div className="relative flex flex-col justify-between p-5 min-h-[9rem]">
+                  <div className="flex items-start justify-between">
+                    <p className="text-[10px] font-semibold uppercase tracking-widest text-white/50">
+                      {label}
                     </p>
-                  )}
+                    <ArrowTrendingUpIcon className="h-4 w-4 text-white/30" />
+                  </div>
+                  <div className="mt-auto">
+                    {loading ? (
+                      <ShimmerSkeleton className="h-8 w-28" />
+                    ) : (
+                      <div className="flex items-baseline gap-1">
+                        <span className="text-lg font-semibold text-white/60">{prefix}</span>
+                        <span className="text-3xl font-bold tracking-tight text-white">
+                          <AnimateCount>{value}</AnimateCount>
+                        </span>
+                      </div>
+                    )}
+                    <div className="mt-3 flex items-center gap-2">
+                      <div className="h-2 w-2 rounded-full bg-white/10" />
+                      <div className="h-2 w-2 rounded-full bg-white/10" />
+                      <EyeIcon className="h-3.5 w-3.5 text-white/30" />
+                    </div>
+                  </div>
                 </div>
-                <Icon className="h-8 w-8 opacity-10" style={{ color: iconColor }} />
               </div>
-            </div>
+            ) : (
+              <div
+                key={label}
+                className="rounded-[24px] bg-background p-6"
+              >
+                <div className="flex items-start justify-between">
+                  <div>
+                    <p className="text-xs font-semibold text-muted-foreground">{label}</p>
+                    {loading ? (
+                      <ShimmerSkeleton className="mt-2 h-7 w-20" />
+                    ) : (
+                      <p className="mt-1.5 text-2xl font-bold tabular-nums text-foreground">
+                        {prefix && <span>{prefix}</span>}
+                        <AnimateCount>{value}</AnimateCount>
+                      </p>
+                    )}
+                  </div>
+                  <Icon className="h-8 w-8 opacity-80" style={{ color: iconColor }} />
+                </div>
+              </div>
+            )
           ))}
         </div>
       </div>
@@ -192,50 +196,34 @@ export default function Home() {
       {/* Action cards */}
       <div className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
         <div className="grid gap-5 sm:grid-cols-2">
-          {/* Post card */}
-          <div
-            className="relative overflow-hidden rounded-xl p-8"
-            style={{ background: "var(--bg-ink2)", border: "1px solid var(--border-ink)" }}
-          >
-            <div
-              className="pointer-events-none absolute -bottom-10 -right-10 h-48 w-48 rounded-full blur-3xl"
-              style={{ background: "rgba(94,58,255,0.12)" }}
-            />
-            <PlusIcon className="mb-4 h-10 w-10 opacity-70" style={{ color: "var(--violet3)" }} />
-            <h2 className="mb-2 text-xl font-bold" style={{ color: "var(--text-inv)" }}>
+          <div className="rounded-[24px] bg-background p-8">
+            <PlusIcon className="mb-4 h-10 w-10 opacity-80 text-primary" />
+            <h2 className="mb-2 text-xl font-bold text-foreground">
               {COPY.HOME.POST_A_JOB}
             </h2>
-            <p className="mb-6 text-sm leading-relaxed" style={{ color: "var(--text-inv2)" }}>
+            <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
               {COPY.HOME.POST_JOB_DESC}
             </p>
-            <Link
-              href="/bounties/create"
-              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
-              style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
-            >
-              {COPY.HOME.POST_A_JOB} <ArrowRightIcon className="h-3.5 w-3.5" />
-            </Link>
+            <Button asChild>
+              <Link href="/bounties/create">
+                {COPY.HOME.POST_A_JOB} <ArrowRightIcon className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
           </div>
 
-          {/* Browse card */}
-          <div
-            className="relative overflow-hidden rounded-xl p-8"
-            style={{ border: "1px solid var(--border)", boxShadow: "var(--synk-shadow)" }}
-          >
-            <MagnifyingGlassIcon className="mb-4 h-10 w-10 opacity-20" style={{ color: "var(--violet)" }} />
-            <h2 className="mb-2 text-xl font-bold" style={{ color: "var(--text)" }}>
+          <div className="rounded-[24px] bg-background p-8">
+            <MagnifyingGlassIcon className="mb-4 h-10 w-10 opacity-80 text-primary" />
+            <h2 className="mb-2 text-xl font-bold text-foreground">
               {COPY.HOME.FIND_JOBS}
             </h2>
-            <p className="mb-6 text-sm leading-relaxed" style={{ color: "var(--text2)" }}>
+            <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
               {COPY.HOME.FIND_JOBS_DESC}
             </p>
-            <Link
-              href="/dashboard"
-              className="inline-flex items-center gap-2 rounded-lg border px-4 py-2 text-sm font-semibold transition-all hover:-translate-y-0.5 hover:border-[var(--violet)] hover:text-[var(--violet)]"
-              style={{ borderColor: "var(--border2)", color: "var(--text)" }}
-            >
-              {COPY.HOME.FIND_JOBS} <ArrowRightIcon className="h-3.5 w-3.5" />
-            </Link>
+            <Button variant="outline" asChild>
+              <Link href="/dashboard">
+                {COPY.HOME.FIND_JOBS} <ArrowRightIcon className="h-3.5 w-3.5" />
+              </Link>
+            </Button>
           </div>
         </div>
       </div>

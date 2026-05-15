@@ -72,8 +72,8 @@ export default function MyPostingsPage() {
     return (
       <div className="min-h-screen">
         <Navbar />
-        <div className="mx-auto max-w-4xl px-4 py-12 text-center text-sm" style={{ color: "var(--text2)" }}>
-          Sign in to view your postings.{/* COPY.MY_POSTINGS.SIGN_IN_REQUIRED — key missing from lib/copy.ts */}
+        <div className="mx-auto max-w-4xl px-4 py-12 text-center text-sm text-muted-foreground">
+          Sign in to view your postings.
         </div>
       </div>
     );
@@ -86,8 +86,7 @@ export default function MyPostingsPage() {
 
         <Link
           href="/"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
-          style={{ color: "var(--text2)" }}
+          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
         >
           <ArrowLeftIcon className="h-4 w-4" /> Back
         </Link>
@@ -95,19 +94,19 @@ export default function MyPostingsPage() {
         <div className="mb-8 flex items-end justify-between gap-4">
           <div>
             <h1
-              className="text-3xl font-bold"
-              style={{ color: "var(--text)", letterSpacing: "-0.03em" }}
+              className="text-3xl font-bold text-foreground"
+              style={{ letterSpacing: "-0.03em" }}
             >
               {COPY.MY_POSTINGS.TITLE}
             </h1>
-            <p className="mt-1 text-sm" style={{ color: "var(--text2)" }}>
+            <p className="mt-1 text-sm text-muted-foreground">
               {COPY.MY_POSTINGS.SUBTITLE}
             </p>
           </div>
           <Link
             href="/bounties/create"
-            className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
-            style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+            className="inline-flex items-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5"
+            style={{ background: "var(--primary)" }}
           >
             <PlusIcon className="h-4 w-4" /> {COPY.MY_POSTINGS.NEW_JOB}
           </Link>
@@ -115,32 +114,32 @@ export default function MyPostingsPage() {
 
         {loading ? (
           <div className="flex flex-col items-center justify-center py-20 gap-3">
-            <ArrowPathIcon className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
+            <ArrowPathIcon className="h-8 w-8 animate-spin" style={{ color: "var(--primary)" }} />
           </div>
         ) : error ? (
           <div
-            className="rounded-xl border p-6 flex items-start gap-4"
-            style={{ background: "#fef2f2", borderColor: "#fecaca" }}
+            className="rounded-[24px] border p-6 flex items-start gap-4"
+            style={{ background: "color-mix(in srgb, var(--negative) 10%, transparent)", borderColor: "color-mix(in srgb, var(--negative) 30%, transparent)" }}
           >
-            <ExclamationCircleIcon className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
-            <p className="text-sm" style={{ color: "#991b1b" }}>{error}</p>
+            <ExclamationCircleIcon className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "var(--negative)" }} />
+            <p className="text-sm" style={{ color: "var(--negative)" }}>{error}</p>
           </div>
         ) : bounties.length === 0 ? (
           <div
-            className="flex flex-col items-center justify-center rounded-xl border bg-white py-20 text-center"
+            className="flex flex-col items-center justify-center rounded-[24px] border bg-background py-20 text-center"
             style={{ borderColor: "var(--border)" }}
           >
-            <InboxIcon className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--text)" }} />
-            <h3 className="mb-1 text-base font-semibold" style={{ color: "var(--text)" }}>
+            <InboxIcon className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--foreground)" }} />
+            <h3 className="mb-1 text-base font-semibold text-foreground">
               {COPY.MY_POSTINGS.EMPTY_TITLE}
             </h3>
-            <p className="mb-5 text-sm" style={{ color: "var(--text2)" }}>
+            <p className="mb-5 text-sm text-muted-foreground">
               {COPY.MY_POSTINGS.EMPTY_SUB}
             </p>
             <Link
               href="/bounties/create"
-              className="inline-flex items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold text-white"
-              style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+              className="inline-flex items-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-primary-foreground"
+              style={{ background: "var(--primary)" }}
             >
               <PlusIcon className="h-4 w-4" /> {COPY.MY_POSTINGS.NEW_JOB}
             </Link>
@@ -154,13 +153,13 @@ export default function MyPostingsPage() {
               return (
                 <div
                   key={bounty.id}
-                  className="rounded-xl border bg-white p-6 transition-shadow hover:shadow-md animate-step-in"
+                  className="rounded-[24px] border bg-background p-6 transition-shadow hover:shadow-md animate-step-in"
                   style={{ borderColor: "var(--border)", animationDelay: `${i * 40}ms` }}
                 >
                   <div className="flex items-start justify-between gap-4">
                     <div className="flex-1 min-w-0">
                       <div className="flex flex-wrap items-center gap-2.5 mb-2">
-                        <h3 className="text-lg font-semibold" style={{ color: "var(--text)" }}>
+                        <h3 className="text-lg font-semibold text-foreground">
                           {bounty.title}
                         </h3>
                         <span className={`rounded-full border px-2.5 py-0.5 text-xs font-semibold ${statusStyle}`}>
@@ -168,13 +167,13 @@ export default function MyPostingsPage() {
                         </span>
                       </div>
                       {bounty.description && (
-                        <p className="text-sm line-clamp-2" style={{ color: "var(--text2)" }}>
+                        <p className="text-sm line-clamp-2 text-muted-foreground">
                           {bounty.description}
                         </p>
                       )}
                     </div>
                     <div className="shrink-0 text-right">
-                      <p className="text-xl font-bold" style={{ color: "var(--violet)" }}>
+                      <p className="text-xl font-bold" style={{ color: "var(--primary)" }}>
                         {priceDisplay(bounty)}
                       </p>
                       <span className={`mt-1 inline-block rounded-full border px-2.5 py-0.5 font-mono text-[11px] font-semibold uppercase tracking-wide ${urgencyStyle}`}>
@@ -183,43 +182,39 @@ export default function MyPostingsPage() {
                     </div>
                   </div>
 
-                  {/* Meta */}
                   <div
-                    className="mt-4 flex flex-wrap gap-4 border-t border-b py-3 text-sm"
-                    style={{ borderColor: "var(--border)", color: "var(--text2)" }}
+                    className="mt-4 flex flex-wrap gap-4 border-t border-b border-border py-3 text-sm text-muted-foreground"
                   >
                     {bounty.location_name && (
                       <div className="flex items-center gap-1.5">
-                        <MapPinIcon className="h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
+                        <MapPinIcon className="h-3.5 w-3.5 text-mute" />
                         {bounty.location_name}
                       </div>
                     )}
                     {bounty.deadline && (
                       <div className="flex items-center gap-1.5">
-                        <ClockIcon className="h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
+                        <ClockIcon className="h-3.5 w-3.5 text-mute" />
                         {new Date(bounty.deadline).toLocaleDateString()}
                       </div>
                     )}
                     <div className="flex items-center gap-1.5">
-                      <UsersIcon className="h-3.5 w-3.5" style={{ color: "var(--text3)" }} />
+                      <UsersIcon className="h-3.5 w-3.5 text-mute" />
                       {bounty.slots_available} {bounty.slots_available !== 1 ? "slots" : "slot"}
                     </div>
                   </div>
 
-                  {/* Actions */}
                   <div className="mt-4 flex flex-wrap gap-2.5">
                     <Link
                       href={`/bounties/${bounty.id}`}
-                      className="inline-flex items-center rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
-                      style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
+                      className="inline-flex items-center rounded-[24px] border border-border px-3.5 py-2 text-sm font-medium transition-colors hover:border-primary hover:text-primary text-muted-foreground"
                     >
-                      View details{/* COPY.MY_POSTINGS.VIEW_DETAILS — key missing from lib/copy.ts */}
+                      View details
                     </Link>
                     {bounty.status === "open" && (
                       <Link
                         href={`/bounties/${bounty.id}/applications`}
-                        className="inline-flex items-center rounded-lg px-3.5 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
-                        style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+                        className="inline-flex items-center rounded-[24px] px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5"
+                        style={{ background: "var(--primary)" }}
                       >
                         {COPY.MY_POSTINGS.VIEW_HELPERS}
                       </Link>
@@ -228,15 +223,14 @@ export default function MyPostingsPage() {
                       <>
                         <Link
                           href={`/bounties/${bounty.id}/payment`}
-                          className="inline-flex items-center rounded-lg px-3.5 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
-                          style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+                          className="inline-flex items-center rounded-[24px] border border-border px-3.5 py-2 text-sm font-medium transition-colors hover:border-primary hover:text-primary text-muted-foreground"
                         >
                           {COPY.MY_POSTINGS.PAYMENT}
                         </Link>
                         <Link
                           href={`/bounties/${bounty.id}/complete`}
-                          className="inline-flex items-center rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:border-[var(--violet)] hover:text-[var(--violet)]"
-                          style={{ borderColor: "var(--border2)", color: "var(--text2)" }}
+                          className="inline-flex items-center rounded-[24px] px-3.5 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+                          style={{ background: "var(--positive)" }}
                         >
                           {COPY.MY_POSTINGS.CONFIRM_DONE}
                         </Link>

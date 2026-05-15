@@ -1,6 +1,6 @@
 # Synk Design System
 
-> A bounty/hiring marketplace connecting clients with skilled professionals.
+> A bounty/hiring marketplace connecting clients with skilled professionals — inspired by Wise's visual identity.
 
 ---
 
@@ -8,13 +8,13 @@
 
 | Dial | Value | Meaning |
 |---|---|---|
-| DESIGN_VARIANCE | 8 | Asymmetric, offset layouts. Split-screen, left-aligned content. |
-| MOTION_INTENSITY | 6 | CSS keyframe animations, fade-in-up entrances, floating decorative elements. |
-| VISUAL_DENSITY | 4 | Airy spacing (`p-8`/`p-12`). Cards breathe. Generous whitespace. |
+| DESIGN_VARIANCE | 6 | Offset, asymmetric. Left-aligned content over center. |
+| MOTION_INTENSITY | 4 | CSS transitions, hover states only. No automatic animations. |
+| VISUAL_DENSITY | 4 | Generous whitespace, airy spacing. Cards breathe at `p-6`/`p-8`. |
 
 ### Current Implementation
 
-The design system is currently implemented on the auth screens (`/sign-in`, `/sign-up`). Other pages use the original template styling and have not been migrated yet.
+The design system is applied globally across all pages. The brand identity is a single purple accent (`#5E3AFF`) on a sage-tinted canvas (`#e8ebe6`), paired with a near-black ink (`#0e0f0c`) text. Heavy display typography at weight 900 for hero headlines, Inter at weight 600 for everything else.
 
 ---
 
@@ -22,239 +22,183 @@ The design system is currently implemented on the auth screens (`/sign-in`, `/si
 
 | Role | Font | Weight | Size |
 |---|---|---|---|
-| Headlines | `Geist` (sans) | Semibold (`600`) | `text-5xl md:text-6xl leading-[1.05] tracking-tighter` |
-| Taglines / Logo text | `Google Sans Flex` | Semibold (`600`) | `text-2xl` (logo), `text-base md:text-lg` (tagline) |
-| Body | `Geist` (sans) | Normal (`400`) | inherited |
-| UI Labels / Buttons | `Geist` (sans) | Medium (`500`) | `text-sm` |
-| Mono | `Geist Mono` | Normal (`400`) | inherited |
-| Small / Captions | `Geist` (sans) | Normal (`400`) | inherited |
+| Hero display | Inter (Geist substitute) | `900` | `text-5xl md:text-7xl leading-[0.85] tracking-tighter` |
+| Sub-display / Section heads | Inter | `600` | `text-3xl md:text-4xl` |
+| Body | Inter | `400` | inherited |
+| UI Labels / Buttons | Inter | `600` | `text-sm` |
+| Mono | `Geist Mono` / `JetBrains Mono` | `400` | inherited |
+| Small / Captions | Inter | `400` | `text-xs` |
 
 ### Font Loading
 
-- **Geist** — Loaded via `next/font/google` with CSS variables `--font-geist-sans` and `--font-geist-mono`. All Tailwind `font-sans` / `font-mono` utilities map to these variables.
-- **Google Sans Flex** — Loaded via CDN `<link>` in `<head>` from Google Fonts. Custom CSS class `.font-google-sans-flex` applies the font with `font-variation-settings` (slnt, wdth, GRAD, ROND). No Tailwind utility class — use the explicit class name.
+- **Inter** — Loaded via `next/font/google` with CSS variables `--font-inter`. All Tailwind `font-sans` utilities map to this variable.
+- **Geist Mono** — Loaded via `next/font/google` for monospace needs.
 
 ---
 
 ## 3. Color Palette
 
-### Core Tokens (OKLCH)
+### Core Tokens (Hex)
 
 | Token | Light | Dark | Usage |
 |---|---|---|---|
-| `--background` | `oklch(1 0 0)` | `oklch(0.145 0 0)` | Page background |
-| `--foreground` | `oklch(0.145 0 0)` | `oklch(0.985 0 0)` | Body text |
-| `--primary` | `oklch(0.205 0 0)` | `oklch(0.922 0 0)` | Primary buttons, links |
-| `--secondary` | `oklch(0.97 0 0)` | `oklch(0.269 0 0)` | Secondary surfaces |
-| `--border` | `oklch(0.922 0 0)` | `oklch(1 0 0 / 10%)` | Card/input borders |
-| `--accent` | `oklch(0.97 0 0)` | `oklch(0.269 0 0)` | Accent surfaces |
-| `--radius` | `0.625rem` | same | Base border radius |
+| `--background` | `#ffffff` | `#0e0f0c` | Page / card background |
+| `--foreground` | `#0e0f0c` | `#e8ebe6` | Body text |
+| `--primary` | `#5E3AFF` | `#5E3AFF` | CTAs, primary actions, brand accent |
+| `--primary-foreground` | `#0e0f0c` | `#0e0f0c` | Text on primary bg |
+| `--secondary` | `#e8ebe6` | `#1a1b18` | Secondary surfaces |
+| `--muted` | `#e8ebe6` | `#1a1b18` | Muted backgrounds |
+| `--muted-foreground` | `#454745` | `#868685` | Secondary text |
+| `--accent` | `#e8ebe6` | `#1a1b18` | Accent surfaces |
+| `--accent-foreground` | `#0e0f0c` | `#e8ebe6` | Text on accent |
+| `--border` | `#d4d7d2` | `#2a2b28` | Dividers, subtle borders |
+| `--input` | `#ffffff` | `#1a1b18` | Input background |
+| `--ring` | `#5E3AFF` | `#5E3AFF` | Focus rings |
+| `--radius` | `1.5rem` | same | Base border radius |
 
-### Brand Accent — Deep Indigo
+### Brand Accent — Synk Purple
+
+| Token | Value | Usage |
+|---|---|---|
+| `--primary` | `#5E3AFF` | Primary buttons, brand accent |
+
+| `--primary-hover` | `#7B61FF` | Button hover state |
+
+| `--primary-pale` | `#EDE9FF` | Badge backgrounds, soft surfaces |
+
+### Surface
 
 | Token | Light | Dark | Usage |
 |---|---|---|---|
-| `--accent-brand` | `oklch(0.45 0.18 270)` | `oklch(0.65 0.18 270)` | Buttons, active states, brand panel background |
-| `--accent-brand-foreground` | `oklch(0.99 0 0)` | `oklch(0.99 0 0)` | Text on brand bg |
-| `--accent-subtle` | `oklch(0.95 0.04 270)` | `oklch(0.25 0.04 270)` | Hover states, pill badges |
+| Canvas | `#ffffff` | `#0e0f0c` | Card interiors |
+| Canvas Soft | `#e8ebe6` | `#1a1b18` | Page background (sage) |
+| Ink | `#0e0f0c` | `#e8ebe6` | Primary text |
 
-### Brand Panel Gradient
+### Semantic
 
-The auth screen brand panel uses a custom gradient (ad-hoc, not a token):
-```css
-linear-gradient(180deg, #000000 0%, #5E3AFF 56%, #11073D 96%)
-```
-
----
-
-## 4. Auth Screen — Reference Implementation
-
-The auth screens (`/sign-in`, `/sign-up`) are the only pages using the new design system. They demonstrate the full visual language:
-
-### Layout
-- **Split-screen:** Left brand panel (45%) + right form panel (55%) on `md:` and above
-- **Mobile:** Brand panel hidden, compact logo bar shown above the form
-
-### Left Panel (Brand)
-- Background: `linear-gradient(180deg, #000000 0%, #5E3AFF 56%, #11073D 96%)`
-- Radial light source overlay: `ellipse_at_top_left`, `rgba(255,255,255,0.2)` → transparent
-- Dot grid pattern overlay: 32px spaced dots at `rgba(255,255,255,0.06)`
-- Logo: SVG icon (`/logo.svg`, `size-9`) + "Synk" text in Google Sans Flex, white
-- Headline: Geist, `text-5xl md:text-6xl`, `font-semibold`, `leading-[1.05]`, `tracking-tighter`
-- Tagline: Google Sans Flex, `text-base md:text-lg`, `text-white/70`
-
-### Right Panel (Form)
-- Background: `bg-background`
-- Clerk `<SignIn>` / `<SignUp>` component with custom `appearance` prop
-  - Variables mapped to CSS custom properties (`var(--accent-brand)`, etc.)
-  - Card: `border border-border shadow-[0_20px_40px_-15px_rgba(0,0,0,0.05)]`
-  - Primary button: `bg-accent-brand`, `active:scale-[0.98]`
-  - Inputs: focus ring `2px solid var(--accent-brand)`
-  - All interactive elements use `transition-colors duration-200`
-- Form wrapper: `animate-fade-in-up` entrance animation
-
-### Clerk Configuration
-- Env vars: `NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in`, `NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up`
-- Sign-up redirects to local `/sign-up` instead of Clerk's hosted portal
+| Token | Value | Usage |
+|---|---|---|
+| `--positive` | `#2ead4b` | Success indicator |
+| `--positive-deep` | `#054d28` | Pressed positive |
+| `--warning` | `#ffd11a` | Caution |
+| `--warning-deep` | `#b86700` | Pressed warning |
+| `--negative` | `#d03238` | Destructive / error |
+| `--negative-deep` | `#a72027` | Pressed destructive |
 
 ---
 
-## 5. Custom Keyframe Animations
+## 4. Layout & Shapes
 
-Defined in `app/globals.css`:
+### Border Radius Scale
 
-| Keyframe | Utility | Timing | Purpose |
-|---|---|---|---|
-| `float` | `animate-float` | `6s ease-in-out infinite` | Gentle vertical float |
-| `float-slow` | `animate-float-slow` | `8s ease-in-out infinite` | Slower float variation |
-| `fade-in-up` | `animate-fade-in-up` | `0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards` | Content entrance |
-| `fade-in-up` delayed | `animate-fade-in-up-delayed` | same, `0.15s` delay | Staggered entrances |
-| `shimmer` | `animate-shimmer` | `2s linear infinite` | Skeleton loading |
+| Token | Value | Use |
+|---|---|---|
+| `--radius-sm` | `8px` | Inline pills, small badges |
+| `--radius-md` | `12px` | Form inputs |
+| `--radius-lg` | `16px` | Mid-size cards |
+| `--radius-xl` | `24px` | **Canonical** — buttons + cards |
+| `--radius-pill` | `9999px` | Status pills |
 
----
+### Spacing
 
-## 6. Logo
+- Base unit: 4px
+- Section padding: `py-12` (48px) on desktop
+- Card interior: `p-6` (24px)
 
-- **SVG file:** `public/logo.svg` — geometric "S" shape, white fill
-- **Component:** `components/Logo.tsx` — wraps `next/image` with optional `showText` prop
-  - Icon: `36x36` (`size-9`)
-  - Text (when shown): `text-2xl font-semibold tracking-tight` in inherited color
-- The logo SVG is white-filled so it works on dark brand backgrounds
-
----
-
-## 7. Components
-
-### Logo (`components/Logo.tsx`)
-- Reusable `<Logo showText={false} />` for icon-only, `<Logo />` for icon + "Synk" text
-- Uses `next/image` with `priority` for LCP optimization
-
-### Navbar (`components/Navbar.tsx`)
-- **Not yet migrated.** Still uses hardcoded `from-blue-600 to-blue-700` logo gradient, `bg-white/95`, and `border-gray-200`.
-
-### BountyCard (`components/BountyCard.tsx`)
-- **Not yet migrated.** Still uses hardcoded `hover:border-blue-400`, `bg-white`, `shadow-lg`.
-
-### BountyForm (`components/BountyForm.tsx`)
-- **Not yet migrated.** Still uses raw `<input>`/`<select>` with duplicated classes and `focus:ring-blue-500`.
-
-### VoiceInput (`components/voice/VoiceInput.tsx`)
-- **Not yet migrated.** Still uses hardcoded `bg-green-600`/`bg-red-500`/`bg-orange-500`.
-
-### shadcn Button (`components/ui/button.tsx`)
-- **Not yet migrated.** Missing spring easing on transitions.
-
----
-
-## 8. Responsive Strategy
+### Responsive
 
 | Breakpoint | Width | Behavior |
 |---|---|---|
-| Default | < `768px` | Single column, stacked layout |
-| `md` | `768px` | Split-screen panels, grids appear |
-| `lg` | `1024px` | Wider layouts, larger typography |
-| `xl` | `1280px` | Max content width constrained |
-
-Auth screens use `min-h-[100dvh]` instead of `min-h-screen` for mobile viewport stability.
+| Default | < 768px | Single column, stacked |
+| `md` | 768px | Split-screen, grids appear |
+| `lg` | 1024px | Wider layouts |
+| `xl` | 1280px | Max content width constrained |
 
 ---
 
-## 9. Pages Implemented
+## 5. Components
 
-| Page | Status | Notes |
-|---|---|---|
-| `/sign-in` | Done | Full design system applied |
-| `/sign-up` | Done | Same as sign-in |
-| `/` (home) | Done | Brand gradient cards, hero icons, theme-aware tokens. Stats use `AnimateCount` + `ShimmerSkeleton`; greeting uses `GlowingBadge`. |
-| `/bounty/browse` | Done | Theme tokens, brand accent, dark mode |
-| `/bounty/create` | Done | Theme tokens, brand accent inputs |
-| `/bounty/[id]` | Done | Theme tokens, brand gradient price card |
-| `/bounty/[id]/payment` | Done | Theme tokens, brand accent buttons |
-| `/bounty/[id]/complete` | Done | Theme tokens, dark-mode-compatible alerts |
-| `/bounty/[id]/applications` | Done | Theme tokens, brand accent avatars |
-| `/applications` | Done | Theme tokens, dark-mode badge colors |
-| `/profile` | Not migrated | Template styling |
-| `/onboarding` | Done | Brand colors, Google Sans Flex logo pattern. Form uses `BlobCard` wrapper with Synk brand colors + shadcn `Input`/`Label`. |
+### Button (`components/ui/button.tsx`)
 
----
+- **Primary**: Background `--primary` (green), text `--primary-foreground` (ink), pill shape `--radius-xl` (24px)
+- **Secondary**: Background `--canvas-soft` (sage), text `--ink`, pill shape
+- **Tertiary (ghost)**: Background transparent, text `--ink`, pill shape, 1px solid `--ink` border
+- All buttons: `font-semibold`, `text-sm`, `px-5 py-2.5`, `active:scale-[0.97]` tactile feedback
 
-## 10. Dark Mode
+### Navbar (`components/Navbar.tsx`)
 
-### Setup
-- **Library:** `next-themes` with `attribute="class"`, `defaultTheme="system"`, `enableSystem`
-- **Provider:** Wraps `ClerkProvider` in `app/layout.tsx`
-- **CSS:** Dark mode variables defined in `.dark` block in `app/globals.css`
+- Background `--canvas` (white), ink text
+- Sticky top, no border-bottom (elevation via content contrast)
+- Logo: `Logo` component (SVG + "Synk" text)
+- Nav links: `text-sm font-semibold` (Inter weight 600), hover underline
 
-### Theme Switch
-- **Component:** `ThemeSwitch` from Unlumen UI (`@/components/unlumen-ui/theme-switch`)
-- **Integration:** Placed in `Navbar` next to `UserButton` (desktop) and in mobile menu
-- **Animation:** View transition CSS (`startViewTransition`) with circle clip-path reveal, disabled on screens > 1800px wide
+### BountyCard (`components/BountyCard.tsx`)
 
-### Token Usage Pattern
-| Token | Light | Dark | Example |
-|---|---|---|---|
-| `bg-background` | White | Near-black | Page background |
-| `text-foreground` | Near-black | White | Headings, body text |
-| `text-muted-foreground` | Gray-500 | Gray-400 | Secondary text |
-| `bg-card` | White | Dark gray | Card surfaces |
-| `border-border` | Light gray | White/10% | Dividers, borders |
-| `bg-muted` | Gray-100 | Dark gray-2 | Muted backgrounds |
-| `bg-[#5E3AFF]` | Brand purple | Brand purple | Brand accent (no change) |
+- White card on sage canvas (`bg-card` on `bg-secondary` page)
+- Radius `--radius-xl` (24px)
+- No border (elevation from surface contrast)
+- Padding `p-6`
+- Status badges: pill shape (`--radius-pill`), semantic colors
 
-### Semantic Colors (status/urgency badges)
-Badge colors use light/dark variants: `bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300`
+### BountyForm (`components/BountyForm.tsx`)
+
+- White card on sage canvas
+- Inputs: background `--input`, 1px solid `--ink` border, radius `--radius-md` (12px)
+- Focus ring: `--ring` (green)
+
+### VoiceInput (`components/voice/VoiceInput.tsx`)
+
+- Mic button: green (`--primary`) for idle, red for recording, orange for error
+- Pill language selector chips
+- White card on sage canvas
 
 ---
 
-## 11. Unlumen UI Components
+## 6. Elevation
 
-Installed via Unlumen shadcn registry. All components in `components/unlumen-ui/`:
+The brand uses surface contrast (`--secondary` sage background vs `--background` white cards) as the primary elevation cue. No shadows on cards. Shadows reserved for modals/dropdowns only.
 
-| Component | Usage |
-|---|---|---|
-| `ThemeSwitch` | Dark mode toggle in Navbar |
-| `ShimmerSkeleton` | Loading skeleton states (homepage stats) |
-| `GlowingBadge` | Status indicator badges, "Welcome back" greeting on homepage |
-| `TiltCard` / `Tilt` | 3D hover card effect |
-| `AnimateCount` | Animated number counters (homepage stats) |
-| `FloatingTooltip` | Tooltip overlays |
-| `HoverFeatureCards` | Feature card grid with hover effects |
-| `AnimatedList` | Staggered list animations |
-| `AppleSwitch` | Toggle switches |
-| `MotionNavigationMenu` | Animated navigation dropdowns |
-| `ClippedCircle` | Decorative clipped circle shapes |
-| `BlobCard` | Animated card with fluid blob header + rotating glow border (onboarding form) |
+| Level | Treatment |
+|---|---|
+| Default | White card on sage canvas — contrast IS the elevation |
+| Elevated | Same, z-index layering |
 
 ---
 
-## 12. File Reference
+## 7. Dark Mode
+
+- Canvas: `#0e0f0c` (ink)
+- Canvas Soft: `#1a1b18` (dark sage)
+- Text: `#e8ebe6` (light sage-white)
+- Purple accent: unchanged (`#5E3AFF`)
+- Cards: `#0e0f0c` on `#1a1b18`
+
+---
+
+## 8. File Reference
 
 | File | Role |
 |---|---|
-| `app/globals.css` | Design tokens, custom keyframes, `.font-google-sans-flex` class, Tailwind theme |
-| `app/layout.tsx` | Root layout, font loading (Geist via next/font, Google Sans Flex via CDN), Clerk provider, React Grab |
-| `app/(auth)/sign-in/[[...sign-in]]/page.tsx` | Auth sign-in with full design system |
-| `app/(auth)/sign-up/[[...sign-up]]/page.tsx` | Auth sign-up with full design system |
-| `components/Logo.tsx` | Reusable logo component (SVG + optional text) |
-| `components/ui/FluidBlobs.tsx` | Animated SVG blob primitive (used by BlobCard) |
-| `components/ui/glow-effect.tsx` | Rotating conic-gradient glow border primitive (used by BlobCard) |
-| `components/unlumen-ui/blob-card.tsx` | Animated blob card with glow border (onboarding form wrapper) |
-| `public/logo.svg` | SVG logo asset |
-| `.env` | Clerk routing env vars, API keys |
+| `app/globals.css` | Design tokens, Tailwind theme, animations |
+| `app/layout.tsx` | Root layout, font loading (Inter + Geist Mono) |
+| `components/Logo.tsx` | Reusable logo (SVG + text) |
+| `components/Navbar.tsx` | Top navigation bar |
+| `components/BountyCard.tsx` | Bounty listing card |
+| `components/BountyForm.tsx` | Bounty create/edit form |
+| `components/ui/button.tsx` | Primary/secondary/tertiary button |
+| `components/voice/VoiceInput.tsx` | Voice recording component |
 
 ---
 
-## 13. Design Review Checklist
+## 9. Design Review Checklist
 
-For pages using the design system, verify:
-
-- [ ] Brand panel uses `linear-gradient(180deg, #000000 0%, #5E3AFF 56%, #11073D 96%)`
-- [ ] Radial light source + dot grid overlays on brand backgrounds
-- [ ] Text on brand panel uses correct font (Geist for headlines, Google Sans Flex for supporting text)
-- [ ] Form panels use `bg-background` with diffusion shadow on cards
-- [ ] Clerk `appearance` maps config to CSS variables (not hardcoded values)
-- [ ] Animations use `pointer-events-none` and `aria-hidden="true"`
-- [ ] Layout uses `min-h-[100dvh]` (not `min-h-screen`)
-- [ ] No hardcoded `blue-600`/`gray-50`/`bg-white` — use CSS variable tokens
-- [ ] Interactive elements have `active:scale-[0.98]` tactile feedback
-- [ ] Google Sans Flex text uses `.font-google-sans-flex` class
+- [ ] Sage canvas (`bg-secondary`) as page background, white cards (`bg-card`) on top
+- [ ] Single green CTA accent — no second brand color
+- [ ] Buttons use `rounded-[24px]` (pill) shape
+- [ ] Cards use `rounded-[24px]` shape
+- [ ] Inputs use `rounded-[12px]` with ink border
+- [ ] Hero headlines use weight 900 (Inter weight 900)
+- [ ] No card shadows — elevation via surface contrast
+- [ ] No hardcoded colors — use CSS variable tokens
+- [ ] Interactive elements have `active:scale-[0.97]` tactile feedback
+- [ ] Dark mode properly inverted

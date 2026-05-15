@@ -39,32 +39,31 @@ export default function DashboardPage() {
       <Navbar />
       <div className="mx-auto max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
 
-        {/* Header */}
         <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <h1
-              className="text-3xl font-bold"
-              style={{ color: "var(--text)", letterSpacing: "-0.03em" }}
+              className="text-3xl font-bold text-foreground"
+              style={{ letterSpacing: "-0.03em" }}
             >
               {COPY.DASHBOARD.AVAILABLE_JOBS}
             </h1>
-            <p className="mt-1 text-sm" style={{ color: "var(--text2)" }}>
+            <p className="mt-1 text-sm text-muted-foreground">
               {COPY.DASHBOARD.AVAILABLE_JOBS_SUB}
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <button
               onClick={loadFeed}
-              className="inline-flex items-center gap-2 rounded-lg border px-3.5 py-2 text-sm font-medium transition-colors hover:bg-white"
-              style={{ borderColor: "var(--border2)", color: "var(--text2)", background: "transparent" }}
+              className="inline-flex items-center gap-2 rounded-[24px] border px-3.5 py-2 text-sm font-medium transition-colors hover:bg-secondary"
+              style={{ borderColor: "var(--border)", color: "var(--foreground)", background: "var(--background)" }}
             >
               <ArrowPathIcon className="h-4 w-4" />
               {COPY.DASHBOARD.REFRESH}
             </button>
             <Link
               href="/bounties/create"
-              className="inline-flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
-              style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+              className="inline-flex items-center gap-2 rounded-[24px] px-4 py-2 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5"
+              style={{ background: "var(--primary)" }}
             >
               <PlusIcon className="h-4 w-4" />
               {COPY.DASHBOARD.POST_JOB}
@@ -72,38 +71,36 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Error */}
         {error && (
           <div
-            className="mb-6 rounded-xl border px-4 py-3 text-sm"
-            style={{ background: "#fef2f2", borderColor: "#fecaca", color: "#b91c1c" }}
+            className="mb-6 rounded-[24px] border px-4 py-3 text-sm"
+            style={{ background: "color-mix(in srgb, var(--negative) 10%, transparent)", borderColor: "color-mix(in srgb, var(--negative) 30%, transparent)", color: "var(--negative)" }}
           >
             {error}
           </div>
         )}
 
-        {/* Content */}
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3">
-            <ArrowPathIcon className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
-            <p className="text-sm" style={{ color: "var(--text3)" }}>{COPY.LOADING}</p>
+            <ArrowPathIcon className="h-8 w-8 animate-spin" style={{ color: "var(--primary)" }} />
+            <p className="text-sm text-mute">{COPY.LOADING}</p>
           </div>
         ) : items.length === 0 ? (
           <div
-            className="flex flex-col items-center justify-center rounded-xl border bg-white py-20 text-center"
+            className="flex flex-col items-center justify-center rounded-[24px] border bg-background py-20 text-center"
             style={{ borderColor: "var(--border)" }}
           >
-            <InboxIcon className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--text)" }} />
-            <h3 className="mb-1 text-lg font-semibold" style={{ color: "var(--text)" }}>
+            <InboxIcon className="mb-4 h-12 w-12 opacity-20" style={{ color: "var(--foreground)" }} />
+            <h3 className="mb-1 text-lg font-semibold text-foreground">
               {COPY.DASHBOARD.NO_JOBS}
             </h3>
-            <p className="mb-6 text-sm" style={{ color: "var(--text2)" }}>
+            <p className="mb-6 text-sm text-muted-foreground">
               {COPY.DASHBOARD.NO_JOBS_SUB}
             </p>
             <Link
               href="/bounties/create"
-              className="inline-flex items-center gap-2 rounded-lg px-5 py-2.5 text-sm font-semibold text-white"
-              style={{ background: "var(--violet)", boxShadow: "var(--shadow-violet)" }}
+              className="inline-flex items-center gap-2 rounded-[24px] px-5 py-2.5 text-sm font-semibold text-primary-foreground"
+              style={{ background: "var(--primary)" }}
             >
               <PlusIcon className="h-4 w-4" />
               {COPY.DASHBOARD.POST_FIRST}

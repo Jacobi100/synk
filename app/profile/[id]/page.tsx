@@ -94,7 +94,7 @@ function TrustScoreBar({ score, badge }: { score: number; badge: TrustBadge }) {
   return (
     <div>
       <div className="flex items-center justify-between mb-1.5">
-        <span className="text-xs font-medium" style={{ color: "var(--text2)" }}>
+        <span className="text-xs font-medium text-muted-foreground">
           {COPY.PROVIDER_PROFILE.REPUTATION_SCORE}
         </span>
         <span className="text-sm font-bold" style={{ color: config.iconColor }}>
@@ -122,23 +122,17 @@ function SignalRow({ signal }: { signal: TrustSignal }) {
   return (
     <div className="flex items-center gap-3">
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium truncate" style={{ color: "var(--text)" }}>
+        <p className="text-xs font-medium truncate text-foreground">
           {signal.label}
         </p>
-        <div
-          className="mt-1 h-1.5 w-full rounded-full overflow-hidden"
-          style={{ backgroundColor: "#e5e7eb" }}
-        >
+        <div className="mt-1 h-1.5 w-full rounded-full overflow-hidden bg-border">
           <div
             className="h-full rounded-full"
-            style={{ width: `${pct}%`, backgroundColor: "var(--violet)" }}
+            style={{ width: `${pct}%`, backgroundColor: "var(--primary)" }}
           />
         </div>
       </div>
-      <span
-        className="shrink-0 text-xs font-semibold tabular-nums"
-        style={{ color: "var(--text2)" }}
-      >
+      <span className="shrink-0 text-xs font-semibold tabular-nums text-muted-foreground">
         +{signal.points}
       </span>
     </div>
@@ -159,13 +153,10 @@ function StatCard({
   value: string | number;
 }) {
   return (
-    <div
-      className="rounded-xl border p-4 flex flex-col gap-2"
-      style={{ borderColor: "var(--border)", backgroundColor: "var(--bg2)" }}
-    >
-      <Icon className="h-4 w-4" style={{ color: "var(--text3)" }} />
-      <p className="text-xl font-bold" style={{ color: "var(--text)" }}>{value}</p>
-      <p className="text-xs" style={{ color: "var(--text3)" }}>{label}</p>
+    <div className="rounded-[24px] border border-border bg-secondary p-4 flex flex-col gap-2">
+      <Icon className="h-4 w-4 text-mute" />
+      <p className="text-xl font-bold text-foreground">{value}</p>
+      <p className="text-xs text-mute">{label}</p>
     </div>
   );
 }
@@ -212,8 +203,8 @@ export default function ProviderProfilePage({
       <div className="min-h-screen">
         <Navbar />
         <div className="flex flex-col items-center justify-center py-24 gap-3">
-          <Loader2 className="h-8 w-8 animate-spin" style={{ color: "var(--violet)" }} />
-          <p className="text-sm" style={{ color: "var(--text2)" }}>{COPY.LOADING}</p>
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">{COPY.LOADING}</p>
         </div>
       </div>
     );
@@ -226,14 +217,11 @@ export default function ProviderProfilePage({
       <div className="min-h-screen">
         <Navbar />
         <div className="mx-auto max-w-lg px-4 py-10 sm:px-6">
-          <div
-            className="rounded-xl border p-6 flex items-start gap-4"
-            style={{ background: "#fef2f2", borderColor: "#fecaca" }}
-          >
-            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" style={{ color: "#dc2626" }} />
+          <div className="rounded-[24px] border border-[var(--negative)]/30 bg-[var(--negative)]/10 p-6 flex items-start gap-4">
+            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5 text-[var(--negative)]" />
             <div>
-              <h3 className="font-semibold" style={{ color: "#7f1d1d" }}>{COPY.PROVIDER_PROFILE.NOT_FOUND_TITLE}</h3>
-              <p className="text-sm mt-0.5" style={{ color: "#991b1b" }}>
+              <h3 className="font-semibold text-[var(--negative)]">{COPY.PROVIDER_PROFILE.NOT_FOUND_TITLE}</h3>
+              <p className="text-sm mt-0.5 text-[var(--negative)]/80">
                 {fetchError ?? COPY.PROVIDER_PROFILE.NOT_FOUND_SUB}
               </p>
             </div>
@@ -255,41 +243,27 @@ export default function ProviderProfilePage({
         {/* Back */}
         <Link
           href="/dashboard"
-          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-[var(--violet)]"
-          style={{ color: "var(--text2)" }}
+          className="mb-6 inline-flex items-center gap-1.5 text-sm font-medium transition-colors hover:text-primary text-muted-foreground"
         >
           <ArrowLeft className="h-4 w-4" /> {COPY.PROVIDER_PROFILE.BACK}
         </Link>
 
         {/* Profile header */}
-        <div
-          className="rounded-xl border p-6 mb-5"
-          style={{
-            borderColor:     "var(--border)",
-            boxShadow:       "var(--synk-shadow)",
-            backgroundColor: "white",
-          }}
-        >
+        <div className="rounded-[24px] border border-border bg-background p-6 mb-5">
           <div className="flex items-start gap-4">
 
             {/* Avatar */}
-            <div
-              className="h-14 w-14 rounded-full flex items-center justify-center shrink-0 text-xl font-bold text-white"
-              style={{ backgroundColor: "var(--violet)" }}
-            >
+            <div className="h-14 w-14 rounded-full flex items-center justify-center shrink-0 text-xl font-bold text-primary-foreground bg-primary">
               {displayName.charAt(0).toUpperCase()}
             </div>
 
             {/* Name + badge */}
             <div className="flex-1 min-w-0">
-              <h1
-                className="text-xl font-bold"
-                style={{ color: "var(--text)", letterSpacing: "-0.02em" }}
-              >
+              <h1 className="text-xl font-bold text-foreground" style={{ letterSpacing: "-0.02em" }}>
                 {displayName}
               </h1>
               {profile.username && (
-                <p className="text-sm" style={{ color: "var(--text3)" }}>
+                <p className="text-sm text-mute">
                   @{profile.username}
                 </p>
               )}
@@ -301,7 +275,7 @@ export default function ProviderProfilePage({
                   <BadgeIcon className="h-3.5 w-3.5" />
                   {badgeConfig.label}
                 </span>
-                <span className="text-xs" style={{ color: "var(--text3)" }}>
+                <span className="text-xs text-mute">
                   {COPY.PROVIDER_PROFILE.MEMBER_SINCE(formatDistanceToNow(new Date(profile.memberSince), { addSuffix: true }))}
                 </span>
               </div>
@@ -318,7 +292,7 @@ export default function ProviderProfilePage({
                 className="h-4 w-4 shrink-0 mt-0.5"
                 style={{ color: badgeConfig.iconColor }}
               />
-              <p className="text-sm" style={{ color: "var(--text)" }}>
+              <p className="text-sm text-foreground">
                 {badgeConfig.description}
               </p>
             </div>
@@ -334,18 +308,8 @@ export default function ProviderProfilePage({
 
         {/* Trust score breakdown */}
         {profile.trustSignals.length > 0 && (
-          <div
-            className="rounded-xl border p-6 mb-5"
-            style={{
-              borderColor:     "var(--border)",
-              boxShadow:       "var(--synk-shadow)",
-              backgroundColor: "white",
-            }}
-          >
-            <h2
-              className="text-sm font-semibold uppercase tracking-wide mb-4"
-              style={{ color: "var(--text3)" }}
-            >
+          <div className="rounded-[24px] border border-border bg-background p-6 mb-5">
+            <h2 className="text-sm font-semibold uppercase tracking-wide mb-4 text-mute">
               {COPY.PROVIDER_PROFILE.REPUTATION_TITLE}
             </h2>
 
@@ -358,7 +322,7 @@ export default function ProviderProfilePage({
             </div>
 
             {profile.trustComputedAt && (
-              <p className="mt-4 text-xs" style={{ color: "var(--text3)" }}>
+              <p className="mt-4 text-xs text-mute">
                 <Clock className="inline h-3 w-3 mr-1" />
                 {COPY.PROVIDER_PROFILE.LAST_UPDATED} {formatDistanceToNow(
                   new Date(profile.trustComputedAt),
@@ -371,15 +335,12 @@ export default function ProviderProfilePage({
 
         {/* New provider — no signals yet */}
         {profile.trustSignals.length === 0 && (
-          <div
-            className="rounded-xl border p-6 mb-5 flex flex-col items-center gap-3 text-center"
-            style={{ borderColor: "var(--border)", backgroundColor: "var(--bg2)" }}
-          >
-            <Sparkles className="h-8 w-8" style={{ color: "var(--text3)" }} />
-            <p className="text-sm font-medium" style={{ color: "var(--text)" }}>
+          <div className="rounded-[24px] border border-border bg-secondary p-6 mb-5 flex flex-col items-center gap-3 text-center">
+            <Sparkles className="h-8 w-8 text-mute" />
+            <p className="text-sm font-medium text-foreground">
               {COPY.PROVIDER_PROFILE.NO_HISTORY_TITLE}
             </p>
-            <p className="text-xs" style={{ color: "var(--text3)" }}>
+            <p className="text-xs text-mute">
               {COPY.PROVIDER_PROFILE.NO_HISTORY_SUB}
             </p>
           </div>
