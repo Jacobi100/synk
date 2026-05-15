@@ -27,7 +27,7 @@ const GeminiRiskSchema = z.object({
 });
 
 // ---------------------------------------------------------------------------
-// Layer 1 — run all deterministic rules and aggregate signals
+// Layer 1 - run all deterministic rules and aggregate signals
 // ---------------------------------------------------------------------------
 
 interface Layer1Result {
@@ -50,18 +50,18 @@ function runRuleLayer(ctx: TransactionContext): Layer1Result {
 }
 
 // ---------------------------------------------------------------------------
-// Layer 2 — Gemini contextual risk analysis
+// Layer 2 - Gemini contextual risk analysis
 //
 // Only called when Layer 1 score falls in the ambiguous band (30–69).
 // Receives the full transaction context including service description so
 // Gemini can detect semantic inconsistencies rule logic cannot see.
-// Gemini supplements deterministic scoring — it does not override it.
+// Gemini supplements deterministic scoring. It does not override it.
 // ---------------------------------------------------------------------------
 
 function buildFraudSystemPrompt(): string {
   return `You are a fraud analysis assistant for a Nigerian peer-to-peer services payment platform. Payments are always released after the buyer confirms a service was delivered.
 
-Your role is to supplement a deterministic rule-based risk scoring system by adding contextual reasoning. You do not make the final payment decision — you provide a contextual risk score that contributes an additive value on top of the rule-based score. Your score can only increase the final risk rating, never reduce it.
+Your role is to supplement a deterministic rule-based risk scoring system by adding contextual reasoning. You do not make the final payment decision. You provide a contextual risk score that adds to the rule-based score. Your score can only increase the final risk rating, never reduce it.
 
 Platform context:
 - Users are everyday Nigerians: artisans, market workers, tradespeople, and buyers.
@@ -70,9 +70,9 @@ Platform context:
 
 Your analysis must:
 1. Assess whether the service description is consistent with the transaction amount and elapsed time.
-2. Identify semantic inconsistencies — for example: a ₦95,000 charge for a laundry service, or a 3-minute completion time for a home repair.
+2. Identify semantic inconsistencies. Example: a ₦95,000 charge for a laundry service, or a 3-minute completion time for a home repair.
 3. Consider whether the transaction pattern suggests collusion, wash trading, or account abuse.
-4. Return specific, actionable flags — not generic warnings.
+4. Return specific, actionable flags. Do not give generic warnings.
 
 Scoring guidance:
 - riskScore: 0 = no risk, 100 = certain fraud.
@@ -113,11 +113,11 @@ Assess the contextual fraud risk for this transaction.`;
 }
 
 // ---------------------------------------------------------------------------
-// Gemini contribution — tiered additive scaling
+// Gemini contribution - tiered additive scaling
 //
 // Converts Gemini's 0–100 risk score into a bounded additive value that is
 // added on top of the Layer 1 deterministic score. Gemini can never reduce
-// the score — it can only add weight when it detects contextual risk the
+// the score - it can only add weight when it detects contextual risk the
 // rules could not see.
 //
 // Contribution bands:
@@ -153,7 +153,7 @@ function deriveRecommendation(score: number): Recommendation {
 }
 
 // ---------------------------------------------------------------------------
-// Main export — full two-layer assessment pipeline
+// Main export - full two-layer assessment pipeline
 // ---------------------------------------------------------------------------
 
 /**
@@ -174,7 +174,7 @@ function deriveRecommendation(score: number): Recommendation {
 export async function assessTransaction(
   ctx: TransactionContext
 ): Promise<FraudAssessment> {
-  // Layer 1 — always runs
+  // Layer 1 - always runs
   const layer1 = runRuleLayer(ctx);
 
   let layer2Score:     number | null = null;
@@ -182,7 +182,7 @@ export async function assessTransaction(
   let geminiReasoning: string        = "";
   let confidence:      number        = 0.95; // high confidence for pure rule decisions
 
-  // Layer 2 — conditional on ambiguous band
+  // Layer 2 - conditional on ambiguous band
   const isAmbiguous =
     layer1.score >= GEMINI_LOWER_BOUND &&
     layer1.score < GEMINI_UPPER_BOUND;
@@ -195,7 +195,7 @@ export async function assessTransaction(
     confidence    = gemini.confidence;
   }
 
-  // Final score — Layer 1 baseline + Gemini additive contribution
+  // Final score - Layer 1 baseline + Gemini additive contribution
   // Gemini never reduces the score. Contribution is tiered by Gemini's
   // own risk assessment. Total is capped at 100.
   const geminiContribution =

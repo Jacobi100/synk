@@ -77,7 +77,7 @@ async function writeFraudAlert(record: FraudAlertRecord): Promise<void> {
       console.error("[fraud] Failed to write alert to database:", error.message);
     } else {
       console.info(
-        "[fraud] Alert persisted — recommendation:",
+        "[fraud] Alert persisted - recommendation:",
         record.recommendation,
         "| score:",
         record.finalScore
@@ -145,7 +145,7 @@ export async function POST(
     }
 
     console.info(
-      "[fraud] Assessment complete — recommendation:",
+      "[fraud] Assessment complete - recommendation:",
       assessment.recommendation,
       "| final score:",
       assessment.finalScore,

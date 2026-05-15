@@ -98,7 +98,7 @@ async function runOnce<T extends z.ZodTypeAny>(
 }
 
 // ---------------------------------------------------------------------------
-// Named export — the only public surface of this file
+// Named export - the only public surface of this file
 // ---------------------------------------------------------------------------
 
 /**
@@ -109,7 +109,7 @@ async function runOnce<T extends z.ZodTypeAny>(
  * - Validates the response against that same Zod schema before returning.
  * - Retries once automatically on any parse or validation failure.
  * - Throws a `GeminiError` if both attempts fail.
- * - Return type is fully inferred from the Zod schema — no manual typing needed.
+ * - Return type is fully inferred from the Zod schema - no manual typing needed.
  *
  * @example
  * const ListingSchema = z.object({ title: z.string(), price: z.number() });
@@ -136,7 +136,7 @@ export async function callGemini<T extends z.ZodTypeAny>(
   try {
     return await runOnce(genAI, params, 1);
   } catch (firstError) {
-    // Surface non-Gemini errors (network, auth, quota) immediately — no retry
+    // Surface non-Gemini errors (network, auth, quota) immediately - no retry
     if (
       firstError instanceof GeminiError === false &&
       !(firstError instanceof Error && isRetryable(firstError))

@@ -2,7 +2,7 @@
 // Marketplace Taxonomy
 //
 // Single source of truth for all category and tag definitions across the
-// platform. No business logic lives here — this module is a constants and
+// platform. No business logic lives here - this module is a constants and
 // typing contract only.
 //
 // Design principles:
@@ -67,7 +67,7 @@ export type GoodsCategory = (typeof GOODS_CATEGORIES)[number];
 // Unified category union
 //
 // Used when a function or schema must accept any category regardless of
-// marketplace type — for example, a shared search index or analytics query.
+// marketplace type - for example, a shared search index or analytics query.
 // ---------------------------------------------------------------------------
 
 export type AnyCategory = ServiceCategory | GoodsCategory;
@@ -76,7 +76,7 @@ export type AnyCategory = ServiceCategory | GoodsCategory;
 // Tag contract
 //
 // Tags are AI-generated at listing creation time and stored alongside the
-// stable category. They are not validated against a fixed enum — their value
+// stable category. They are not validated against a fixed enum - their value
 // comes from being flexible and evolving with real marketplace behaviour.
 //
 // Constraints enforced at the route layer:
@@ -95,7 +95,7 @@ export type ListingTag = string;
 // Prompt-ready category strings
 //
 // Pre-formatted for direct injection into Gemini system prompts.
-// Keeps prompt construction in route files clean — no formatting logic needed
+// Keeps prompt construction in route files clean - no formatting logic needed
 // at call time, just import and interpolate.
 // ---------------------------------------------------------------------------
 

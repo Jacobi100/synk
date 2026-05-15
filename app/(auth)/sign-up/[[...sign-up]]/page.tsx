@@ -19,14 +19,14 @@ export default function SignUpPage() {
         </div>
         <div className="relative z-10 max-w-md">
           <h1 className="text-5xl font-black leading-[0.85] tracking-tighter text-white md:text-6xl">
-            Join the
+            Create your
             <br />
-            gig economy.
+            Synk account.
             <br />
-            Start earning.
+            Start today.
           </h1>
           <p className="mt-8 text-base leading-relaxed text-white/70 md:text-lg">
-            Create your account and start applying for bounties or hiring skilled professionals.
+            Post a job or offer to help.
           </p>
         </div>
         <div className="relative z-10 text-sm font-medium text-white/40">&copy; 2026 Synk</div>

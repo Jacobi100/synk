@@ -83,15 +83,15 @@ export async function POST(request: NextRequest) {
     await createNotification({
       user_id: tx.provider_id,
       type: "payment_confirmed",
-      title: "Payment confirmed",
-      body: "Payment confirmed. Proceed with the service.",
+      title: "Money received",
+      body: "Money received. You can start the job now.",
       related_bounty_id: tx.bounty_id,
     });
 
     const provider = await getProfileById(tx.provider_id);
     const phone = normalizeNigerianPhone(provider?.phone_number);
     if (phone) {
-      await squadSendSms(phone, "Payment confirmed. Proceed with the service.");
+      await squadSendSms(phone, "Money received. You can start the job now.");
     }
 
     return NextResponse.json({ ok: true }, { status: 200 });

@@ -16,6 +16,8 @@ interface NearbyJob {
   location_name: string | null;
 }
 
+type TooltipStyle = "compact" | "detailed";
+
 function loadGoogleMapsScript(apiKey: string): Promise<void> {
   return new Promise((resolve, reject) => {
     if (typeof window === "undefined") {
@@ -43,24 +45,67 @@ function loadGoogleMapsScript(apiKey: string): Promise<void> {
   });
 }
 
+function formatCompactPrice(value: number): string {
+  if (value >= 1_000_000) {
+    const m = value / 1_000_000;
+    return m % 1 === 0 ? `₦${m}M` : `₦${m.toFixed(1)}M`;
+  }
+  if (value >= 1_000) {
+    const k = value / 1_000;
+    return k % 1 === 0 ? `₦${k}K` : `₦${k.toFixed(1)}K`;
+  }
+  return `₦${value}`;
+}
+
+function formatPrice(
+  price_min: number | null,
+  price_max: number | null,
+): string | null {
+  if (!price_min && !price_max) return null;
+  if (price_min && price_max) return `${formatCompactPrice(price_min)} – ${formatCompactPrice(price_max)}`;
+  if (price_min) return formatCompactPrice(price_min);
+  return formatCompactPrice(price_max!);
+}
+
 function buildTooltipHTML(job: NearbyJob): string {
-  const price =
-    job.price_min || job.price_max
-      ? `₦${job.price_min?.toLocaleString() ?? ""}${job.price_max ? ` – ₦${job.price_max.toLocaleString()}` : ""}`
-      : null;
+  return buildTooltipHTMLWithStyle(job, "compact");
+}
+
+function buildTooltipHTMLWithStyle(job: NearbyJob, style: TooltipStyle): string {
+  const price = formatPrice(job.price_min, job.price_max);
+
+  if (style === "detailed") {
+    return `
+      <div style="font-family:var(--font-inter,system-ui,sans-serif);max-width:280px;min-width:200px;">
+        <div style="padding:16px 18px 12px;">
+          <p style="font-weight:600;font-size:15px;margin:0 0 8px;color:var(--foreground,#0e0f0c);line-height:1.3;letter-spacing:-0.01em;">
+            ${job.title}
+          </p>
+          ${price ? `<p style="font-size:14px;margin:0;color:var(--primary,#5E3AFF);font-weight:700;">${price}</p>` : ""}
+          ${job.location_name ? `<p style="font-size:12px;margin:10px 0 0;color:var(--muted-foreground,#454745);">${job.location_name}</p>` : ""}
+        </div>
+        <div style="border-top:1px solid var(--border,#d4d7d2);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+          <span style="font-size:11px;color:var(--muted-foreground,#454745);">Synk Bounty</span>
+          <a href="/bounties/${job.id}" style="font-size:12px;font-weight:600;color:var(--primary,#5E3AFF);text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+            View Details →
+          </a>
+        </div>
+      </div>
+    `;
+  }
 
   return `
-    <div style="font-family:system-ui,sans-serif;max-width:240px;min-width:170px;">
-      <div style="padding:12px 14px 6px;">
-        <p style="font-weight:700;font-size:14px;margin:0 0 3px;color:#0e0f0c;line-height:1.3;">
+    <div style="font-family:var(--font-inter,system-ui,sans-serif);max-width:240px;min-width:180px;">
+      <div style="padding:14px 16px 8px;">
+        <p style="font-weight:600;font-size:14px;margin:0 0 6px;color:var(--foreground,#0e0f0c);line-height:1.3;letter-spacing:-0.01em;">
           ${job.title}
         </p>
-        ${price ? `<p style="font-size:13px;margin:0;color:#5E3AFF;font-weight:700;">${price}</p>` : ""}
-        ${job.location_name ? `<p style="font-size:12px;margin:6px 0 0;color:#666;display:flex;align-items:center;gap:3px;">📍 ${job.location_name}</p>` : ""}
+        ${price ? `<p style="font-size:13px;margin:0;color:var(--primary,#5E3AFF);font-weight:700;">${price}</p>` : ""}
+        ${job.location_name ? `<p style="font-size:12px;margin:8px 0 0;color:var(--muted-foreground,#454745);">${job.location_name}</p>` : ""}
       </div>
-      <div style="border-top:1px solid #e5e7eb;padding:8px 14px;">
-        <a href="/bounties/${job.id}" style="font-size:12px;font-weight:600;color:#5E3AFF;text-decoration:none;">
-          View Details &rarr;
+      <div style="border-top:1px solid var(--border,#d4d7d2);padding:10px 16px;">
+        <a href="/bounties/${job.id}" style="font-size:12px;font-weight:600;color:var(--primary,#5E3AFF);text-decoration:none;display:inline-flex;align-items:center;gap:4px;">
+          View Details →
         </a>
       </div>
     </div>
@@ -81,27 +126,56 @@ function resolveCurrentPosition(): Promise<{ lat: number; lng: number } | null> 
 interface NearbyJobsMapProps {
   compact?: boolean;
   flush?: boolean;
+  tooltipStyle?: TooltipStyle;
 }
 
 function buildMarkerLabel(job: NearbyJob): HTMLDivElement {
-  const price =
-    job.price_min || job.price_max
-      ? `₦${job.price_min?.toLocaleString() ?? ""}${job.price_max ? ` – ₦${job.price_max.toLocaleString()}` : ""}`
-      : "";
+  const price = formatPrice(job.price_min, job.price_max);
 
   const el = document.createElement("div");
   el.style.cssText =
-    "display:flex;flex-direction:column;align-items:center;cursor:pointer;filter:drop-shadow(0 2px 6px rgba(0,0,0,0.2));transform:translateY(-50%);";
+    "display:flex;flex-direction:column;align-items:center;cursor:pointer;user-select:none;filter:drop-shadow(0 6px 12px rgba(0,0,0,0.12));transform:translateY(-50%);transition:transform 0.18s ease, filter 0.18s ease;";
   el.innerHTML = `
-    <div style="background:#5E3AFF;color:white;padding:5px 12px;border-radius:8px;font-size:12px;font-weight:600;white-space:nowrap;max-width:160px;overflow:hidden;text-overflow:ellipsis;text-align:center;line-height:1.3;">
-      ${job.title}${price ? ` · ${price}` : ""}
+    <div data-marker-pill="true" style="background:var(--primary,#5E3AFF);color:var(--primary-foreground,#FFFFFF);padding:5px 10px;border-radius:8px;font-size:12px;font-weight:600;line-height:1.3;text-align:center;white-space:nowrap;max-width:180px;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.14);">
+      <span style="overflow:hidden;text-overflow:ellipsis;max-width:180px;display:inline-block;vertical-align:middle;">${job.title}</span>
+      ${price ? ` · <span style="font-weight:500;opacity:0.9;">${price}</span>` : ""}
     </div>
-    <div style="width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:6px solid #5E3AFF;"></div>
+    <div data-marker-pointer="true" style="width:0;height:0;border-left:5px solid transparent;border-right:5px solid transparent;border-top:5px solid var(--primary,#5E3AFF);"></div>
   `;
   return el;
 }
 
-export default function NearbyJobsMap({ compact, flush }: NearbyJobsMapProps) {
+function applyMarkerState(label: HTMLDivElement, state: "default" | "hover" | "active") {
+  const pill = label.querySelector("[data-marker-pill]") as HTMLDivElement | null;
+  const pointer = label.querySelector("[data-marker-pointer]") as HTMLDivElement | null;
+  if (!pill || !pointer) return;
+
+  if (state === "active") {
+    label.style.transform = "translateY(-52%) scale(1.03)";
+    label.style.filter = "drop-shadow(0 10px 18px rgba(0,0,0,0.2))";
+    label.style.zIndex = "20";
+    pill.style.background = "var(--primary-hover,#7B61FF)";
+    pointer.style.borderTopColor = "var(--primary-hover,#7B61FF)";
+    return;
+  }
+
+  if (state === "hover") {
+    label.style.transform = "translateY(-52%) scale(1.01)";
+    label.style.filter = "drop-shadow(0 8px 14px rgba(0,0,0,0.18))";
+    label.style.zIndex = "10";
+    pill.style.background = "var(--primary,#5E3AFF)";
+    pointer.style.borderTopColor = "var(--primary,#5E3AFF)";
+    return;
+  }
+
+  label.style.transform = "translateY(-50%)";
+  label.style.filter = "drop-shadow(0 6px 12px rgba(0,0,0,0.12))";
+  label.style.zIndex = "1";
+  pill.style.background = "var(--primary,#5E3AFF)";
+  pointer.style.borderTopColor = "var(--primary,#5E3AFF)";
+}
+
+export default function NearbyJobsMap({ compact, flush, tooltipStyle = "compact" }: NearbyJobsMapProps) {
   const router = useRouter();
   const mapContainerRef = useRef<HTMLDivElement>(null);
   const [jobs, setJobs] = useState<NearbyJob[]>([]);
@@ -130,7 +204,7 @@ export default function NearbyJobsMap({ compact, flush }: NearbyJobsMapProps) {
 
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const g = (window as any).google;
-        const { AdvancedMarkerElement, PinElement } = await g.maps.importLibrary("marker");
+        const { AdvancedMarkerElement } = await g.maps.importLibrary("marker");
 
         const center = coords || { lat: 9.082, lng: 8.6753 };
 
@@ -148,13 +222,6 @@ export default function NearbyJobsMap({ compact, flush }: NearbyJobsMapProps) {
           fullscreenControlOptions: {
             position: g.maps.ControlPosition.RIGHT_TOP,
           },
-          styles: [
-            { featureType: "poi", stylers: [{ visibility: "off" }] },
-            { featureType: "transit", stylers: [{ visibility: "off" }] },
-            { featureType: "address", stylers: [{ visibility: "off" }] },
-            { featureType: "administrative.land_parcel", stylers: [{ visibility: "off" }] },
-            { featureType: "administrative.neighborhood", stylers: [{ visibility: "off" }] },
-          ],
         });
 
         const isHoverDevice = window.matchMedia("(hover: hover)").matches;
@@ -164,41 +231,90 @@ export default function NearbyJobsMap({ compact, flush }: NearbyJobsMapProps) {
           pixelOffset: new g.maps.Size(0, -8),
         });
 
-        bounties.forEach((job) => {
-          if (!job.latitude || !job.longitude) return;
+        const bounds = new g.maps.LatLngBounds();
+        let hasMarkers = false;
 
-          const label = buildMarkerLabel(job);
+        const GROUP_THRESHOLD = 0.0002;
+        const OFFSET_STEP = 0.00015;
 
-          const marker = new AdvancedMarkerElement({
-            map,
-            position: { lat: job.latitude, lng: job.longitude },
-            title: job.title,
-            content: label,
-          });
+        const bountiesCopy = [...bounties];
+        const groups: { jobs: NearbyJob[]; lat: number; lng: number }[] = [];
 
-          const html = buildTooltipHTML(job);
-
-          if (isHoverDevice) {
-            label.addEventListener("mouseenter", () => {
-              if (tooltipTimeout) clearTimeout(tooltipTimeout);
-              infoWindow.setContent(html);
-              infoWindow.open({ map, anchor: marker });
-            });
-
-            label.addEventListener("mouseleave", () => {
-              tooltipTimeout = setTimeout(() => infoWindow.close(), 200);
-            });
+        while (bountiesCopy.length) {
+          const job = bountiesCopy.shift()!;
+          if (!job.latitude || !job.longitude) continue;
+          let added = false;
+          for (const g of groups) {
+            if (Math.abs(g.lat - job.latitude) < GROUP_THRESHOLD && Math.abs(g.lng - job.longitude) < GROUP_THRESHOLD) {
+              g.jobs.push(job);
+              added = true;
+              break;
+            }
           }
+          if (!added) {
+            groups.push({ jobs: [job], lat: job.latitude, lng: job.longitude });
+          }
+        }
 
-          marker.addListener("click", () => {
-            router.push(`/bounties/${job.id}`);
+        groups.forEach((group) => {
+          const anchorLat = group.lat;
+          const anchorLng = group.lng;
+          bounds.extend(new g.maps.LatLng(anchorLat, anchorLng));
+
+          group.jobs.forEach((job, idx) => {
+            const angle = idx === 0 ? 0 : (idx % 2 === 0 ? -45 : 45);
+            const rad = (angle * Math.PI) / 180;
+            const tier = Math.ceil(idx / 2);
+            const dist = OFFSET_STEP * (tier + 1);
+            const offsetLat = anchorLat + Math.cos(rad) * dist;
+            const offsetLng = anchorLng + Math.sin(rad) * dist;
+
+            const position = new g.maps.LatLng(offsetLat, offsetLng);
+
+            const label = buildMarkerLabel(job);
+
+            const marker = new AdvancedMarkerElement({
+              map,
+              position,
+              title: job.title,
+              content: label,
+            });
+
+            const html = buildTooltipHTML(job);
+
+            if (isHoverDevice) {
+              label.addEventListener("mouseenter", () => {
+                if (tooltipTimeout) clearTimeout(tooltipTimeout);
+                applyMarkerState(label, "hover");
+                infoWindow.setContent(html);
+                infoWindow.open({ map, anchor: marker });
+              });
+
+              label.addEventListener("mouseleave", () => {
+                tooltipTimeout = setTimeout(() => {
+                  infoWindow.close();
+                  applyMarkerState(label, "default");
+                }, 200);
+              });
+            }
+
+            marker.addListener("click", () => {
+              router.push(`/bounties/${job.id}`);
+            });
+
+            hasMarkers = true;
           });
         });
+
+        if (hasMarkers) {
+          if (coords) bounds.extend(new g.maps.LatLng(coords.lat, coords.lng));
+          map.fitBounds(bounds, { top: 60, right: 60, bottom: 60, left: 60 });
+        }
 
         if (coords) {
           const dot = document.createElement("div");
           dot.style.cssText =
-            "width:18px;height:18px;border-radius:50%;background:#000;border:3px solid #fff;box-shadow:0 2px 8px rgba(0,0,0,0.3);";
+            "width:18px;height:18px;border-radius:50%;background:#000;border:3px solid #fff;animation:ping-location 2s infinite;";
 
           new AdvancedMarkerElement({
             map,

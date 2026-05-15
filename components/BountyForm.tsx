@@ -27,9 +27,9 @@ interface BountyFormProps {
 }
 
 const URGENCY_OPTIONS = [
-  { value: "asap", label: "ASAP" },
-  { value: "scheduled", label: "Scheduled" },
-  { value: "flexible", label: "Flexible" },
+  { value: "asap", label: COPY.URGENCY.asap },
+  { value: "scheduled", label: COPY.URGENCY.scheduled },
+  { value: "flexible", label: COPY.URGENCY.flexible },
 ];
 
 const inputBase =
@@ -167,7 +167,7 @@ function DatePicker({
         style={inputStyle}
       >
         <span className="text-foreground">
-          {value ? displayDate : "Select date & time"}
+          {value ? displayDate : "Pick date and time"}
         </span>
         <CalendarDaysIcon className="h-4 w-4 text-muted-foreground" />
       </button>
@@ -265,14 +265,14 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
 
   const handleUseMyLocation = () => {
     if (!navigator.geolocation) {
-      setError("Geolocation not supported.");
+      setError("Location does not work on this phone.");
       return;
     }
     setLocating(true);
     setError(null);
 
     const timeoutId = setTimeout(() => {
-      setError("Geolocation request timed out. Please try again.");
+      setError("Location is taking too long. Try again.");
       setLocating(false);
     }, 10000);
 
@@ -308,10 +308,10 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
         clearTimeout(timeoutId);
         const errorMsg =
           err.code === 1
-            ? "Please enable location permission for this app."
+            ? "Allow location for this app."
             : err.code === 2
-              ? "Location unavailable. Please check your settings."
-              : "Unable to get location. Please try again.";
+              ? "We could not get your location. Check your phone settings."
+              : "We could not get your location. Try again.";
         setError(errorMsg);
         setLocating(false);
       },
@@ -323,7 +323,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
     const descriptionText = formData.description?.trim() || "";
     if (!descriptionText) {
       setError(
-        "Please type a few words before generating the full description.",
+        "Type a few words first, then tap Generate.",
       );
       return;
     }
@@ -340,7 +340,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
 
       if (!res.ok) {
         const body = await res.json().catch(() => ({}));
-        throw new Error(body?.error || "Failed to generate description.");
+        throw new Error(body?.error || "We could not write this for you.");
       }
 
       const data = await res.json();
@@ -349,7 +349,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
         description: data.description || prev.description,
       }));
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred.");
+      setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setGeneratingDescription(false);
     }
@@ -373,7 +373,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
         });
         if (!res.ok) {
           const d = await res.json();
-          throw new Error(d.error || "Failed");
+          throw new Error(d.error || "Could not save");
         }
         router.push("/dashboard");
         return;
@@ -407,11 +407,11 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       });
       if (!res.ok) {
         const d = await res.json().catch(() => ({}));
-        throw new Error(d.error || "Failed");
+        throw new Error(d.error || "Could not post");
       }
       router.push("/dashboard");
     } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
+      setError(err instanceof Error ? err.message : "Something went wrong.");
     } finally {
       setLoading(false);
     }
@@ -461,7 +461,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
           value={formData.title}
           onChange={handleChange}
           required
-          placeholder="What do you need done?"
+          placeholder={COPY.BOUNTY_FORM.PLACEHOLDER_TITLE}
           className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
           style={inputStyle}
         />
@@ -481,14 +481,14 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
             onClick={handleGenerateDescription}
             disabled={generatingDescription || !formData.description?.trim()}
           >
-            {generatingDescription ? "Generating…" : "Generate description"}
+            {generatingDescription ? "Writing..." : "Write for me"}
           </Button>
         </div>
         <textarea
           name="description"
           value={formData.description || ""}
           onChange={handleChange}
-          placeholder="Provide detailed information about the task, requirements, and expectations…"
+          placeholder="Add small details. Example: time, size, color, place."
           rows={5}
           className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
           style={inputStyle}
@@ -505,7 +505,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
           value={formData.category}
           onChange={(v) => setFormData((prev) => ({ ...prev, category: v }))}
           options={SERVICE_CATEGORIES.map((c) => ({ value: c, label: c }))}
-          placeholder="Select a category"
+          placeholder={COPY.BOUNTY_FORM.PLACEHOLDER_CATEGORY}
         />
       </div>
 
@@ -550,7 +550,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
               name="location_name"
               value={formData.location_name || ""}
               onChange={handleChange}
-              placeholder="e.g., Yaba, Lagos"
+              placeholder={COPY.BOUNTY_FORM.PLACEHOLDER_LOCATION}
               className={`${inputBase} flex-1 focus:shadow-[0_0_0_2px_var(--ring)]`}
               style={inputStyle}
             />
@@ -563,7 +563,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
                   ? "bg-primary/20 text-primary"
                   : "border bg-background text-foreground hover:bg-primary/10 hover:border-primary/50"
               } disabled:opacity-50`}
-              title="Get my current location"
+              title={COPY.BOUNTY_FORM.FIELD_GPS}
             >
               {locating ? (
                 <ArrowPathIcon className="h-4 w-4 animate-spin" />
@@ -571,7 +571,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
                 <MapPinIcon className="h-4 w-4" />
               )}
               <span className="whitespace-nowrap">
-                {locating ? "Locating..." : "GPS"}
+                {locating ? "Finding..." : "GPS"}
               </span>
             </button>
           </div>
@@ -582,7 +582,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
         <div>
           <FieldLabel>
             <MapPinIcon className="h-3.5 w-3.5 text-muted-foreground" />
-            Radius (km)
+            Distance (km)
           </FieldLabel>
           <input
             type="number"
@@ -606,7 +606,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
         <div className="grid gap-3 md:grid-cols-2">
           <div>
             <label className="mb-1 block text-xs text-muted-foreground">
-              Minimum
+              From
             </label>
             <input
               type="number"
@@ -620,7 +620,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
           </div>
           <div>
             <label className="mb-1 block text-xs text-muted-foreground">
-              Maximum
+              To
             </label>
             <input
               type="number"
@@ -672,7 +672,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
               }))
             }
             options={URGENCY_OPTIONS}
-            placeholder="Select urgency"
+            placeholder="Pick one"
           />
         </div>
       </div>
@@ -692,7 +692,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
           style={inputStyle}
         />
         <p className="mt-1 text-xs text-mute">
-          How many providers can be selected for this bounty.
+          How many helpers do you need?
         </p>
       </div>
 
@@ -700,10 +700,10 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       <div className="flex gap-3 pt-2">
         <Button type="submit" disabled={loading} className="flex-1">
           {loading && <ArrowPathIcon className="h-4 w-4 animate-spin" />}
-          {bounty ? "Update bounty" : "Post bounty"}
+          {bounty ? "Save changes" : "Post job"}
         </Button>
         <Button type="button" variant="outline" onClick={() => router.back()}>
-          Cancel
+          {COPY.CANCEL}
         </Button>
       </div>
     </form>

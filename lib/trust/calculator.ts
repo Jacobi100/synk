@@ -99,12 +99,12 @@ function computeTrustScore(stats: ProviderStats): {
 // ---------------------------------------------------------------------------
 // Badge Assignment
 //
-// Job count is the primary gate — a provider must have enough experience
-// to qualify for a tier. Quality metrics are the secondary gate — a provider
+// Job count is the primary gate - a provider must have enough experience
+// to qualify for a tier. Quality metrics are the secondary gate - a provider
 // with many jobs but poor completion cannot advance to a higher tier.
 //
 // Fraud flags cap the badge at "active" regardless of job count or quality.
-// This is not a ban — the provider can still offer services. It prevents
+// This is not a ban - the provider can still offer services. It prevents
 // the trust badge from becoming misleading when the fraud system has flagged
 // the account.
 // ---------------------------------------------------------------------------
@@ -112,7 +112,7 @@ function computeTrustScore(stats: ProviderStats): {
 function assignBadge(stats: ProviderStats): TrustBadge {
   const { completedJobs, completionRate, repeatBuyerCount, repeatBuyerRatio, fraudFlags } = stats;
 
-  // Fraud-flagged providers are capped at active — badge cannot mislead buyers
+  // Fraud-flagged providers are capped at active - badge cannot mislead buyers
   const fraudCapped = fraudFlags > 0;
 
   if (
@@ -150,7 +150,7 @@ function assignBadge(stats: ProviderStats): TrustBadge {
 /**
  * Computes a provider's full trust profile from their transaction history.
  *
- * Deterministic — no external calls, no side effects.
+ * Deterministic - no external calls, no side effects.
  * Called by the reputation route after every transaction completion.
  * The result is cached on the provider's database record.
  *

@@ -67,13 +67,13 @@ export default function BountyApplicationsPage({
         const response = await fetch(`/api/bounties/${id}/applications`);
         if (!response.ok) {
           const data = await response.json();
-          throw new Error(data.error || "Failed to fetch applications");
+          throw new Error(data.error || COPY.APPLICATIONS.ERROR_LOAD);
         }
         const data = (await response.json()) as AppRow[];
         setApplications(data);
       } catch (err) {
         setError(
-          err instanceof Error ? err.message : "Failed to load applications",
+          err instanceof Error ? err.message : COPY.APPLICATIONS.ERROR_LOAD,
         );
       } finally {
         setLoading(false);
@@ -95,7 +95,7 @@ export default function BountyApplicationsPage({
       );
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to accept application");
+        throw new Error(data.error || COPY.APPLICATIONS.ERROR_LOAD);
       }
       setApplications((prev) =>
         prev.map((app) =>
@@ -104,7 +104,9 @@ export default function BountyApplicationsPage({
       );
       router.push(`/bounties/${id}/payment`);
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "An error occurred");
+      setActionError(
+        err instanceof Error ? err.message : COPY.APPLICATIONS.ERROR_TITLE,
+      );
     } finally {
       setActionLoading(null);
     }
@@ -123,7 +125,7 @@ export default function BountyApplicationsPage({
       );
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.error || "Failed to reject application");
+        throw new Error(data.error || COPY.APPLICATIONS.ERROR_LOAD);
       }
       setApplications((prev) =>
         prev.map((app) =>
@@ -131,7 +133,9 @@ export default function BountyApplicationsPage({
         ),
       );
     } catch (err) {
-      setActionError(err instanceof Error ? err.message : "An error occurred");
+      setActionError(
+        err instanceof Error ? err.message : COPY.APPLICATIONS.ERROR_TITLE,
+      );
     } finally {
       setActionLoading(null);
     }
@@ -153,14 +157,14 @@ export default function BountyApplicationsPage({
   const providerLabel = (app: AppRow) =>
     app.provider_profile?.full_name?.trim() ||
     app.provider_profile?.username?.trim() ||
-    `Provider ${app.provider_id.slice(0, 8)}…`;
+    `Helper ${app.provider_id.slice(0, 8)}...`;
 
   if (!user) {
     return (
       <div className="min-h-screen bg-secondary">
         <Navbar />
         <div className="px-4 py-8">
-          <p className="text-gray-600">Please sign in to view applications.</p>
+          <p className="text-gray-600">{COPY.MY_APPLICATIONS.SIGN_IN_REQUIRED}</p>
         </div>
       </div>
     );
@@ -250,7 +254,7 @@ export default function BountyApplicationsPage({
                 {app.proposed_price != null && (
                   <div className="mb-4 rounded-[20px] border border-gray-200 bg-slate-50 p-4">
                     <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
-                      Proposed price
+                      {COPY.APPLICATIONS.THEIR_PRICE}
                     </p>
                     <p className="mt-1 text-lg font-semibold text-slate-900">
                       ₦{Number(app.proposed_price).toLocaleString()}
@@ -287,7 +291,11 @@ export default function BountyApplicationsPage({
                                 : "text-rose-700"
                           }`}
                         >
-                          {app.risk.riskLevel} Risk
+                          {app.risk.riskLevel === "low"
+                            ? COPY.RISK.LOW
+                            : app.risk.riskLevel === "medium"
+                              ? COPY.RISK.MEDIUM
+                              : COPY.RISK.HIGH}
                         </span>
                       </div>
                       <span
@@ -300,10 +308,10 @@ export default function BountyApplicationsPage({
                         }`}
                       >
                         {app.risk.recommendation === "accept"
-                          ? "✓ Recommended"
+                          ? COPY.RISK.RECOMMEND
                           : app.risk.recommendation === "caution"
-                            ? "⚠ Proceed with Caution"
-                            : "✗ Not Recommended"}
+                            ? COPY.RISK.CAUTION
+                            : COPY.RISK.NOT_RECOMM}
                       </span>
                     </div>
                     <ul className="space-y-1.5">
@@ -319,7 +327,7 @@ export default function BountyApplicationsPage({
                     </ul>
                     <div className="mt-2 pt-2 border-t border-gray-100">
                       <span className="text-[10px] font-mono text-gray-400">
-                        Safety Score: {100 - app.risk.riskScore}/100
+                        {COPY.RISK.SAFETY_SCORE(100 - app.risk.riskScore)}
                       </span>
                     </div>
                   </div>
@@ -334,7 +342,7 @@ export default function BountyApplicationsPage({
                       {actionLoading === app.id ? (
                         <>
                           <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                          Accepting…
+                          {COPY.APPLICATIONS.ACCEPTING}
                         </>
                       ) : (
                         <>
@@ -351,7 +359,7 @@ export default function BountyApplicationsPage({
                       {actionLoading === app.id ? (
                         <>
                           <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />
-                          Rejecting…
+                          {COPY.APPLICATIONS.DECLINING}
                         </>
                       ) : (
                         <>
