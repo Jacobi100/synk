@@ -6,13 +6,13 @@ export function Logo({ className, showText = true }: { className?: string; showT
       <Image
         src="/logo.svg"
         alt="Synk"
-        width={36}
-        height={36}
-        className="size-9"
+        width={28}
+        height={28}
+        className="size-7"
         priority
       />
       {showText && (
-        <span className="text-2xl font-semibold tracking-tight">Synk</span>
+        <span className="text-xl font-semibold tracking-tight">Synk</span>
       )}
     </div>
   );

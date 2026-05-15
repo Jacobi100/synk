@@ -86,7 +86,7 @@ export default function Home() {
                   <GlowingBadge variant="info" dot={false} className="rounded-lg">
                     {COPY.HOME.WELCOME(user?.firstName)}
                   </GlowingBadge>
-                  <span className="absolute -bottom-1.5 left-3 h-2.5 w-2.5 bg-[#9fe870] rotate-45 rounded-sm" />
+                  <span className="absolute -bottom-1.5 left-3 h-2.5 w-2.5 bg-[#5E3AFF] rotate-45 rounded-sm" />
                 </div>
               )}
               <h1 className="text-5xl font-black leading-[0.85] tracking-tighter text-foreground md:text-7xl">

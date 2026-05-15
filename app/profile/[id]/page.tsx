@@ -253,7 +253,7 @@ export default function ProviderProfilePage({
           <div className="flex items-start gap-4">
 
             {/* Avatar */}
-            <div className="h-14 w-14 rounded-full flex items-center justify-center shrink-0 text-xl font-bold text-foreground bg-primary">
+            <div className="h-14 w-14 rounded-full flex items-center justify-center shrink-0 text-xl font-bold text-primary-foreground bg-primary">
               {displayName.charAt(0).toUpperCase()}
             </div>
 

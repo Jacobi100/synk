@@ -338,7 +338,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
             <div className="relative overflow-hidden rounded-[24px] bg-[#0e0f0c] p-6">
               <div
                 className="pointer-events-none absolute -bottom-8 -right-8 h-32 w-32 rounded-full blur-2xl"
-                style={{ background: "rgba(159,232,112,0.12)" }}
+                style={{ background: "rgba(94,58,255,0.12)" }}
               />
               <p className="text-xs font-medium uppercase tracking-wide text-[#868685]">
                 {COPY.BUDGET}
@@ -416,7 +416,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
               {isOwnBounty && bounty.status === "open" && (
                 <Link
                   href={`/bounties/${id}/applications`}
-                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5"
+                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5"
                   style={{ background: "var(--primary)" }}
                 >
                   <BriefcaseIcon className="h-4 w-4" /> {COPY.JOB_DETAIL.VIEW_HELPERS}
@@ -426,7 +426,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
               {isOwnBounty && bounty.status === "in_progress" && (
                 <Link
                   href={`/bounties/${id}/payment`}
-                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5"
+                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5"
                   style={{ background: "var(--primary)" }}
                 >
                   {COPY.JOB_DETAIL.MAKE_SAFE_PAYMENT}
@@ -459,7 +459,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
 
               {!isOwnBounty && bounty.status === "open" && (
                 <button
-                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ background: "var(--primary)" }}
                   disabled={applyLoading}
                   onClick={handleApply}

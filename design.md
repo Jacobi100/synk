@@ -14,7 +14,7 @@
 
 ### Current Implementation
 
-The design system is applied globally across all pages. The brand identity is a single lime-green accent (`#9fe870`) on a sage-tinted canvas (`#e8ebe6`), paired with a near-black ink (`#0e0f0c`) text. Heavy display typography at weight 900 for hero headlines, Inter at weight 600 for everything else.
+The design system is applied globally across all pages. The brand identity is a single purple accent (`#5E3AFF`) on a sage-tinted canvas (`#e8ebe6`), paired with a near-black ink (`#0e0f0c`) text. Heavy display typography at weight 900 for hero headlines, Inter at weight 600 for everything else.
 
 ---
 
@@ -44,7 +44,7 @@ The design system is applied globally across all pages. The brand identity is a 
 |---|---|---|---|
 | `--background` | `#ffffff` | `#0e0f0c` | Page / card background |
 | `--foreground` | `#0e0f0c` | `#e8ebe6` | Body text |
-| `--primary` | `#9fe870` | `#9fe870` | CTAs, primary actions, brand accent |
+| `--primary` | `#5E3AFF` | `#5E3AFF` | CTAs, primary actions, brand accent |
 | `--primary-foreground` | `#0e0f0c` | `#0e0f0c` | Text on primary bg |
 | `--secondary` | `#e8ebe6` | `#1a1b18` | Secondary surfaces |
 | `--muted` | `#e8ebe6` | `#1a1b18` | Muted backgrounds |
@@ -53,16 +53,18 @@ The design system is applied globally across all pages. The brand identity is a 
 | `--accent-foreground` | `#0e0f0c` | `#e8ebe6` | Text on accent |
 | `--border` | `#d4d7d2` | `#2a2b28` | Dividers, subtle borders |
 | `--input` | `#ffffff` | `#1a1b18` | Input background |
-| `--ring` | `#9fe870` | `#9fe870` | Focus rings |
+| `--ring` | `#5E3AFF` | `#5E3AFF` | Focus rings |
 | `--radius` | `1.5rem` | same | Base border radius |
 
-### Brand Accent — Wise Green
+### Brand Accent — Synk Purple
 
 | Token | Value | Usage |
 |---|---|---|
-| `--primary` | `#9fe870` | Primary buttons, brand accent |
-| `--primary-hover` | `#cdffad` | Button hover state |
-| `--primary-pale` | `#e2f6d5` | Badge backgrounds, soft surfaces |
+| `--primary` | `#5E3AFF` | Primary buttons, brand accent |
+
+| `--primary-hover` | `#7B61FF` | Button hover state |
+
+| `--primary-pale` | `#EDE9FF` | Badge backgrounds, soft surfaces |
 
 ### Surface
 
@@ -168,7 +170,7 @@ The brand uses surface contrast (`--secondary` sage background vs `--background`
 - Canvas: `#0e0f0c` (ink)
 - Canvas Soft: `#1a1b18` (dark sage)
 - Text: `#e8ebe6` (light sage-white)
-- Green accent: unchanged (`#9fe870`)
+- Purple accent: unchanged (`#5E3AFF`)
 - Cards: `#0e0f0c` on `#1a1b18`
 
 ---

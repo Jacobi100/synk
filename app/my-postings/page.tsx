@@ -105,7 +105,7 @@ export default function MyPostingsPage() {
           </div>
           <Link
             href="/bounties/create"
-            className="inline-flex items-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5"
+            className="inline-flex items-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5"
             style={{ background: "var(--primary)" }}
           >
             <PlusIcon className="h-4 w-4" /> {COPY.MY_POSTINGS.NEW_JOB}
@@ -138,7 +138,7 @@ export default function MyPostingsPage() {
             </p>
             <Link
               href="/bounties/create"
-              className="inline-flex items-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-foreground"
+              className="inline-flex items-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-primary-foreground"
               style={{ background: "var(--primary)" }}
             >
               <PlusIcon className="h-4 w-4" /> {COPY.MY_POSTINGS.NEW_JOB}
@@ -213,7 +213,7 @@ export default function MyPostingsPage() {
                     {bounty.status === "open" && (
                       <Link
                         href={`/bounties/${bounty.id}/applications`}
-                        className="inline-flex items-center rounded-[24px] px-3.5 py-2 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5"
+                        className="inline-flex items-center rounded-[24px] px-3.5 py-2 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5"
                         style={{ background: "var(--primary)" }}
                       >
                         {COPY.MY_POSTINGS.VIEW_HELPERS}

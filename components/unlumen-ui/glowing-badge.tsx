@@ -41,7 +41,7 @@ const variantStyles: Record<
     dot: "bg-red-200",
   },
   info: {
-    badge: "bg-[#9fe870] text-[#0e0f0c]",
+    badge: "bg-[#5E3AFF] text-white",
     dot: "bg-[#0e0f0c]",
   },
 };

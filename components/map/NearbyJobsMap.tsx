@@ -108,7 +108,7 @@ export default function NearbyJobsMap({ compact }: NearbyJobsMapProps) {
             icon: {
               path: g.maps.SymbolPath.CIRCLE,
               scale: 8,
-              fillColor: "#9fe870",
+              fillColor: "#5E3AFF",
               fillOpacity: 1,
               strokeColor: "#ffffff",
               strokeWeight: 2,
@@ -141,14 +141,14 @@ export default function NearbyJobsMap({ compact }: NearbyJobsMapProps) {
       <>
         <div
           className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full blur-3xl"
-          style={{ background: "radial-gradient(circle, rgba(159,232,112,0.08) 0%, transparent 70%)" }}
+          style={{ background: "radial-gradient(circle, rgba(94,58,255,0.08) 0%, transparent 70%)" }}
         />
 
         <div className="overflow-hidden rounded-[24px] border border-white/10">
           <div className="relative" style={{ height: "420px" }}>
             {mapStatus === "loading" && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-[#0e0f0c]">
-                <Loader2 className="h-7 w-7 animate-spin text-[#9fe870]" />
+                <Loader2 className="h-7 w-7 animate-spin text-[#5E3AFF]" />
                 <p className="text-sm text-[#868685]">{COPY.NAV_MAP.LOADING}</p>
               </div>
             )}
@@ -169,7 +169,7 @@ export default function NearbyJobsMap({ compact }: NearbyJobsMapProps) {
             </span>
             <Link
               href="/dashboard"
-              className="text-xs font-semibold transition-colors hover:underline text-[#9fe870]"
+              className="text-xs font-semibold transition-colors hover:underline text-[#5E3AFF]"
             >
               {COPY.HOME.FIND_JOBS} &rarr;
             </Link>
@@ -183,7 +183,7 @@ export default function NearbyJobsMap({ compact }: NearbyJobsMapProps) {
     <div className="relative overflow-hidden bg-[#0e0f0c]">
       <div
         className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-full blur-3xl"
-        style={{ background: "radial-gradient(circle, rgba(159,232,112,0.08) 0%, transparent 70%)" }}
+        style={{ background: "radial-gradient(circle, rgba(94,58,255,0.08) 0%, transparent 70%)" }}
       />
 
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
@@ -197,7 +197,7 @@ export default function NearbyJobsMap({ compact }: NearbyJobsMapProps) {
           <div className="relative" style={{ height: "420px" }}>
             {mapStatus === "loading" && (
               <div className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-3 bg-[#0e0f0c]">
-                <Loader2 className="h-7 w-7 animate-spin text-[#9fe870]" />
+                <Loader2 className="h-7 w-7 animate-spin text-[#5E3AFF]" />
                 <p className="text-sm text-[#868685]">{COPY.NAV_MAP.LOADING}</p>
               </div>
             )}
@@ -218,7 +218,7 @@ export default function NearbyJobsMap({ compact }: NearbyJobsMapProps) {
             </span>
             <Link
               href="/dashboard"
-              className="text-xs font-semibold transition-colors hover:underline text-[#9fe870]"
+              className="text-xs font-semibold transition-colors hover:underline text-[#5E3AFF]"
             >
               {COPY.HOME.FIND_JOBS} &rarr;
             </Link>

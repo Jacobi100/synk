@@ -263,7 +263,7 @@ export default function ProfilePage() {
             <button
               onClick={() => void save()}
               disabled={saving}
-              className="w-full rounded-[24px] py-2.5 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-[24px] py-2.5 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: "var(--primary)" }}
             >
               {saving ? (

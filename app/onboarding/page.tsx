@@ -95,9 +95,9 @@ const SYMBOLS = [
   { sym: "√", style: { top: "68%",  left:  "10%", fontSize: 12, opacity: 0.2 } },
 ];
 
-const CARD_LIGHT = ["#9fe870", "#b8f58e", "#7bcf50", "#cdffad"];
-const CARD_DARK = ["#4a7a30", "#5e9e3e", "#3a6626", "#7bcf50"];
-const CARD_GLOW = ["#9fe870", "#b8f58e", "#7bcf50", "#cdffad", "#9fe870"];
+const CARD_LIGHT = ["#5E3AFF", "#7B61FF", "#8B72FF", "#A898FF"];
+const CARD_DARK = ["#2D1B8A", "#3E28B3", "#1F1270", "#5E3AFF"];
+const CARD_GLOW = ["#5E3AFF", "#7B61FF", "#8B72FF", "#A898FF", "#5E3AFF"];
 
 export default function OnboardingPage() {
   const { user, isLoaded } = useUser();
@@ -330,7 +330,7 @@ export default function OnboardingPage() {
 
                   <button
                     type="submit" disabled={loading}
-                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-[24px] py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-[24px] py-3 text-sm font-semibold text-primary-foreground transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                     style={{ background: "var(--primary)" }}
                   >
                     {loading ? (
