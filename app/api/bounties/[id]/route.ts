@@ -9,6 +9,7 @@ import {
   getProfileById,
 } from "@/lib/bounty";
 import { CreateBountyInput, Bounty } from "@/lib/types/bounty";
+import { supabaseAdmin } from "@/lib/supabase/server";
 
 export async function GET(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -22,10 +23,23 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const { userId } = await auth();
     let poster_phone: string | null = null;
     let provider_phone: string | null = null;
+    let transaction: any = null;
 
     if (userId) {
       const viewerId = await getProfileUUID(userId);
       const accepted = await getAcceptedApplicationForBounty(id);
+
+      // Fetch active transaction for this bounty
+      const { data: tx } = await supabaseAdmin
+        .from("transactions")
+        .select("id, status, assistance_requested_at, assistance_requested_by, poster_id, provider_id")
+        .eq("bounty_id", id)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      transaction = tx;
+
       if (viewerId && accepted) {
         if (accepted.provider_id === viewerId) {
           const poster = await getProfileById(bounty.poster_id);
@@ -38,7 +52,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
       }
     }
 
-    return NextResponse.json({ ...bounty, poster_phone, provider_phone });
+    return NextResponse.json({ ...bounty, poster_phone, provider_phone, transaction });
   } catch (error) {
     console.error("Get bounty error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
