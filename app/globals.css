@@ -185,6 +185,32 @@
     animation: fadeIn 0.3s ease both;
   }
 
+  .gm-style .gm-control-active,
+  .gm-style .gm-fullscreen-control {
+    border-radius: 12px !important;
+    background: var(--background) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--foreground) !important;
+    box-shadow: none !important;
+  }
+  .gm-style .gm-control-active:hover,
+  .gm-style .gm-fullscreen-control:hover {
+    background: var(--secondary) !important;
+  }
+  .gm-style .gm-control-active:active,
+  .gm-style .gm-fullscreen-control:active {
+    transform: scale(0.97);
+  }
+  .gm-style .gm-control-active img,
+  .gm-style .gm-fullscreen-control img {
+    filter: brightness(0) saturate(100%) invert(8%) sepia(6%) hue-rotate(60deg);
+  }
+  .gm-style .gm-svpc {
+    border-radius: 12px !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: none !important;
+  }
+
   .skeleton {
     background: linear-gradient(
       90deg,

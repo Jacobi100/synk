@@ -135,7 +135,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
         </div>
 
         {bounty.slots_available > 0 && (
-          <div className="mt-2.5 flex items-center gap-1.5 text-xs font-medium text-[var(--positive)]">
+          <div className="mt-2.5 flex items-center gap-1.5 text-xs font-medium text-primary">
             <UsersIcon className="h-3.5 w-3.5" />
             {COPY.BOUNTY_CARD.HELPERS_NEEDED(bounty.slots_available)}
           </div>

@@ -163,13 +163,13 @@ export default function NearbyJobsMap({ compact }: NearbyJobsMapProps) {
             <div ref={mapContainerRef} className="h-full w-full" />
           </div>
 
-          <div className="flex items-center justify-between px-5 py-3 bg-white/5">
-            <span className="text-xs font-medium text-[#868685]">
+          <div className="flex items-center justify-between px-5 py-3 bg-background">
+            <span className="text-xs font-medium text-muted-foreground">
               {jobs.length} {jobs.length === 1 ? "job" : "jobs"} near you
             </span>
             <Link
               href="/dashboard"
-              className="text-xs font-semibold transition-colors hover:underline text-[#5E3AFF]"
+              className="text-xs font-semibold transition-colors hover:underline text-primary"
             >
               {COPY.HOME.FIND_JOBS} &rarr;
             </Link>
@@ -212,13 +212,13 @@ export default function NearbyJobsMap({ compact }: NearbyJobsMapProps) {
             <div ref={mapContainerRef} className="h-full w-full" />
           </div>
 
-          <div className="flex items-center justify-between px-5 py-3 bg-white/5">
-            <span className="text-xs font-medium text-[#868685]">
+          <div className="flex items-center justify-between px-5 py-3 bg-background">
+            <span className="text-xs font-medium text-muted-foreground">
               {jobs.length} {jobs.length === 1 ? "job" : "jobs"} near you
             </span>
             <Link
               href="/dashboard"
-              className="text-xs font-semibold transition-colors hover:underline text-[#5E3AFF]"
+              className="text-xs font-semibold transition-colors hover:underline text-primary"
             >
               {COPY.HOME.FIND_JOBS} &rarr;
             </Link>

@@ -4,7 +4,7 @@ import { Logo } from "@/components/Logo";
 export default function SignInPage() {
   return (
     <div className="flex min-h-[100dvh] font-sans">
-      <div className="relative hidden flex-col justify-between overflow-hidden bg-[linear-gradient(180deg,#0e0f0c_0%,#1A1040_56%,#0e0f0c_96%)] p-12 md:flex md:w-[45%]">
+      <div className="relative hidden flex-col justify-between overflow-hidden bg-[linear-gradient(-45deg,#000000_0%,#5E3AFF_56%,#11073D_96%)] p-12 md:flex md:w-[45%]">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,rgba(94,58,255,0.15)_0%,transparent_60%)]"
@@ -14,7 +14,7 @@ export default function SignInPage() {
           className="pointer-events-none absolute inset-0 bg-[radial-gradient(rgba(94,58,255,0.06)_1px,transparent_1px)] bg-[size:32px_32px]"
         />
         <div className="relative z-10 flex items-center gap-2.5">
-          <Logo showText={false} />
+          <Logo showText={false} white />
           <span className="text-2xl font-semibold tracking-tight text-white">Synk</span>
         </div>
         <div className="relative z-10 max-w-md">

@@ -142,17 +142,17 @@ export default function MyApplicationsPage() {
 
           <div
             className="inline-flex rounded-[24px] border p-0.5"
-            style={{ borderColor: "var(--border)", background: "var(--secondary)" }}
+            style={{ borderColor: "var(--border)", background: "var(--background)" }}
           >
             {(["poster", "provider"] as const).map((r) => (
               <button
                 key={r}
                 type="button"
                 onClick={() => setRole(r)}
-                className="rounded-md px-4 py-1.5 text-sm font-medium transition-all"
+                className="rounded-[24px] px-4 py-1.5 text-sm font-medium transition-all"
                 style={{
                   background: role === r ? "var(--primary)" : "transparent",
-                  color: role === r ? "#fff" : "var(--muted-foreground)",
+                  color: role === r ? "var(--primary-foreground)" : "var(--muted-foreground)",
                 }}
               >
                 {r.charAt(0).toUpperCase() + r.slice(1)}
