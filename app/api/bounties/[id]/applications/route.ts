@@ -77,18 +77,21 @@ export async function GET(
         const profile = app.provider_profile as Record<string, unknown>;
         const trustProfile = {
           providerId: app.provider_id,
-          badge: (profile.trust_badge as string) || "new",
+          badge: (profile.trust_badge as any) || "new",
           trustScore: (profile.trust_score as number) || 0,
-          signals: (profile.trust_signals as string[]) || [],
-          computedAt: (profile.trust_computed_at as string) || "",
+          signals: (profile.trust_signals as any) || [],
+          computedAt: (profile.trust_computed_at as string) || new Date().toISOString(),
         };
 
         const risk = assessOfferRisk({
-          bountyId,
+          bountyId: bountyId,
           bountyCategory: bounty.category,
           providerId: app.provider_id,
           trustProfile,
-          activeJobsCount: activeJobs,
+          activeJobsCount: (profile.active_jobs_count as number) || 0,
+          proposedPrice: Number(app.amount),
+          bountyPriceMin: Number(bounty.price_min),
+          bountyPriceMax: Number(bounty.price_max),
         });
 
         return { ...app, risk };

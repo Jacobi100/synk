@@ -500,7 +500,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
                   </>
                 ) : (
                   <>
-                    <CheckCircle2 className="h-4 w-4" />
+                    {/* <CheckCircle2 className="h-4 w-4" /> */}
                     {COPY.COMPLETE.CONFIRM_BUTTON}
                   </>
                 )}

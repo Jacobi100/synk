@@ -25,7 +25,14 @@ import { motion, AnimatePresence } from "framer-motion";
 
 type BountyDetail = Bounty & {
   poster_phone?: string | null;
+  provider_profile?: { id: string; full_name?: string } | null;
   provider_phone?: string | null;
+  transaction?: {
+    id: string;
+    status: string;
+    assistance_requested_at?: string | null;
+    assistance_requested_by?: string | null;
+  } | null;
 };
 
 interface BountyDetailsPageProps {
@@ -67,6 +74,27 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
   const [applySuccess, setApplySuccess] = useState(false);
   const [negotiateOpen, setNegotiateOpen] = useState(false);
   const [negotiatePrice, setNegotiatePrice] = useState<number>(0);
+  const [assistanceLoading, setAssistanceLoading] = useState(false);
+
+  const handleRequestAssistance = async () => {
+    if (!bounty?.transaction?.id) return;
+    try {
+      setAssistanceLoading(true);
+      const res = await fetch(`/api/transactions/${bounty.transaction.id}/request-assistance`, {
+        method: "POST"
+      });
+      if (res.ok) {
+        // Refresh data
+        const response = await fetch(`/api/bounties/${id}`);
+        const data = await response.json();
+        setBounty(data);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setAssistanceLoading(false);
+    }
+  };
 
   const STEP = 100;
 
@@ -658,6 +686,52 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                 {COPY.JOB_DETAIL.PAYMENT_INFO_BODY}
               </p>
             </div>
+
+            {/* Ghosting Safeguard Section */}
+            {bounty.transaction && bounty.transaction.status === "paid" && (
+              <div
+                className="rounded-[24px] border p-5 space-y-3"
+                style={{
+                  borderColor: "var(--border)",
+                  background: "var(--background)",
+                  boxShadow: "0 4px 20px rgba(0,0,0,0.03)"
+                }}
+              >
+                <div className="flex items-center gap-2">
+                  <div className="flex h-5 w-5 items-center justify-center rounded-full bg-blue-100">
+                    <ClockIcon className="h-3 w-3 text-blue-600" />
+                  </div>
+                  <h4 className="text-xs font-bold uppercase tracking-widest text-slate-900">
+                    Auto-Release Safeguard
+                  </h4>
+                </div>
+
+                {!bounty.transaction.assistance_requested_at ? (
+                  <>
+                    <p className="text-[11px] leading-relaxed text-slate-500">
+                      If the {isOwnBounty ? "helper has disappeared" : "poster is ghosting you"}, start a safeguard request. Funds release automatically in 48h.
+                    </p>
+                    <button
+                      onClick={handleRequestAssistance}
+                      disabled={assistanceLoading}
+                      className="w-full rounded-[16px] border py-2 text-[11px] font-bold text-slate-600 transition-all hover:bg-slate-50 active:scale-95 disabled:opacity-50"
+                      style={{ borderColor: "var(--border)" }}
+                    >
+                      {assistanceLoading ? "Notifying Support..." : isOwnBounty ? "Provider Missing?" : "Poster Ghosting Me?"}
+                    </button>
+                  </>
+                ) : (
+                  <div className="rounded-[16px] bg-blue-50 p-3 border border-blue-100">
+                    <p className="text-[11px] font-bold text-blue-700">
+                      Assistance Active
+                    </p>
+                    <p className="text-[10px] text-blue-600 mt-0.5 font-medium leading-snug">
+                      Security timer started. Funds will be released automatically in <strong>47h 59m</strong> if no dispute is raised.
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
       </div>
