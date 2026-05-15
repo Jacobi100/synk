@@ -199,7 +199,7 @@ export default function MyApplicationsPage() {
             {!isPosterView && (
               <Link
                 href="/dashboard"
-                className="inline-flex items-center gap-2 rounded-[24px] px-4 py-2 text-sm font-semibold text-white"
+                className="inline-flex items-center gap-2 rounded-[24px] px-4 py-2 text-sm font-semibold text-foreground"
                 style={{ background: "var(--primary)" }}
               >
                 {COPY.MY_APPLICATIONS.BROWSE_JOBS}

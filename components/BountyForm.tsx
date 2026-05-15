@@ -36,7 +36,7 @@ const URGENCY_OPTIONS = [
 ];
 
 const inputBase =
-  "w-full rounded-[24px] border bg-secondary px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-mute";
+  "w-full rounded-[24px] border bg-secondary px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-mute focus:bg-background";
 const inputStyle = {
   borderColor: "var(--border)",
   color: "var(--foreground)",
@@ -93,7 +93,7 @@ function CustomSelect({
         className={`${inputBase} flex w-full items-center justify-between pr-10 focus:shadow-[0_0_0_2px_var(--ring)]`}
         style={inputStyle}
       >
-        <span className={value ? "" : "text-muted-foreground"}>
+        <span className="text-foreground">
           {selected ? selected.label : placeholder}
         </span>
         <ChevronDownIcon
@@ -102,7 +102,7 @@ function CustomSelect({
       </button>
       {open && (
         <div
-          className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-[24px] border py-1"
+          className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-[24px] border bg-background py-1"
           style={inputStyle}
         >
           {options.map((opt) => (
@@ -162,21 +162,21 @@ function DatePicker({
         className={`${inputBase} flex w-full items-center justify-between pr-10 focus:shadow-[0_0_0_2px_var(--ring)]`}
         style={inputStyle}
       >
-        <span className={value ? "" : "text-muted-foreground"}>
+        <span className="text-foreground">
           {value ? displayDate : "Select date & time"}
         </span>
         <CalendarDaysIcon className="h-4 w-4 text-muted-foreground" />
       </button>
       {open && (
         <div
-          className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-[24px] border p-4"
+          className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-[24px] border bg-background p-4"
           style={inputStyle}
         >
           <input
             type="datetime-local"
             value={value}
             onChange={(e) => { onChange(e.target.value); setOpen(false); }}
-            className="w-full rounded-[24px] border bg-secondary px-3.5 py-2.5 text-sm outline-none focus:shadow-[0_0_0_2px_var(--ring)]"
+            className="w-full rounded-[24px] border bg-secondary px-3.5 py-2.5 text-sm outline-none focus:shadow-[0_0_0_2px_var(--ring)] focus:bg-background"
             style={inputStyle}
           />
         </div>
@@ -483,7 +483,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
           <FieldLabel><ClockIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_URGENCY}</FieldLabel>
           <CustomSelect
             value={formData.urgency}
-            onChange={(v) => setFormData((prev) => ({ ...prev, urgency: v }))}
+            onChange={(v) => setFormData((prev) => ({ ...prev, urgency: v as CreateBountyInput["urgency"] }))}
             options={URGENCY_OPTIONS}
             placeholder="Select urgency"
           />

@@ -137,10 +137,12 @@ export default function ProfilePage() {
                 onFocus={(e) => {
                   e.target.style.borderColor = "var(--primary)";
                   e.target.style.boxShadow = "0 0 0 3px var(--ring)";
+                  e.target.style.background = "var(--background)";
                 }}
                 onBlur={(e) => {
                   e.target.style.borderColor = "var(--border)";
                   e.target.style.boxShadow = "none";
+                  e.target.style.background = "var(--secondary)";
                 }}
               />
             </FormField>
@@ -155,10 +157,12 @@ export default function ProfilePage() {
                 onFocus={(e) => {
                   e.target.style.borderColor = "var(--primary)";
                   e.target.style.boxShadow = "0 0 0 3px var(--ring)";
+                  e.target.style.background = "var(--background)";
                 }}
                 onBlur={(e) => {
                   e.target.style.borderColor = "var(--border)";
                   e.target.style.boxShadow = "none";
+                  e.target.style.background = "var(--secondary)";
                 }}
               />
             </FormField>
@@ -173,17 +177,19 @@ export default function ProfilePage() {
                 onFocus={(e) => {
                   e.target.style.borderColor = "var(--primary)";
                   e.target.style.boxShadow = "0 0 0 3px var(--ring)";
+                  e.target.style.background = "var(--background)";
                 }}
                 onBlur={(e) => {
                   e.target.style.borderColor = "var(--border)";
                   e.target.style.boxShadow = "none";
+                  e.target.style.background = "var(--secondary)";
                 }}
               />
             </FormField>
 
             <div
               className="rounded-[24px] border p-4 space-y-4"
-              style={{ borderColor: "var(--border)", background: "var(--secondary)" }}
+              style={{ borderColor: "var(--border)", background: "var(--background)" }}
             >
               <div>
                 <h2 className="text-sm font-semibold text-foreground">
@@ -257,7 +263,7 @@ export default function ProfilePage() {
             <button
               onClick={() => void save()}
               disabled={saving}
-              className="w-full rounded-[24px] py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full rounded-[24px] py-2.5 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
               style={{ background: "var(--primary)" }}
             >
               {saving ? (

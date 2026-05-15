@@ -42,7 +42,7 @@ export default function SignUpPage() {
                 colorPrimary: "var(--primary)",
                 colorText: "var(--foreground)",
                 colorBackground: "var(--background)",
-                colorInputBackground: "var(--background)",
+                colorInputBackground: "var(--secondary)",
                 colorInputText: "var(--foreground)",
                 borderRadius: "1.5rem",
                 fontFamily: "Inter, sans-serif",
@@ -57,7 +57,7 @@ export default function SignUpPage() {
                 formButtonPrimary:
                   "bg-primary text-primary-foreground hover:bg-[var(--primary-hover)] transition-all active:scale-[0.97] rounded-[24px]",
                 formFieldInput:
-                  "rounded-[12px] border-foreground bg-background text-foreground focus-visible:shadow-[0_0_0_2px_var(--ring)]",
+                  "rounded-[24px] border bg-secondary text-foreground focus-visible:shadow-[0_0_0_2px_var(--ring)] focus:bg-background",
                 footerActionLink:
                   "text-primary hover:text-[var(--primary-hover)] transition-colors",
               },

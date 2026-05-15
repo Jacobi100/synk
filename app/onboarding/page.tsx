@@ -330,7 +330,7 @@ export default function OnboardingPage() {
 
                   <button
                     type="submit" disabled={loading}
-                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-[24px] py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="mt-2 flex w-full items-center justify-center gap-2 rounded-[24px] py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60"
                     style={{ background: "var(--primary)" }}
                   >
                     {loading ? (

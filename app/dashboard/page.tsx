@@ -54,15 +54,15 @@ export default function DashboardPage() {
           <div className="flex flex-wrap gap-2">
             <button
               onClick={loadFeed}
-              className="inline-flex items-center gap-2 rounded-[24px] border px-3.5 py-2 text-sm font-medium transition-colors hover:bg-background"
-              style={{ borderColor: "var(--border)", color: "var(--muted-foreground)", background: "transparent" }}
+              className="inline-flex items-center gap-2 rounded-[24px] border px-3.5 py-2 text-sm font-medium transition-colors hover:bg-secondary"
+              style={{ borderColor: "var(--border)", color: "var(--foreground)", background: "var(--background)" }}
             >
               <ArrowPathIcon className="h-4 w-4" />
               {COPY.DASHBOARD.REFRESH}
             </button>
             <Link
               href="/bounties/create"
-              className="inline-flex items-center gap-2 rounded-[24px] px-4 py-2 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+              className="inline-flex items-center gap-2 rounded-[24px] px-4 py-2 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5"
               style={{ background: "var(--primary)" }}
             >
               <PlusIcon className="h-4 w-4" />
@@ -99,7 +99,7 @@ export default function DashboardPage() {
             </p>
             <Link
               href="/bounties/create"
-              className="inline-flex items-center gap-2 rounded-[24px] px-5 py-2.5 text-sm font-semibold text-white"
+              className="inline-flex items-center gap-2 rounded-[24px] px-5 py-2.5 text-sm font-semibold text-foreground"
               style={{ background: "var(--primary)" }}
             >
               <PlusIcon className="h-4 w-4" />

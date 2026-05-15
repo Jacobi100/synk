@@ -325,7 +325,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
               {isOwnBounty && bounty.status === "open" && (
                 <Link
                   href={`/bounties/${id}/applications`}
-                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5"
                   style={{ background: "var(--primary)" }}
                 >
                   <BriefcaseIcon className="h-4 w-4" /> {COPY.JOB_DETAIL.VIEW_HELPERS}
@@ -335,7 +335,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
               {isOwnBounty && bounty.status === "in_progress" && (
                 <Link
                   href={`/bounties/${id}/payment`}
-                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5"
+                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5"
                   style={{ background: "var(--primary)" }}
                 >
                   {COPY.JOB_DETAIL.MAKE_SAFE_PAYMENT}
@@ -368,7 +368,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
 
               {!isOwnBounty && bounty.status === "open" && (
                 <button
-                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="flex w-full items-center justify-center gap-2 rounded-[24px] px-4 py-2.5 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed"
                   style={{ background: "var(--primary)" }}
                   disabled={applyLoading}
                   onClick={handleApply}

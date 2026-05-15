@@ -415,7 +415,7 @@ export default function BountyCompletePage({ params }: CompletePageProps) {
             <button
               onClick={() => void handleMarkComplete()}
               disabled={!canComplete || isConfirming}
-              className="flex-1 flex items-center justify-center gap-2 rounded-[24px] py-3 text-sm font-semibold text-white transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
+              className="flex-1 flex items-center justify-center gap-2 rounded-[24px] py-3 text-sm font-semibold text-foreground transition-all hover:-translate-y-0.5 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0"
               style={{
                 backgroundColor: canComplete ? "var(--primary)" : "#9ca3af",
               }}
