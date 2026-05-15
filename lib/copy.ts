@@ -179,6 +179,7 @@ export const COPY = {
     CONFIRM_AND_PAY:      "Confirm Done & Pay",
     YOU_POSTED:           "You posted this job",
     NOT_TAKING_HELPERS:   "No longer accepting offers",
+    NEGOTIATE_PRICE:      "Negotiate Price",
     SHARE:                "Share",
     PAYMENT_INFO_TITLE:   "Your Money is Safe",
     PAYMENT_INFO_BODY:    "Your money is held here until you confirm the job is done.",

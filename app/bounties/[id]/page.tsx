@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, type ChangeEvent } from "react";
 import { useUser } from "@clerk/nextjs";
 import { Navbar } from "@/components/Navbar";
 import { Bounty } from "@/lib/types/bounty";
@@ -17,9 +17,12 @@ import {
   ArrowPathIcon,
   ArrowLeftIcon,
   CheckCircleIcon,
+  MinusIcon,
+  PlusIcon,
 } from "@heroicons/react/24/outline";
 import { formatDistanceToNow } from "date-fns";
 import NavigationMap from "@/components/map/NavigationMap";
+import { motion, AnimatePresence } from "framer-motion";
 
 type BountyDetail = Bounty & { poster_phone?: string | null; provider_phone?: string | null };
 
@@ -60,6 +63,35 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
   const [applyLoading, setApplyLoading] = useState(false);
   const [applyError, setApplyError]   = useState<string | null>(null);
   const [applySuccess, setApplySuccess] = useState(false);
+  const [negotiateOpen, setNegotiateOpen] = useState(false);
+  const [negotiatePrice, setNegotiatePrice] = useState<number>(0);
+
+  const STEP = 100;
+
+  const handleOpenNegotiate = () => {
+    setNegotiatePrice(bounty?.price_min ?? 0);
+    setNegotiateOpen(true);
+  };
+
+  const handleNegotiateDecrease = () => {
+    setNegotiatePrice(prev => Math.max(bounty?.price_min ?? 0, prev - STEP));
+  };
+
+  const handleNegotiateIncrease = () => {
+    setNegotiatePrice(prev => prev + STEP);
+  };
+
+  const handleNegotiateInput = (e: ChangeEvent<HTMLInputElement>) => {
+    const raw = e.target.value.replace(/[^0-9]/g, "");
+    if (raw === "") {
+      setNegotiatePrice(bounty?.price_min ?? 0);
+      return;
+    }
+    const num = parseInt(raw, 10);
+    if (!isNaN(num)) {
+      setNegotiatePrice(Math.max(bounty?.price_min ?? 0, num));
+    }
+  };
 
   useEffect(() => {
     const fetchBounty = async () => {
@@ -320,6 +352,65 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
                 </p>
               )}
             </div>
+
+            {bounty.price_negotiable && !isOwnBounty && bounty.status === "open" && (
+              <AnimatePresence initial={false}>
+                {!negotiateOpen ? (
+                  <motion.button
+                    key="negotiate-btn"
+                    onClick={handleOpenNegotiate}
+                    className="flex w-full items-center justify-center gap-2 rounded-[24px] border bg-background px-4 py-2.5 text-sm font-medium transition-all active:scale-[0.97]"
+                    style={{ borderColor: "var(--border)", color: "var(--muted-foreground)" }}
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                  >
+                    {COPY.JOB_DETAIL.NEGOTIATE_PRICE}
+                  </motion.button>
+                ) : (
+                  <motion.div
+                    key="negotiate-controls"
+                    initial={{ opacity: 0, y: -8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                    className="flex items-center gap-2"
+                  >
+                    <button
+                      onClick={handleNegotiateDecrease}
+                      disabled={negotiatePrice <= (bounty?.price_min ?? 0)}
+                      className="flex size-10 shrink-0 items-center justify-center rounded-full border bg-background text-base transition-all active:scale-[0.97] disabled:opacity-30 disabled:cursor-not-allowed"
+                      style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+                      aria-label="Decrease price"
+                    >
+                      <MinusIcon className="size-4" />
+                    </button>
+                    <div className="relative flex-1">
+                      <input
+                        type="text"
+                        inputMode="numeric"
+                        value={negotiatePrice.toLocaleString()}
+                        onChange={handleNegotiateInput}
+                        className="flex h-10 w-full rounded-[12px] border bg-background px-3 py-2 text-center text-sm font-semibold tabular-nums ring-offset-background transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                        style={{ borderColor: "var(--border)" }}
+                      />
+                      <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-medium text-mute">
+                        {bounty?.currency}
+                      </span>
+                    </div>
+                    <button
+                      onClick={handleNegotiateIncrease}
+                      className="flex size-10 shrink-0 items-center justify-center rounded-full border bg-background text-base transition-all active:scale-[0.97]"
+                      style={{ borderColor: "var(--border)", color: "var(--foreground)" }}
+                      aria-label="Increase price"
+                    >
+                      <PlusIcon className="size-4" />
+                    </button>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            )}
 
             <div className="space-y-2.5">
               {isOwnBounty && bounty.status === "open" && (
