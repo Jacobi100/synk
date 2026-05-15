@@ -424,7 +424,7 @@ export default function BountyDetailsPage({ params }: BountyDetailsPageProps) {
               <p className="text-xs font-medium uppercase tracking-wide text-primary">
                 {COPY.BUDGET}
               </p>
-              <h3 className="mt-1 text-2xl font-bold text-foreground whitespace-nowrap">
+              <h3 className="mt-1 text-2xl font-bold text-foreground">
                 {priceDisplay()}
               </h3>
               {bounty.price_negotiable && (
