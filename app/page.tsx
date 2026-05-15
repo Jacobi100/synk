@@ -82,9 +82,12 @@ export default function Home() {
             {/* Left: text content */}
             <div className="max-w-2xl">
               {user && (
-                <GlowingBadge variant="info" dot={false} className="mb-3">
-                  {COPY.HOME.WELCOME(user?.firstName)}
-                </GlowingBadge>
+                <div className="relative mb-3 inline-block">
+                  <GlowingBadge variant="info" dot={false} className="rounded-lg">
+                    {COPY.HOME.WELCOME(user?.firstName)}
+                  </GlowingBadge>
+                  <span className="absolute -bottom-1.5 left-3 h-2.5 w-2.5 bg-[#9fe870] rotate-45 rounded-sm" />
+                </div>
               )}
               <h1 className="text-5xl font-black leading-[0.85] tracking-tighter text-foreground md:text-7xl">
                 {COPY.HOME.HEADLINE}
@@ -138,7 +141,7 @@ export default function Home() {
                     </p>
                   )}
                 </div>
-                <Icon className="h-8 w-8 opacity-20" style={{ color: iconColor }} />
+                <Icon className="h-8 w-8 opacity-80" style={{ color: iconColor }} />
               </div>
             </div>
           ))}
@@ -149,7 +152,7 @@ export default function Home() {
       <div className="mx-auto max-w-7xl px-4 pb-10 sm:px-6 lg:px-8">
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="rounded-[24px] bg-background p-8">
-            <PlusIcon className="mb-4 h-10 w-10 opacity-70 text-primary" />
+            <PlusIcon className="mb-4 h-10 w-10 opacity-80 text-primary" />
             <h2 className="mb-2 text-xl font-bold text-foreground">
               {COPY.HOME.POST_A_JOB}
             </h2>
@@ -164,7 +167,7 @@ export default function Home() {
           </div>
 
           <div className="rounded-[24px] bg-background p-8">
-            <MagnifyingGlassIcon className="mb-4 h-10 w-10 opacity-20 text-primary" />
+            <MagnifyingGlassIcon className="mb-4 h-10 w-10 opacity-80 text-primary" />
             <h2 className="mb-2 text-xl font-bold text-foreground">
               {COPY.HOME.FIND_JOBS}
             </h2>

@@ -39,7 +39,7 @@ function AvatarPlaceholder({ name }: { name?: string | null }) {
         {initials}
       </div>
       <div className="absolute -bottom-1 -right-1">
-        <GlowingBadge variant="success" pulse={true} dot={true}>
+        <GlowingBadge variant="success" dot={true}>
           online
         </GlowingBadge>
       </div>

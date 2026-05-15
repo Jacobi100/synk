@@ -3,7 +3,11 @@
 import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { Bounty, CreateBountyInput } from "@/lib/types/bounty";
-import { ArrowPathIcon, MapPinIcon, CalendarDaysIcon, SparklesIcon } from "@heroicons/react/24/outline";
+import {
+  ArrowPathIcon, MapPinIcon, CalendarDaysIcon, SparklesIcon,
+  PencilIcon, DocumentTextIcon, TagIcon, PhotoIcon, CurrencyDollarIcon, ClockIcon, UserGroupIcon,
+  ChevronDownIcon,
+} from "@heroicons/react/24/outline";
 import { COPY } from "@/lib/copy";
 import { Button } from "@/components/ui/button";
 
@@ -32,11 +36,15 @@ const URGENCY_OPTIONS = [
 ];
 
 const inputBase =
-  "w-full rounded-[12px] border border-foreground bg-background px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-mute";
+  "w-full rounded-[24px] border bg-secondary px-3.5 py-2.5 text-sm outline-none transition-all placeholder:text-mute";
+const inputStyle = {
+  borderColor: "var(--border)",
+  color: "var(--foreground)",
+};
 
 function FieldLabel({ children }: { children: React.ReactNode }) {
   return (
-    <label className="mb-1.5 block text-sm font-semibold text-foreground">
+    <label className="mb-1.5 flex items-center gap-1.5 text-sm font-semibold text-foreground">
       {children}
     </label>
   );
@@ -44,12 +52,11 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 
 function SectionDivider({ title }: { title: string }) {
   return (
-    <div className="flex items-center gap-3 py-1">
-      <div className="h-px flex-1 bg-border" />
-      <span className="font-mono text-[11px] font-bold uppercase tracking-widest text-mute">
+    <div className="flex items-center gap-4 pt-8 pb-4">
+      <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
         {title}
       </span>
-      <div className="h-px flex-1 bg-border" />
+      <div className="h-px flex-1 bg-border/60" />
     </div>
   );
 }
@@ -213,42 +220,48 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
 
       {/* Title */}
       <div>
-        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_TITLE}</FieldLabel>
+        <FieldLabel><PencilIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_TITLE}</FieldLabel>
         <input
           type="text" name="title" value={formData.title} onChange={handleChange} required
           placeholder="What do you need done?"
           className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
+          style={inputStyle}
         />
       </div>
 
       {/* Description */}
       <div>
-        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_DESCRIPTION}</FieldLabel>
+        <FieldLabel><DocumentTextIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_DESCRIPTION}</FieldLabel>
         <textarea
           name="description" value={formData.description || ""} onChange={handleChange}
           placeholder="Provide detailed information about the task, requirements, and expectations…"
           rows={5} className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
+          style={inputStyle}
         />
       </div>
 
       {/* Category */}
       <div>
-        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_CATEGORY}</FieldLabel>
-        <select
-          name="category" value={formData.category} onChange={handleChange} required
-          className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
-        >
-          <option value="">Select a category</option>
-          {CATEGORIES.map((cat) => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
+        <FieldLabel><TagIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_CATEGORY}</FieldLabel>
+        <div className="relative">
+          <select
+            name="category" value={formData.category} onChange={handleChange} required
+            className={`${inputBase} appearance-none pr-10 focus:shadow-[0_0_0_2px_var(--ring)]`}
+            style={inputStyle}
+          >
+            <option value="">Select a category</option>
+            {CATEGORIES.map((cat) => (
+              <option key={cat} value={cat}>{cat}</option>
+            ))}
+          </select>
+          <ChevronDownIcon className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        </div>
       </div>
 
       {/* Photos */}
       <div>
-        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_IMAGES}</FieldLabel>
-        <div className="rounded-[12px] border border-dashed border-foreground/30 px-4 py-3 text-sm transition-colors hover:border-primary">
+        <FieldLabel><PhotoIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_IMAGES}</FieldLabel>
+        <div className="rounded-[24px] border border-dashed px-4 py-3 text-sm transition-colors" style={inputStyle}>
           <input
             type="file" accept="image/*" multiple
             onChange={(e) => setImageFiles(Array.from(e.target.files || []))}
@@ -268,7 +281,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <FieldLabel>
-            <MapPinIcon className="mr-1 inline h-3.5 w-3.5 text-mute" />
+            <MapPinIcon className="h-3.5 w-3.5 text-muted-foreground" />
             {COPY.BOUNTY_FORM.FIELD_LOCATION}
           </FieldLabel>
           <div className="flex gap-2">
@@ -276,25 +289,28 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
               type="text" name="location_name" value={formData.location_name || ""}
               onChange={handleChange} placeholder="e.g., Yaba, Lagos"
               className={`${inputBase} flex-1 focus:shadow-[0_0_0_2px_var(--ring)]`}
+              style={inputStyle}
             />
             <button
               type="button" onClick={handleUseMyLocation} disabled={locating}
-              className="flex shrink-0 items-center gap-1.5 rounded-[12px] border border-foreground bg-background px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary disabled:opacity-50"
+              className="flex shrink-0 items-center gap-1.5 rounded-[24px] border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary disabled:opacity-50"
+              style={inputStyle}
             >
               {locating ? <ArrowPathIcon className="h-4 w-4 animate-spin" /> : <MapPinIcon className="h-4 w-4" />}
               {locating ? "" : "GPS"}
             </button>
           </div>
-          <p className="mt-1 font-mono text-[11px] text-mute">
+          <p className="mt-1 text-xs text-muted-foreground">
             {formData.latitude.toFixed(5)}, {formData.longitude.toFixed(5)}
           </p>
         </div>
         <div>
-          <FieldLabel>Radius (km)</FieldLabel>
+          <FieldLabel><MapPinIcon className="h-3.5 w-3.5 text-muted-foreground" />Radius (km)</FieldLabel>
           <input
             type="number" name="radius_km" value={formData.radius_km}
             onChange={handleNumberChange} min={1}
             className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
+            style={inputStyle}
           />
         </div>
       </div>
@@ -302,7 +318,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       <SectionDivider title="Pricing" />
 
       <div>
-        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_PRICE}</FieldLabel>
+        <FieldLabel><CurrencyDollarIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_PRICE}</FieldLabel>
         <div className="grid gap-3 md:grid-cols-2">
           <div>
             <label className="mb-1 block text-xs text-muted-foreground">Minimum</label>
@@ -310,6 +326,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
               type="number" name="price_min" value={formData.price_min ?? ""}
               onChange={handleNumberChange} placeholder="0"
               className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
+              style={inputStyle}
             />
           </div>
           <div>
@@ -318,6 +335,7 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
               type="number" name="price_max" value={formData.price_max ?? ""}
               onChange={handleNumberChange} placeholder="0"
               className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
+              style={inputStyle}
             />
           </div>
         </div>
@@ -336,34 +354,40 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
       <div className="grid gap-4 md:grid-cols-2">
         <div>
           <FieldLabel>
-            <CalendarDaysIcon className="mr-1 inline h-3.5 w-3.5 text-mute" />
+            <CalendarDaysIcon className="h-3.5 w-3.5 text-muted-foreground" />
             {COPY.BOUNTY_FORM.FIELD_DEADLINE}
           </FieldLabel>
           <input
             type="datetime-local" name="deadline" value={formData.deadline || ""}
             onChange={handleChange}
             className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
+            style={inputStyle}
           />
         </div>
         <div>
-          <FieldLabel>{COPY.BOUNTY_FORM.FIELD_URGENCY}</FieldLabel>
-          <select
-            name="urgency" value={formData.urgency} onChange={handleChange}
-            className={`${inputBase} focus:shadow-[0_0_0_2px_var(--ring)]`}
-          >
-            {URGENCY_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>{opt.label}</option>
-            ))}
-          </select>
+          <FieldLabel><ClockIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_URGENCY}</FieldLabel>
+          <div className="relative">
+            <select
+              name="urgency" value={formData.urgency} onChange={handleChange}
+              className={`${inputBase} appearance-none pr-10 focus:shadow-[0_0_0_2px_var(--ring)]`}
+              style={inputStyle}
+            >
+              {URGENCY_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+            <ChevronDownIcon className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          </div>
         </div>
       </div>
 
       <div>
-        <FieldLabel>{COPY.BOUNTY_FORM.FIELD_SLOTS}</FieldLabel>
+        <FieldLabel><UserGroupIcon className="h-3.5 w-3.5 text-muted-foreground" />{COPY.BOUNTY_FORM.FIELD_SLOTS}</FieldLabel>
         <input
           type="number" name="slots_available" value={formData.slots_available}
           onChange={handleNumberChange} min={1}
           className={`${inputBase} max-w-[10rem] focus:shadow-[0_0_0_2px_var(--ring)]`}
+          style={inputStyle}
         />
         <p className="mt-1 text-xs text-mute">
           How many providers can be selected for this bounty.
