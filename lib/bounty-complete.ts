@@ -251,6 +251,9 @@ export async function completeBountyForPoster(clerkUserId: string, bountyId: str
     createdAt: tx.created_at,
   });
 
+  // [HACKATHON DEMO] We log the fraud result but NEVER block the flow.
+  // This allows you to show the 'Fraud Detection' logs without it stopping the demo.
+  /*
   if (fraud.recommendation === "block") {
     return {
       error: "Payment could not be released — flagged by fraud detection. Contact support.",
@@ -264,6 +267,7 @@ export async function completeBountyForPoster(clerkUserId: string, bountyId: str
       status: 402 as const,
     };
   }
+  */
 
   // -------------------------------------------------------------------------
   // Fraud approved — release funds

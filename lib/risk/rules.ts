@@ -209,16 +209,15 @@ export const checkSelfDealing: RuleFunction = (
 // ---------------------------------------------------------------------------
 
 const CATEGORY_PRICE_CEILINGS: Partial<Record<ServiceCategory, number>> = {
-  "Home Repairs & Technical Services": 250_000,
-  "Delivery & Transport":              60_000,
-  "Market & Manual Help":              30_000,
-  "Recycling & Waste Pickup":          25_000,
-  "Cleaning & Laundry":                35_000,
-  "Beauty & Personal Care":            60_000,
-  "Food & Catering":                   120_000,
-  "Tutoring & Learning":               60_000,
-  "Errands & Personal Assistance":     25_000,
-  // "Other Services" intentionally omitted — no ceiling applied
+  "House Maintenance & Repairs":     250_000,
+  "Delivery & Running Around":       60_000,
+  "Cleaning & Laundry":              35_000,
+  "Shopping & Errands":              25_000,
+  "Yard Work & Landscaping":         45_000,
+  "House Sitting & Pet Care":        40_000,
+  "Local Marketing & Distribution":  80_000,
+  "Domestic Help & Chores":          30_000,
+  "Other Tasks":                     100_000,
 };
 
 export const checkPriceCategoryMismatch: RuleFunction = (
