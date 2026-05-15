@@ -510,15 +510,21 @@ export function BountyForm({ bounty, onSubmit }: BountyFormProps) {
               type="button"
               onClick={handleUseMyLocation}
               disabled={locating}
-              className="flex shrink-0 items-center gap-1.5 rounded-[24px] border px-3 py-2.5 text-sm font-semibold text-foreground transition-colors hover:bg-secondary disabled:opacity-50"
-              style={inputStyle}
+              className={`flex shrink-0 items-center gap-1.5 rounded-[24px] px-4 py-2.5 text-sm font-semibold transition-all ${
+                locating
+                  ? "bg-primary/20 text-primary"
+                  : "border bg-background text-foreground hover:bg-primary/10 hover:border-primary/50"
+              } disabled:opacity-50`}
+              title="Get my current location"
             >
               {locating ? (
                 <ArrowPathIcon className="h-4 w-4 animate-spin" />
               ) : (
                 <MapPinIcon className="h-4 w-4" />
               )}
-              {locating ? "" : "GPS"}
+              <span className="whitespace-nowrap">
+                {locating ? "Locating..." : "GPS"}
+              </span>
             </button>
           </div>
           <p className="mt-1 text-xs text-muted-foreground">

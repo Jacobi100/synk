@@ -65,10 +65,10 @@ export function BountyCard({ bounty }: BountyCardProps) {
       <div
         ref={cardRef}
         onMouseMove={handleMouseMove}
-        className="group relative flex h-full cursor-pointer flex-col overflow-hidden rounded-[24px] bg-background p-6 transition-all duration-200 hover:-translate-y-0.5"
+        className="relative flex h-full cursor-pointer flex-col overflow-hidden rounded-[24px] bg-background p-6 transition-all duration-200"
       >
         <div
-          className="pointer-events-none absolute inset-0 rounded-[24px] opacity-0 transition-opacity duration-300 group-hover:opacity-100"
+          className="pointer-events-none absolute inset-0 rounded-[24px] opacity-0 transition-opacity duration-300"
           style={{
             background:
               "radial-gradient(300px circle at var(--mouse-x,50%) var(--mouse-y,50%), var(--primary-pale), transparent 60%)",
@@ -77,7 +77,7 @@ export function BountyCard({ bounty }: BountyCardProps) {
 
         <div className="mb-3 flex items-start justify-between gap-3">
           <div className="min-w-0 flex-1">
-            <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug text-foreground transition-colors group-hover:text-[var(--primary)]">
+            <h3 className="line-clamp-2 text-[15px] font-semibold leading-snug text-foreground transition-colors">
               {bounty.title}
             </h3>
             <p className="mt-0.5 text-[13px] text-muted-foreground">

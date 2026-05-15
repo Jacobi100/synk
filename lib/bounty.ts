@@ -7,6 +7,7 @@ import {
   TransactionRow,
 } from "@/lib/types/bounty";
 import { supabaseAdmin } from "./supabase/server";
+import { calculateTrustProfile } from "./trust/calculator";
 import { haversineDistanceMeters } from "./geo";
 
 const db = supabaseAdmin;
@@ -552,5 +553,78 @@ export async function createReview(input: {
     console.error("createReview:", error);
     return false;
   }
+
+  try {
+    // Recalculate average rating and rating count for provider
+    const { data: agg } = await db
+      .from("reviews")
+      .select("rating", { count: "exact", head: false });
+
+    // Use SQL aggregation for accurate avg/count
+    const { data: stats } = await db.rpc("__pg_avg_rating_count", { p_provider_id: input.provider_id }).then(r => ({ data: r.data, error: r.error }));
+
+    // Fallback if RPC not available: compute via simple query
+    let avg: number | null = null;
+    let count: number = 0;
+    if (stats && stats.length > 0 && stats[0].avg_rating != null) {
+      avg = Number(stats[0].avg_rating);
+      count = Number(stats[0].rating_count) || 0;
+    } else {
+      const { data: agg2, error: aErr } = await db
+        .from("reviews")
+        .select("rating", { count: "exact", head: false });
+      if (!aErr && Array.isArray(agg2)) {
+        count = agg2.length;
+        if (count > 0) {
+          avg = agg2.reduce((s: number, r: any) => s + Number(r.rating || 0), 0) / count;
+        }
+      }
+    }
+
+    // Persist average rating and rating count on profile
+    await db.from("profiles").update({ average_rating: avg ?? null, rating_count: count }).eq("id", input.provider_id);
+
+    // Recompute fuller trust profile and persist (best-effort)
+    // Gather transaction stats similar to reputation update
+    const { data: txRows } = await db.from("transactions").select("id, poster_id, status").eq("provider_id", input.provider_id);
+    const txs = (txRows as any[]) || [];
+    const completed = txs.filter(t => t.status === "released").length;
+    const disputed = txs.filter(t => t.status === "disputed").length;
+    const total = txs.length;
+    const completionRate = total > 0 ? completed / total : 0;
+    const uniqueBuyerIds = [...new Set(txs.map(t => t.poster_id))];
+    const totalUniqueBuyers = uniqueBuyerIds.length;
+    const buyerCounts = txs.reduce<Record<string, number>>((acc, t) => { acc[t.poster_id] = (acc[t.poster_id] ?? 0) + 1; return acc; }, {});
+    const repeatBuyerCount = Object.values(buyerCounts).filter(c => c > 1).length;
+    const repeatBuyerRatio = totalUniqueBuyers > 0 ? repeatBuyerCount / totalUniqueBuyers : 0;
+
+    const { count: fraudFlags } = await db.from("fraud_alerts").select("id", { count: "exact", head: true }).eq("provider_id", input.provider_id);
+
+    const { data: profileRow } = await db.from("profiles").select("created_at").eq("id", input.provider_id).single();
+    const accountAgeDays = profileRow
+      ? Math.floor((Date.now() - new Date(profileRow.created_at).getTime()) / (1000 * 60 * 60 * 24))
+      : 0;
+
+    const profileStats = {
+      providerId: input.provider_id,
+      completedJobs: completed,
+      completionRate,
+      totalUniqueBuyers,
+      repeatBuyerCount,
+      repeatBuyerRatio,
+      disputeCount: disputed,
+      fraudFlags: fraudFlags ?? 0,
+      averageResponseTimeMinutes: 60,
+      accountAgeDays,
+      averageRating: Number(avg ?? 0),
+      ratingCount: Number(count ?? 0),
+    } as any;
+
+    const trust = calculateTrustProfile(profileStats);
+    await db.from("profiles").update({ trust_badge: trust.badge, trust_score: trust.trustScore, trust_signals: trust.signals, trust_computed_at: trust.computedAt }).eq("id", input.provider_id);
+  } catch (err) {
+    console.warn("Failed to update provider rating/trust after review:", err);
+  }
+
   return true;
 }
