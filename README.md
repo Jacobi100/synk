@@ -9,7 +9,7 @@ Synk lets anyone post or find a service job by speaking or typing in Yoruba, Igb
 ## How It Works
 
 ```
-Client posts a job (bounty) with location, budget, and description
+Client posts a job with location, budget, and description
         │
         ▼
 Nearby providers discover the job via map or feed
