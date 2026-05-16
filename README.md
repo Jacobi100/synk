@@ -1,10 +1,8 @@
 # Synk
 
-> Post a job. Get help nearby. Money stays safe until the work is done.
+Synk is a peer-to-peer service marketplace built for Nigeria's informal economy. It connects buyers who need everyday services with skilled providers nearby.
 
-Synk is an intelligent bounty marketplace that connects people who need work done with skilled professionals in their area. Built for the **Squad Hackathon 3.0** — *Smart Systems: The Intelligent Economy*.
-
-It solves a real problem: millions of informal workers and small businesses in Nigeria operate outside formal economic systems. There's no trust layer. No payment safety net. No way to verify who you're hiring. Synk changes that with AI-powered trust scoring, escrow payments via Squad, and location-based job matching.
+Synk lets anyone post or find a service job by speaking or typing in Yoruba, Igbo, Hausa, Pidgin, or English. AI structures the service listing, our escrow system (courtesy of Squad API) protects the payment, GPS guides the provider, and our fraud detection plus reputation scoring make every stranger safe to transact with.
 
 ---
 
