@@ -207,10 +207,10 @@ export async function squadCreateVirtualAccount(
     const data = (raw.data ?? raw) as Record<string, unknown>;
     const virtualAccountNumber = String(
       data.virtual_account_number ??
-        data.account_number ??
-        data.accountNumber ??
-        data.reserved_account_number ??
-        "",
+      data.account_number ??
+      data.accountNumber ??
+      data.reserved_account_number ??
+      "",
     );
     if (!virtualAccountNumber) {
       console.error("Squad VA: missing account number in response", raw);
@@ -320,7 +320,7 @@ export async function squadSimulatePayment(
   }
 }
 
-const FALLBACK_BANKS: { name: string; code: string }[] = [
+export const FALLBACK_BANKS: { name: string; code: string }[] = [
   { name: "Access Bank", code: "044" },
   { name: "Access Bank (Diamond)", code: "063" },
   { name: "Carbon", code: "565" },
@@ -363,30 +363,7 @@ const FALLBACK_BANKS: { name: string; code: string }[] = [
 export async function squadGetBankList(): Promise<
   { name: string; code: string }[]
 > {
-  const secret = squadSecret();
-  if (!secret) {
-    console.log("[MOCK SQUAD] Returning fallback bank list");
-    return FALLBACK_BANKS;
-  }
-  try {
-    const res = await fetch(`${SQUAD_BASE}/bank`, {
-      headers: squadHeaders(secret),
-    });
-    if (!res.ok) {
-      console.error("Squad bank list error:", res.status, "- using fallback");
-      return FALLBACK_BANKS;
-    }
-    const raw = (await res.json()) as Record<string, unknown>;
-    const data = (raw.data ?? []) as { name: string; code: string }[];
-    if (data.length === 0) {
-      console.warn("[SQUAD] Empty bank list from API - using fallback");
-      return FALLBACK_BANKS;
-    }
-    return data;
-  } catch (e) {
-    console.error("Squad bank list exception:", e, "- using fallback");
-    return FALLBACK_BANKS;
-  }
+  return FALLBACK_BANKS;
 }
 
 export async function squadResolveAccountName(

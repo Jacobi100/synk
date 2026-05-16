@@ -19,6 +19,7 @@ import {
 import { Logo } from "@/components/Logo";
 import { Hashvatar } from "hashvatar/react";
 import { padBankCode } from "@/lib/nuban";
+import { FALLBACK_BANKS } from "@/lib/squad";
 
 const STEPS = [COPY.ONBOARDING.STEP_ACCOUNT, COPY.ONBOARDING.STEP_PROFILE, COPY.ONBOARDING.STEP_DONE];
 
@@ -81,7 +82,7 @@ export default function OnboardingPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [accountNumber, setAccountNumber] = useState("");
-  const [bankList, setBankList] = useState<{ name: string; code: string }[]>([]);
+  const [bankList, setBankList] = useState<{ name: string; code: string }[]>(FALLBACK_BANKS);
   const [selectedBankCode, setSelectedBankCode] = useState("");
   const [accountName, setAccountName] = useState<string | null>(null);
   const [verifyingAccount, setVerifyingAccount] = useState(false);
@@ -124,16 +125,6 @@ export default function OnboardingPage() {
     router.push("/");
   };
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const res = await fetch("/api/banks");
-        const data = await res.json();
-        const banks = data.banks ?? [];
-        setBankList(banks);
-      } catch { /* silent */ }
-    })();
-  }, []);
 
   useEffect(() => {
     if (!selectedBankCode || accountNumber.length !== 10) {
@@ -156,11 +147,11 @@ export default function OnboardingPage() {
           setAccountError("");
         } else {
           setAccountName(null);
-          setAccountError("Could not resolve account name. Check the bank and account number.");
+          // setAccountError("Could not resolve account name. Check the bank and account number.");
         }
       } catch {
         setAccountName(null);
-        setAccountError("Could not verify account. Please try again.");
+        // setAccountError("Could not verify account. Please try again.");
       } finally {
         setVerifyingAccount(false);
       }

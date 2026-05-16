@@ -21,7 +21,7 @@ export default function SignInPage() {
            <h1 className="text-5xl font-black leading-[1.15] tracking-tighter text-white md:text-6xl">
              Find jobs.
              <br />
-             Find helpers.
+             Find service providers.
              <br />
              Get it done.
            </h1>
